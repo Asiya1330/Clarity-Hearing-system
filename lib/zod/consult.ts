@@ -22,4 +22,21 @@ export const ConsultInputSchema = z.object({
   listeningSituations: z.array(ListeningSituationSchema).max(3).optional(),
 });
 
+export const ConsultMetaSchema = z.object({
+  patientName: z
+    .string()
+    .trim()
+    .max(120, "Patient name must be 120 characters or fewer.")
+    .optional(),
+  consultDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format.")
+    .refine((v) => !isNaN(Date.parse(v)), "Invalid date."),
+  isFollowUp: z.boolean().default(false),
+});
+
+export const FullConsultBodySchema = ConsultInputSchema.merge(ConsultMetaSchema);
+
 export type ConsultInput = z.infer<typeof ConsultInputSchema>;
+export type ConsultMeta = z.infer<typeof ConsultMetaSchema>;
+export type FullConsultBody = z.infer<typeof FullConsultBodySchema>;

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const adminNav = [
@@ -16,6 +17,14 @@ export default function AdminLayout({
       <div className="rounded-lg bg-brand-navy px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-8">
+            <Image
+              src="/brand/oviz-by-otovantage-logo.png"
+              alt="OViz by OtoVantage"
+              width={120}
+              height={32}
+              className="object-contain"
+              priority
+            />
             <span className="font-semibold text-brand-white">OViz Admin</span>
             <nav className="flex gap-6">
               {adminNav.map((link) => (

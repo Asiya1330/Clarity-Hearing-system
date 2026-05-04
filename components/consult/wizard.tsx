@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { buildPayload } from "./payload";
 import {
@@ -14,32 +14,26 @@ import {
   StepPartnerImpact,
   isPartnerStepValid,
 } from "./step-partner-impact";
+import { StepPatient, isPatientStepValid } from "./step-patient";
 import { StepPatientSliders } from "./step-patient-sliders";
 import { StepReview } from "./step-review";
 import { StepProgress } from "./step-progress";
-import { STEPS, type StepId, type WizardState } from "./types";
-
-const initialState: WizardState = {
-  pta: null,
-  wrs: null,
-  durationYears: null,
-  fatigue: 5,
-  avoidNoise: 5,
-  repeats: 5,
-  tvVolume: 5,
-  conversation: 5,
-  partnerRepeatsPerDay: null,
-  partnerParticipated: false,
-  partnerFrustration: 5,
-  partnerAvoidance: 5,
-  partnerSocialImpact: 5,
-  listeningSituations: [],
-};
+import {
+  STEPS,
+  type StepId,
+  type WizardState,
+  getDefaultWizardState,
+  localDateString,
+} from "./types";
 
 export function ConsultWizard() {
   const router = useRouter();
-  const [step, setStep] = useState<StepId>("clinician");
-  const [state, setState] = useState<WizardState>(initialState);
+  const [step, setStep] = useState<StepId>("patient");
+  const [state, setState] = useState<WizardState>(getDefaultWizardState);
+
+  useEffect(() => {
+    setState((s) => ({ ...s, consultDate: s.consultDate || localDateString() }));
+  }, []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -56,6 +50,8 @@ export function ConsultWizard() {
 
   const canContinue = (() => {
     switch (step) {
+      case "patient":
+        return isPatientStepValid(state);
       case "clinician":
         return isClinicianStepValid(state);
       case "partner":
@@ -77,7 +73,12 @@ export function ConsultWizard() {
     setIsSubmitting(true);
     setErrorMessage(null);
     try {
-      const payload = buildPayload(state);
+      const payload = {
+        ...buildPayload(state),
+        patientName: state.patientName.trim() || undefined,
+        consultDate: state.consultDate,
+        isFollowUp: state.isFollowUp,
+      };
       const res = await fetch("/api/consults", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,8 +87,7 @@ export function ConsultWizard() {
       const data = await res.json();
       if (!res.ok) {
         setErrorMessage(
-          data?.error ??
-            "We could not save the consult. Please try again.",
+          data?.error ?? "We could not save the consult. Please try again.",
         );
         setIsSubmitting(false);
         return;
@@ -104,6 +104,9 @@ export function ConsultWizard() {
       <StepProgress current={step} />
 
       <div>
+        {step === "patient" ? (
+          <StepPatient state={state} update={update} />
+        ) : null}
         {step === "clinician" ? (
           <StepClinicianInputs state={state} update={update} />
         ) : null}

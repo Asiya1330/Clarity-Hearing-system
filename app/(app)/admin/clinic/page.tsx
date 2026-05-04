@@ -2,11 +2,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
+import { BackLink } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
 const UpdateClinicSchema = z.object({
   name: z.string().min(1).max(200),
+  report_footer: z.string().max(500).optional(),
 });
 
 interface PageProps {
@@ -53,11 +55,11 @@ async function AdminClinicBody({ searchParams }: PageProps) {
 
   const { data: clinicRow } = await supabase
     .from("clinics")
-    .select("name")
+    .select("name, report_footer")
     .eq("id", clinicId)
     .maybeSingle();
 
-  const clinic = clinicRow as { name?: string } | null;
+  const clinic = clinicRow as { name?: string; report_footer?: string | null } | null;
 
   async function updateClinic(formData: FormData) {
     "use server";
@@ -85,9 +87,10 @@ async function AdminClinicBody({ searchParams }: PageProps) {
     }
     const clinicId = profile.clinic_id as string;
 
+    const footerRaw = formData.get("report_footer") as string | null;
     const parsed = UpdateClinicSchema.safeParse({
       name: formData.get("name") ?? "",
-      report_footer: formData.get("report_footer") ?? "",
+      report_footer: footerRaw?.trim() || undefined,
     });
     if (!parsed.success) {
       redirect("/admin/clinic?error=invalid");
@@ -95,7 +98,10 @@ async function AdminClinicBody({ searchParams }: PageProps) {
 
     const { error: updateError } = await supabase
       .from("clinics")
-      .update({ name: parsed.data.name })
+      .update({
+        name: parsed.data.name,
+        report_footer: parsed.data.report_footer ?? null,
+      })
       .eq("id", clinicId);
 
     if (updateError) {
@@ -112,11 +118,11 @@ async function AdminClinicBody({ searchParams }: PageProps) {
 
   return (
     <div className="flex flex-col gap-6">
+      <BackLink href="/admin" />
       <header>
         <h1 className="text-2xl font-bold text-brand-navy">Clinic settings</h1>
         <p className="mt-1 text-sm text-brand-slate">
-          Update your clinic name and the footer text printed on all OViz
-          reports.
+          Update clinic name and report footer. Both appear on all OViz reports.
         </p>
       </header>
 
@@ -148,7 +154,7 @@ async function AdminClinicBody({ searchParams }: PageProps) {
             htmlFor="clinic-name"
             className="text-sm font-medium text-brand-navy"
           >
-            Clinic name
+            Clinic name <span className="text-destructive">*</span>
           </label>
           <input
             id="clinic-name"
@@ -158,6 +164,28 @@ async function AdminClinicBody({ searchParams }: PageProps) {
             defaultValue={clinic?.name ?? ""}
             maxLength={200}
             className="rounded-md border border-brand-slate/30 px-3 py-2 text-sm text-brand-navy placeholder-brand-slate/60 focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="report-footer"
+            className="text-sm font-medium text-brand-navy"
+          >
+            Report footer
+          </label>
+          <p className="text-xs text-brand-slate">
+            Appears at the bottom of every OViz report — clinic address, phone,
+            or custom text. Max 500 characters.
+          </p>
+          <textarea
+            id="report-footer"
+            name="report_footer"
+            rows={3}
+            defaultValue={clinic?.report_footer ?? ""}
+            maxLength={500}
+            placeholder="e.g. 123 Main St, Vancouver, BC · (604) 555-0100"
+            className="rounded-md border border-brand-slate/30 px-3 py-2 text-sm text-brand-navy placeholder-brand-slate/40 focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
           />
         </div>
 

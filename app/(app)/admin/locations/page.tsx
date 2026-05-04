@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
+import { BackLink } from "@/components/BackLink";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
@@ -124,6 +125,7 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
 
   return (
     <div className="flex flex-col gap-6">
+      <BackLink href="/admin" />
       <header>
         <h1 className="text-2xl font-bold text-brand-navy">Locations</h1>
         <p className="mt-1 text-sm text-brand-slate">

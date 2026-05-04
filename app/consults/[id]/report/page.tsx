@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Suspense } from "react";
+import { BackLink } from "@/components/BackLink";
 import { PrintButton } from "@/components/report/print-button";
 import type {
   ImpactOutputs,
@@ -62,7 +63,9 @@ async function ReportBody({ params }: PageProps) {
 
   const { data: consult, error: consultError } = await supabase
     .from("consults")
-    .select("id, patient_reference, photo_consent, clinic_id, created_at")
+    .select(
+      "id, patient_reference, patient_name, consult_date, is_follow_up, photo_consent, clinic_id, created_at",
+    )
     .eq("id", id)
     .maybeSingle();
 
@@ -72,10 +75,12 @@ async function ReportBody({ params }: PageProps) {
 
   const { data: clinic } = await supabase
     .from("clinics")
-    .select("name")
+    .select("name, report_footer")
     .eq("id", consult.clinic_id)
     .maybeSingle();
   const clinicName = clinic?.name ?? "Your clinic";
+  const reportFooter = (clinic as { report_footer?: string | null } | null)
+    ?.report_footer;
 
   const showPhotosSection = consult.photo_consent === true;
   let photos: PhotoUrl[] = [];
@@ -106,10 +111,18 @@ async function ReportBody({ params }: PageProps) {
   const outputs = modelRun.outputs as ImpactOutputs;
   const modelVersion = modelRun.model_version ?? outputs.modelVersion;
 
+  const displayName =
+    (consult as { patient_name?: string | null }).patient_name ||
+    consult.patient_reference ||
+    null;
+  const displayDate = (consult as { consult_date?: string | null }).consult_date;
+  const isFollowUp = (consult as { is_follow_up?: boolean | null }).is_follow_up ?? false;
+
   return (
     <main className="bg-brand-white min-h-screen text-brand-navy print:bg-white">
       <div className="mx-auto max-w-[820px] px-8 py-10 print:px-0 print:py-0">
-        <div className="mb-6 flex justify-end print:hidden">
+        <div className="mb-6 flex items-center justify-between print:hidden">
+          <BackLink href={`/consults/${id}`} />
           <PrintButton />
         </div>
 
@@ -118,20 +131,35 @@ async function ReportBody({ params }: PageProps) {
             <p className="text-xs uppercase tracking-[0.2em] text-brand-slate">
               {clinicName}
             </p>
-            <h1 className="text-3xl font-bold text-brand-navy" data-testid="report-title">
+            <h1
+              className="text-3xl font-bold text-brand-navy"
+              data-testid="report-title"
+            >
               OViz Hearing Impact Summary
             </h1>
             <p className="text-sm text-brand-slate">
               Prepared by {clinicName} using OViz by OtoVantage.
             </p>
-            {consult.patient_reference ? (
-              <p className="mt-2 text-sm text-brand-slate">
-                Patient reference:{" "}
-                <span className="text-brand-navy">
-                  {consult.patient_reference}
+            <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-brand-slate">
+              {displayName && (
+                <span>
+                  <span className="font-medium text-brand-navy">Patient:</span>{" "}
+                  {displayName}
                 </span>
-              </p>
-            ) : null}
+              )}
+              {displayDate && (
+                <span>
+                  <span className="font-medium text-brand-navy">Date:</span>{" "}
+                  {new Date(displayDate + "T00:00:00").toLocaleDateString()}
+                </span>
+              )}
+              <span>
+                <span className="font-medium text-brand-navy">
+                  Follow-up visit:
+                </span>{" "}
+                {isFollowUp ? "Yes" : "No"}
+              </span>
+            </div>
           </div>
           <Image
             src="/brand/oviz-by-otovantage-logo.png"
@@ -213,8 +241,14 @@ async function ReportBody({ params }: PageProps) {
           </p>
         </Section>
 
-        <footer className="mt-12 border-t border-brand-slate/30 pt-6 text-center text-xs text-brand-slate" data-testid="report-footer">
-          Generated with OViz by OtoVantage.
+        <footer
+          className="mt-12 border-t border-brand-slate/30 pt-6 text-center text-xs text-brand-slate"
+          data-testid="report-footer"
+        >
+          {reportFooter ? (
+            <p className="mb-1 whitespace-pre-line">{reportFooter}</p>
+          ) : null}
+          <p>Generated with OViz by OtoVantage.</p>
         </footer>
       </div>
     </main>

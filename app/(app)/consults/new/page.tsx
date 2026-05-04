@@ -1,8 +1,10 @@
+import { BackLink } from "@/components/BackLink";
 import { ConsultWizard } from "@/components/consult/wizard";
 
 export default function NewConsultPage() {
   return (
     <div className="flex flex-col gap-6">
+      <BackLink href="/dashboard" />
       <header>
         <h1 className="text-3xl font-bold text-brand-navy">New consult</h1>
         <p className="mt-2 text-brand-slate">

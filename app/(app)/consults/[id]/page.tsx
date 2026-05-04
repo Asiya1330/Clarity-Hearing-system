@@ -2,6 +2,7 @@ import { Printer } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { BackLink } from "@/components/BackLink";
 import { ResultsDashboard } from "@/components/consult/results-dashboard";
 import { EarFitPhotos, type ExistingPhoto } from "@/components/EarFitPhotos";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,9 @@ async function ConsultBody({ params }: PageProps) {
 
   const { data: consult } = await supabase
     .from("consults")
-    .select("clinic_id, photo_consent")
+    .select(
+      "clinic_id, photo_consent, patient_name, consult_date, is_follow_up",
+    )
     .eq("id", id)
     .maybeSingle();
 
@@ -99,27 +102,56 @@ async function ConsultBody({ params }: PageProps) {
     }
   }
 
+  const patientName = (consult as { patient_name?: string | null } | null)
+    ?.patient_name;
+  const consultDate = (consult as { consult_date?: string | null } | null)
+    ?.consult_date;
+  const isFollowUp = (consult as { is_follow_up?: boolean | null } | null)
+    ?.is_follow_up;
+
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-brand-navy">
-            Consult results
-          </h1>
-          <p className="mt-2 text-brand-slate">
-            Educational projection based on the saved inputs for this consult.
-          </p>
-        </div>
+      <div className="flex items-center justify-between gap-4">
+        <BackLink href="/dashboard" />
         <Button
           asChild
           className="h-11 bg-brand-teal px-5 text-brand-white hover:bg-brand-teal/90"
+          data-testid="open-oviz-report-button"
         >
           <Link href={`/consults/${id}/report`}>
             <Printer className="h-4 w-4" />
-            Open report
+            Open OViz Report
           </Link>
         </Button>
+      </div>
+
+      <header>
+        <h1 className="text-3xl font-bold text-brand-navy">Consult results</h1>
+        <p className="mt-2 text-brand-slate">
+          Educational projection based on the saved inputs for this consult.
+        </p>
+        {(patientName || consultDate) && (
+          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-brand-slate">
+            {patientName && (
+              <span>
+                <span className="font-medium text-brand-navy">Patient:</span>{" "}
+                {patientName}
+              </span>
+            )}
+            {consultDate && (
+              <span>
+                <span className="font-medium text-brand-navy">Date:</span>{" "}
+                {new Date(consultDate + "T00:00:00").toLocaleDateString()}
+              </span>
+            )}
+            <span>
+              <span className="font-medium text-brand-navy">Follow-up:</span>{" "}
+              {isFollowUp ? "Yes" : "No"}
+            </span>
+          </div>
+        )}
       </header>
+
       <ResultsDashboard outputs={outputs} />
       <EarFitPhotos
         consultId={id}

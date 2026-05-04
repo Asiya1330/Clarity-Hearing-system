@@ -1,7 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { calculateImpact } from "@/lib/calculators/impact";
 import { createClient } from "@/lib/supabase/server";
-import { ConsultInputSchema } from "@/lib/zod/consult";
+import {
+  ConsultInputSchema,
+  FullConsultBodySchema,
+} from "@/lib/zod/consult";
 
 const ACTIVE_SUBSCRIPTION_STATUSES = ["trialing", "active"] as const;
 
@@ -76,7 +79,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const parsed = ConsultInputSchema.safeParse(body);
+  // Validate all fields (clinical + patient meta) in one pass.
+  const parsed = FullConsultBodySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       {
@@ -90,7 +94,18 @@ export async function POST(request: NextRequest) {
       { status: 422 },
     );
   }
-  const inputs = parsed.data;
+
+  const { patientName, consultDate, isFollowUp } = parsed.data;
+
+  // Extract clinical inputs for the impact calculator.
+  const clinicalParsed = ConsultInputSchema.safeParse(parsed.data);
+  if (!clinicalParsed.success) {
+    return NextResponse.json(
+      { error: "Clinical inputs are invalid." },
+      { status: 422 },
+    );
+  }
+  const inputs = clinicalParsed.data;
 
   const { data: consult, error: consultError } = await supabase
     .from("consults")
@@ -98,12 +113,18 @@ export async function POST(request: NextRequest) {
       clinic_id: clinicId,
       clinician_id: user.id,
       status: "completed",
+      patient_name: patientName ?? null,
+      consult_date: consultDate,
+      is_follow_up: isFollowUp,
     })
     .select("id")
     .single();
 
   if (consultError || !consult) {
-    console.error("consults.insert failed", { clinicId, code: consultError?.code });
+    console.error("consults.insert failed", {
+      clinicId,
+      code: consultError?.code,
+    });
     return NextResponse.json(
       { error: "We could not start the consult. Please try again." },
       { status: 500 },
@@ -139,7 +160,6 @@ export async function POST(request: NextRequest) {
   });
 
   if (auditError) {
-    // Audit log failure is logged but does not roll back the consult.
     console.error("audit_logs.insert failed", {
       clinicId,
       consultId: consult.id,
@@ -147,8 +167,5 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  return NextResponse.json(
-    { consultId: consult.id, outputs },
-    { status: 201 },
-  );
+  return NextResponse.json({ consultId: consult.id, outputs }, { status: 201 });
 }

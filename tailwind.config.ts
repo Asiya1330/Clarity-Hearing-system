@@ -10,7 +10,20 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        heading: [
+          "var(--font-montserrat)",
+          "var(--font-inter)",
+          "system-ui",
+          "sans-serif",
+        ],
+      },
       colors: {
+        "brand-navy": "#002147",
+        "brand-teal": "#008B8B",
+        "brand-slate": "#708090",
+        "brand-white": "#FFFFFF",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

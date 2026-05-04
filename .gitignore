@@ -40,3 +40,25 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/tests/.auth/
+
+# Keys and secrets
+*.key
+secrets/
+
+# MCP config (contains OAuth tokens — never commit)
+.mcp.json
+.mcp.local.json
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/oauth/
+.claude/tokens/

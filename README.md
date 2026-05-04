@@ -1,109 +1,122 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# OViz by OtoVantage
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+Evidence-informed educational consult aid for hearing care providers. Built with Next.js 15 App Router, Supabase, and Tailwind CSS.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## Quick start
 
-## Features
+```bash
+cp .env.example .env.local
+# fill in NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, and Sentry vars
+npm install
+npm run dev          # http://localhost:3000
+```
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+## Scripts
 
-## Demo
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Next.js dev server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint on `app components lib tests` |
+| `npm run test` | Vitest unit tests |
+| `npx playwright test` | E2E test suite (requires dev server) |
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+## Environment variables
 
-## Deploy to Vercel
+Copy `.env.example` to `.env.local` and fill in all values. Never commit `.env.local`.
 
-Vercel deployment will guide you through creating a Supabase account and project.
+| Variable | Required | Description |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | Supabase anon/publishable key |
+| `SUPABASE_SERVICE_ROLE_KEY` | E2E tests only | Service role key — never expose to browser |
+| `NEXT_PUBLIC_SENTRY_DSN` | Yes | Sentry DSN for client-side error capture |
+| `SENTRY_DSN` | Yes | Sentry DSN for server-side error capture |
+| `SENTRY_ORG` | CI only | Sentry org slug for source-map upload |
+| `SENTRY_PROJECT` | CI only | Sentry project slug |
+| `SENTRY_AUTH_TOKEN` | CI only | Sentry auth token for source-map upload |
+| `E2E_PRO_EMAIL` | E2E tests | Pro-clinic test user email |
+| `E2E_PRO_PASSWORD` | E2E tests | Pro-clinic test user password |
+| `E2E_STARTER_EMAIL` | E2E tests | Starter-clinic test user email |
+| `E2E_STARTER_PASSWORD` | E2E tests | Starter-clinic test user password |
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+## E2E tests
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+Tests use Playwright with two browser contexts: a pro-clinic user and a starter-clinic user. `globalSetup` creates isolated Supabase test fixtures; `globalTeardown` removes them.
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+```bash
+npx playwright test              # run all tests
+npx playwright test --ui         # interactive UI mode
+npx playwright show-report       # view last HTML report
+```
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+## Security rules
 
-## Clone and run locally
+- `clinic_id` is always derived server-side from `auth.uid()` via `current_clinic_id()` — never trusted from the client.
+- Photos require stored consent and a pro/enterprise subscription plan.
+- Patient photos are stored in private Supabase buckets and served via signed URLs only.
+- `SUPABASE_SERVICE_ROLE_KEY` is only used in `globalSetup`/`globalTeardown` and server-side API routes — never exposed to the browser.
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+---
 
-2. Create a Next.js app using the Supabase Starter template npx command
+## MCP Integration
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+OViz uses five MCP (Model Context Protocol) servers with Claude Code to enable AI-assisted development. All servers are connected via OAuth or personal access tokens stored in `.mcp.json` (gitignored). Never commit `.mcp.json`.
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+Copy `.mcp.example.json` to `.mcp.json` and replace placeholder values.
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+### Configured servers
 
-3. Use `cd` to change into the app's directory
+#### 1. Playwright — browser automation
 
-   ```bash
-   cd with-supabase-app
-   ```
+- **Transport:** stdio (`npx @playwright/mcp@latest`)
+- **Allowed:** run E2E tests, inspect test output, take screenshots of local app
+- **Not allowed:** modify test fixtures, delete test users
+- **Add:** `claude mcp add playwright -- npx -y @playwright/mcp@latest`
+- **Verify:** Ask Claude: *"Run the auth test and show me the result."*
 
-4. Rename `.env.example` to `.env.local` and update the following:
+#### 2. Supabase — database and schema inspection
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+- **Transport:** HTTP (`https://mcp.supabase.com/mcp`)
+- **Allowed:** read schema (`information_schema`), inspect RLS policies, run read-only SQL, list migrations
+- **Not allowed:** drop tables, modify production data, bypass RLS, access other Supabase orgs
+- **Add:** `claude mcp add --transport http supabase https://mcp.supabase.com/mcp`
+- **Verify:** Ask Claude: *"List all tables in the public schema."*
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+#### 3. GitHub — issue and PR management
 
-5. You can now run the Next.js local development server:
+- **Transport:** HTTP (`https://api.githubcopilot.com/mcp/`)
+- **Allowed:** read issues and PRs, create draft PRs, comment on issues
+- **Not allowed:** force-push, merge without review, delete branches, access unrelated repos
+- **Add:** `claude mcp add --transport http github https://api.githubcopilot.com/mcp/`
+- **Verify:** Ask Claude: *"List open issues in this repository."*
 
-   ```bash
-   npm run dev
-   ```
+#### 4. Sentry — error monitoring
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+- **Transport:** HTTP (`https://mcp.sentry.dev/mcp`)
+- **Allowed:** read error events, list issues, view stack traces
+- **Not allowed:** delete events, modify alert rules, access other Sentry orgs
+- **PHI note:** Sentry is configured with `beforeSend` PHI filtering (`lib/sentry/phi-filter.ts`). Never log patient data.
+- **Add:** `claude mcp add --transport http sentry https://mcp.sentry.dev/mcp`
+- **Verify:** Ask Claude: *"Show me the most recent Sentry issues for this project."*
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+#### 5. Vercel — deployment inspection
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+- **Transport:** HTTP (`https://mcp.vercel.com`)
+- **Allowed:** list deployments, read build logs, inspect runtime logs, check deployment status
+- **Not allowed:** promote deployments, change env vars in production, delete projects
+- **Add:** `claude mcp add --transport http vercel https://mcp.vercel.com`
+- **Verify:** Ask Claude: *"Show me the last 5 deployments for this project."*
 
-## Feedback and issues
+### MCP safety rules
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+1. No MCP server credentials are stored in project files. `.mcp.json` is gitignored.
+2. Supabase MCP may only read schema and run read-only queries. All write operations go through the application's API routes with RLS.
+3. Vercel MCP may not change environment variables or promote to production without explicit human approval.
+4. GitHub MCP may not merge PRs or push to protected branches without explicit human approval.
+5. Sentry MCP must not surface raw request bodies, storage URLs, or fields matching `patient*`, `photo*`, `consent*`.
+6. Playwright MCP runs only against `http://localhost:3000` (dev server). It must not target staging or production URLs.
 
-## More Supabase examples
+### Verification checklist
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+See `docs/mcp-verification-checklist.md` for the full pass/fail audit procedure.

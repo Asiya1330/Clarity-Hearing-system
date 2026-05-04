@@ -10,6 +10,26 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  {
+    ignores: [
+      // Build output and caches
+      ".next/**",
+      "out/**",
+      "dist/**",
+      "build/**",
+      "coverage/**",
+      // Deployment / tooling
+      ".vercel/**",
+      // Static assets — no JS/TS to lint
+      "public/**",
+      // Markdown
+      "**/*.md",
+      // Playwright test output and fixtures
+      "test-results/**",
+      "playwright-report/**",
+      "tests/.auth/**",
+    ],
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 

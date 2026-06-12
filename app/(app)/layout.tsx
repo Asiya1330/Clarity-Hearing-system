@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { LogoutButton } from "@/components/logout-button";
+import { RisingLine } from "@/components/app/rising-line";
 import { createClient } from "@/lib/supabase/server";
 
 export default function AppLayout({
@@ -10,14 +11,14 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-brand-white">
-      <nav className="border-b border-brand-slate/15 bg-brand-white">
+    <div className="oviz-surface min-h-screen bg-brand-mist/40">
+      <nav className="sticky top-0 z-30 border-b border-brand-line bg-brand-white/95 backdrop-blur supports-[backdrop-filter]:bg-brand-white/80">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-8">
             <Link
               href="/dashboard"
               aria-label="OViz home"
-              className="flex items-center"
+              className="flex items-center rounded-lg"
             >
               <Image
                 src="/brand/oviz-by-otovantage-logo.png"
@@ -34,6 +35,7 @@ export default function AppLayout({
           </div>
           <LogoutButton />
         </div>
+        <RisingLine className="h-[3px] w-full opacity-50" />
       </nav>
       <main className="mx-auto w-full max-w-5xl px-6 py-10">{children}</main>
     </div>
@@ -58,25 +60,19 @@ async function NavLinks() {
     );
   }
 
+  const linkClass =
+    "inline-flex h-11 items-center rounded-lg px-3 text-base font-medium text-brand-navy transition-colors hover:bg-brand-mist hover:text-brand-teal-700";
+
   return (
-    <div className="hidden items-center gap-6 md:flex">
-      <Link
-        href="/dashboard"
-        className="text-sm text-brand-navy hover:text-brand-teal"
-      >
+    <div className="hidden items-center gap-1 md:flex">
+      <Link href="/dashboard" className={linkClass}>
         Dashboard
       </Link>
-      <Link
-        href="/consults/new"
-        className="text-sm text-brand-navy hover:text-brand-teal"
-      >
-        New Consult
+      <Link href="/consults/new" className={linkClass}>
+        New consult
       </Link>
       {isAdminOrOwner && (
-        <Link
-          href="/admin"
-          className="text-sm text-brand-navy hover:text-brand-teal"
-        >
+        <Link href="/admin" className={linkClass}>
           Admin
         </Link>
       )}
@@ -85,5 +81,7 @@ async function NavLinks() {
 }
 
 function NavLinksSkeleton() {
-  return <div className="hidden h-5 w-52 animate-pulse rounded bg-brand-slate/10 md:block" />;
+  return (
+    <div className="hidden h-6 w-56 animate-pulse rounded bg-brand-line md:block" />
+  );
 }

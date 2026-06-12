@@ -2,7 +2,7 @@ export function Disclaimer({ className }: { className?: string }) {
   return (
     <div
       role="note"
-      className={`rounded-md border border-brand-slate/30 bg-brand-white p-4 text-sm leading-relaxed text-brand-slate ${
+      className={`rounded-xl border border-brand-line bg-brand-mist p-4 text-base leading-relaxed text-brand-muted ${
         className ?? ""
       }`}
     >

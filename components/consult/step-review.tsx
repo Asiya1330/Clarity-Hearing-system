@@ -18,12 +18,11 @@ export function StepReview({
   return (
     <div className="flex flex-col gap-8">
       <header>
-        <h2 className="text-2xl font-semibold text-brand-navy">
+        <h2 className="font-heading text-2xl font-semibold text-brand-navy">
           Review and save
         </h2>
-        <p className="mt-1 text-brand-slate">
-          A live preview of today&apos;s projection. Save to record this
-          consult.
+        <p className="mt-1 text-lg text-brand-muted">
+          A live preview of today&apos;s projection. Save to record this consult.
         </p>
       </header>
 
@@ -32,7 +31,7 @@ export function StepReview({
       {errorMessage ? (
         <div
           role="alert"
-          className="rounded-md border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-base text-destructive"
         >
           {errorMessage}
         </div>

@@ -1,43 +1,57 @@
+import { ArrowRight, Building2, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 import { BackLink } from "@/components/BackLink";
+import { PageHeader } from "@/components/app/page-header";
 
 const sections = [
   {
     href: "/admin/clinic",
     title: "Clinic settings",
     description: "Update clinic name and report footer.",
+    icon: Building2,
   },
   {
     href: "/admin/locations",
     title: "Locations",
     description: "Manage clinic locations for consult tracking.",
+    icon: MapPin,
   },
   {
     href: "/admin/users",
     title: "Users",
     description: "Manage team members, roles, and invitations.",
+    icon: Users,
   },
 ] as const;
 
 export default function AdminPage() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <BackLink href="/dashboard" />
-      <header>
-        <h1 className="text-2xl font-bold text-brand-navy">OViz Admin</h1>
-        <p className="mt-1 text-sm text-brand-slate">
-          Manage clinic settings, locations, and users.
-        </p>
-      </header>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <PageHeader
+        title="OViz Admin"
+        subtitle="Manage clinic settings, locations, and users."
+      />
+      <div className="grid gap-5 sm:grid-cols-3">
         {sections.map((s) => (
           <Link
             key={s.href}
             href={s.href}
-            className="rounded-lg border border-brand-slate/20 bg-brand-white p-5 transition-colors hover:border-brand-teal/40 hover:bg-brand-teal/5"
+            className="group flex flex-col rounded-2xl border border-brand-line bg-brand-white p-6 shadow-sm transition-colors hover:border-brand-teal hover:bg-brand-tint/40"
           >
-            <p className="font-semibold text-brand-navy">{s.title}</p>
-            <p className="mt-1 text-sm text-brand-slate">{s.description}</p>
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-tint text-brand-teal-700">
+              <s.icon className="h-7 w-7" aria-hidden="true" />
+            </span>
+            <p className="mt-5 font-heading text-xl font-semibold text-brand-navy">
+              {s.title}
+            </p>
+            <p className="mt-1 text-base leading-relaxed text-brand-muted">
+              {s.description}
+            </p>
+            <span className="mt-4 inline-flex items-center gap-1 text-base font-medium text-brand-teal-700">
+              Open
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
           </Link>
         ))}
       </div>

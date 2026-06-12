@@ -3,7 +3,9 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Check } from "lucide-react";
 import { BackLink } from "@/components/BackLink";
+import { RisingLine } from "@/components/app/rising-line";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,12 +90,12 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-white px-6 py-12">
+    <div className="oviz-surface min-h-screen bg-brand-mist/40 px-6 py-12">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-4">
+        <div className="mb-6">
           <BackLink href="/" label="Home" />
         </div>
-        <div className="mb-10 flex justify-center">
+        <div className="mb-8 flex flex-col items-center gap-4">
           <Image
             src="/brand/oviz-by-otovantage-logo.png"
             alt="OViz by OtoVantage"
@@ -102,30 +104,34 @@ export default function OnboardingPage() {
             priority
             className="h-14 w-auto"
           />
+          <RisingLine className="h-4 w-40 opacity-70" />
         </div>
 
         <header className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-brand-navy">
+          <h1 className="font-heading text-3xl font-semibold text-brand-navy sm:text-4xl">
             Set up your clinic
           </h1>
-          <p className="mt-2 text-brand-slate">
+          <p className="mt-3 text-lg leading-relaxed text-brand-muted">
             This creates your clinic workspace. You can update these settings
             later in Admin.
           </p>
-          <p className="mt-1 text-xs text-brand-slate/70">
+          <p className="mt-2 text-base text-brand-muted">
             Pilot setup — tier selection is for internal testing, not a payment
             checkout.
           </p>
         </header>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-          <div className="rounded-lg border border-brand-slate/20 bg-brand-white p-6">
-            <h2 className="mb-4 text-base font-semibold text-brand-navy">
+          <div className="rounded-2xl border border-brand-line bg-brand-white p-7 shadow-sm">
+            <h2 className="mb-5 font-heading text-xl font-semibold text-brand-navy">
               Clinic details
             </h2>
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="clinic-name" className="text-brand-navy">
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <Label
+                  htmlFor="clinic-name"
+                  className="text-base text-brand-navy"
+                >
                   Clinic name <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -135,12 +141,15 @@ export default function OnboardingPage() {
                   required
                   maxLength={200}
                   placeholder="Acme Hearing Clinic"
-                  className="border-brand-slate/30 focus:border-brand-teal focus:ring-brand-teal"
+                  className="h-14 text-lg"
                 />
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="location-name" className="text-brand-navy">
+              <div className="flex flex-col gap-2">
+                <Label
+                  htmlFor="location-name"
+                  className="text-base text-brand-navy"
+                >
                   Main location name <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -150,12 +159,12 @@ export default function OnboardingPage() {
                   required
                   maxLength={200}
                   placeholder="Downtown Office"
-                  className="border-brand-slate/30 focus:border-brand-teal focus:ring-brand-teal"
+                  className="h-14 text-lg"
                 />
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="full-name" className="text-brand-navy">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="full-name" className="text-base text-brand-navy">
                   Your name
                 </Label>
                 <Input
@@ -164,46 +173,62 @@ export default function OnboardingPage() {
                   onChange={(e) => setFullName(e.target.value)}
                   maxLength={200}
                   placeholder="Dr. Jane Smith"
-                  className="border-brand-slate/30 focus:border-brand-teal focus:ring-brand-teal"
+                  className="h-14 text-lg"
                 />
               </div>
             </div>
           </div>
 
           <div>
-            <h2 className="mb-3 text-base font-semibold text-brand-navy">
+            <h2 className="mb-4 font-heading text-xl font-semibold text-brand-navy">
               Select a tier
             </h2>
             <div className="grid gap-4 sm:grid-cols-3">
-              {tiers.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setTier(t.id)}
-                  className={`rounded-lg border p-4 text-left transition-colors ${
-                    tier === t.id
-                      ? "border-brand-teal bg-brand-teal/5 ring-1 ring-brand-teal"
-                      : "border-brand-slate/20 bg-brand-white hover:border-brand-teal/40"
-                  }`}
-                >
-                  <p className="font-semibold text-brand-navy">{t.label}</p>
-                  <p className="mt-1 text-xs text-brand-slate">{t.description}</p>
-                  <ul className="mt-3 flex flex-col gap-1">
-                    {t.features.map((f) => (
-                      <li key={f} className="text-xs text-brand-slate">
-                        · {f}
-                      </li>
-                    ))}
-                  </ul>
-                </button>
-              ))}
+              {tiers.map((t) => {
+                const active = tier === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTier(t.id)}
+                    aria-pressed={active}
+                    className={`rounded-2xl border-2 p-5 text-left transition-colors ${
+                      active
+                        ? "border-brand-teal bg-brand-tint shadow-sm"
+                        : "border-brand-line bg-brand-white hover:border-brand-teal/50"
+                    }`}
+                  >
+                    <p className="font-heading text-lg font-semibold text-brand-navy">
+                      {t.label}
+                    </p>
+                    <p className="mt-1 text-sm text-brand-muted">
+                      {t.description}
+                    </p>
+                    <ul className="mt-4 flex flex-col gap-2">
+                      {t.features.map((f) => (
+                        <li
+                          key={f}
+                          className="flex items-start gap-2 text-sm text-brand-navy"
+                        >
+                          <Check
+                            className="mt-0.5 h-4 w-4 shrink-0 text-brand-teal-700"
+                            strokeWidth={3}
+                            aria-hidden="true"
+                          />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {error && (
             <div
               role="alert"
-              className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+              className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-base text-destructive"
             >
               {error}
             </div>
@@ -213,7 +238,7 @@ export default function OnboardingPage() {
             type="submit"
             size="lg"
             disabled={isSubmitting || !clinicName.trim() || !locationName.trim()}
-            className="h-12 bg-brand-teal text-brand-white hover:bg-brand-teal/90"
+            className="h-14 bg-brand-teal text-lg font-semibold text-brand-white hover:bg-brand-teal-700"
           >
             {isSubmitting ? "Setting up…" : "Create clinic and continue"}
           </Button>

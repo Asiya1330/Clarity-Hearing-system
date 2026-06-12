@@ -41,12 +41,12 @@ export function StepListeningMap({ state, update }: StepProps) {
   return (
     <div className="flex flex-col gap-8">
       <header>
-        <h2 className="text-2xl font-semibold text-brand-navy">
+        <h2 className="font-heading text-2xl font-semibold text-brand-navy">
           Real-life listening map
         </h2>
-        <p className="mt-2 text-brand-slate">
-          Pick up to 3 situations that matter most. We&apos;ll record
-          difficulty and importance for each.
+        <p className="mt-2 text-lg leading-relaxed text-brand-muted">
+          Pick up to 3 situations that matter most. We&apos;ll record difficulty
+          and importance for each.
         </p>
       </header>
 
@@ -64,10 +64,10 @@ export function StepListeningMap({ state, update }: StepProps) {
                 aria-pressed={isSelected}
                 data-testid={`situation-chip-${name.toLowerCase().replace(/\s+/g, "-")}`}
                 className={cn(
-                  "h-14 rounded-lg border-2 px-4 text-base font-medium transition-colors",
+                  "h-14 rounded-xl border-2 px-4 text-base font-semibold transition-colors",
                   isSelected
                     ? "border-brand-teal bg-brand-teal text-brand-white"
-                    : "border-brand-slate/30 bg-brand-white text-brand-navy hover:border-brand-teal",
+                    : "border-brand-line bg-brand-white text-brand-navy hover:border-brand-teal",
                   isDisabled && "cursor-not-allowed opacity-40",
                 )}
               >
@@ -76,14 +76,14 @@ export function StepListeningMap({ state, update }: StepProps) {
             );
           })}
         </div>
-        <p className="text-sm text-brand-slate" data-testid="situation-count">
+        <p className="text-base text-brand-muted" data-testid="situation-count">
           {state.listeningSituations.length} of {MAX_LISTENING_SITUATIONS}{" "}
           selected
         </p>
       </div>
 
       {state.listeningSituations.length === 0 ? (
-        <p className="rounded-md border border-dashed border-brand-slate/30 bg-brand-white p-6 text-center text-brand-slate">
+        <p className="rounded-xl border border-dashed border-brand-line bg-brand-white p-6 text-center text-lg text-brand-muted">
           Select at least one situation to record listening priorities, or
           continue without selecting.
         </p>
@@ -91,9 +91,9 @@ export function StepListeningMap({ state, update }: StepProps) {
         state.listeningSituations.map((situation, idx) => (
           <div
             key={situation.name}
-            className="rounded-lg border border-brand-slate/20 bg-brand-white p-6"
+            className="rounded-2xl border border-brand-line bg-brand-white p-6 shadow-sm"
           >
-            <h3 className="mb-5 text-lg font-semibold text-brand-navy">
+            <h3 className="mb-5 font-heading text-xl font-semibold text-brand-navy">
               {situation.name}
             </h3>
             <div className="grid gap-6 md:grid-cols-2">

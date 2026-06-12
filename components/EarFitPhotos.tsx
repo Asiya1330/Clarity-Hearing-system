@@ -72,9 +72,7 @@ export function EarFitPhotos({
     }
   };
 
-  const handleFileSelected = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
@@ -108,8 +106,7 @@ export function EarFitPhotos({
       if (!signedRes.ok) {
         const data = await signedRes.json().catch(() => ({}));
         setError(
-          data.error ??
-            "We could not prepare the upload. Please try again.",
+          data.error ?? "We could not prepare the upload. Please try again.",
         );
         return;
       }
@@ -138,8 +135,7 @@ export function EarFitPhotos({
       if (!markRes.ok) {
         const data = await markRes.json().catch(() => ({}));
         setError(
-          data.error ??
-            "We could not record the photo. Please try again.",
+          data.error ?? "We could not record the photo. Please try again.",
         );
         return;
       }
@@ -163,19 +159,19 @@ export function EarFitPhotos({
   };
 
   return (
-    <section className="rounded-lg border border-brand-slate/20 bg-brand-white p-6">
-      <header className="mb-4">
-        <h2 className="text-xl font-semibold text-brand-navy">
+    <section className="rounded-2xl border border-brand-line bg-brand-white p-7 shadow-sm">
+      <header className="mb-5">
+        <h2 className="font-heading text-xl font-semibold text-brand-navy">
           Ear Fit Photos
         </h2>
-        <p className="mt-1 text-sm text-brand-slate">
+        <p className="mt-1 text-base leading-relaxed text-brand-muted">
           Capture up to {MAX_PHOTOS_PER_CONSULT} photos of the ear to support
           fitting decisions on this consult. Photos are not diagnostic and are
           stored privately.
         </p>
       </header>
 
-      <label className="mb-6 flex cursor-pointer items-start gap-3">
+      <label className="mb-6 flex cursor-pointer items-start gap-3 rounded-xl border border-brand-line bg-brand-mist/50 p-4">
         <Checkbox
           checked={consent}
           onCheckedChange={(v) => toggleConsent(v === true)}
@@ -189,15 +185,15 @@ export function EarFitPhotos({
         />
         <span className="flex flex-col gap-1">
           <span
-            className={`font-semibold ${
-              consent ? "text-brand-teal" : "text-brand-navy"
+            className={`text-lg font-semibold ${
+              consent ? "text-brand-teal-700" : "text-brand-navy"
             }`}
           >
             The patient has given consent to capture and store ear fit photos
           </span>
-          <span className="text-sm font-normal text-brand-slate">
-            Required before any photo can be taken. Consent can be removed at
-            any time.
+          <span className="text-base font-normal text-brand-muted">
+            Required before any photo can be taken. Consent can be removed at any
+            time.
           </span>
         </span>
       </label>
@@ -207,7 +203,7 @@ export function EarFitPhotos({
           {photos.map((photo) => (
             <div
               key={photo.id}
-              className="flex aspect-square items-center justify-center overflow-hidden rounded-md border border-brand-slate/30 bg-brand-slate/5"
+              className="flex aspect-square items-center justify-center overflow-hidden rounded-xl border border-brand-line bg-brand-mist"
             >
               {photo.signedUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -217,8 +213,10 @@ export function EarFitPhotos({
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="text-xs text-brand-slate">
-                  {photo.upload_status === "uploaded" ? "Saved" : photo.upload_status}
+                <span className="text-sm text-brand-muted">
+                  {photo.upload_status === "uploaded"
+                    ? "Saved"
+                    : photo.upload_status}
                 </span>
               )}
             </div>
@@ -240,12 +238,12 @@ export function EarFitPhotos({
           onClick={() => fileInputRef.current?.click()}
           disabled={!canCapture}
           data-testid="photo-capture-button"
-          className="h-12 bg-brand-teal px-6 text-brand-white hover:bg-brand-teal/90 disabled:opacity-50"
+          className="h-12 bg-brand-teal px-6 text-base font-semibold text-brand-white hover:bg-brand-teal-700 disabled:opacity-50"
         >
-          <Camera className="mr-2 h-4 w-4" />
+          <Camera className="mr-2 h-5 w-5" />
           {busy ? "Uploading…" : "Take ear fit photo"}
         </Button>
-        <p className="text-sm text-brand-slate">
+        <p className="text-base text-brand-muted">
           {uploadedCount} of {MAX_PHOTOS_PER_CONSULT} · JPEG · max 500 KB after
           compression
         </p>
@@ -254,7 +252,7 @@ export function EarFitPhotos({
       {error ? (
         <div
           role="alert"
-          className="mt-4 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+          className="mt-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-base text-destructive"
         >
           {error}
         </div>

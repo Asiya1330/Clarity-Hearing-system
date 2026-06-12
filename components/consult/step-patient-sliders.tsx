@@ -7,10 +7,10 @@ export function StepPatientSliders({ state, update }: StepProps) {
   return (
     <div className="flex flex-col gap-8">
       <header>
-        <h2 className="text-2xl font-semibold text-brand-navy">
+        <h2 className="font-heading text-2xl font-semibold text-brand-navy">
           Patient sliders
         </h2>
-        <p className="mt-1 text-brand-slate">
+        <p className="mt-1 text-lg text-brand-muted">
           Where does today land for you? Slide each one.
         </p>
       </header>

@@ -124,22 +124,22 @@ export function ConsultWizard() {
         ) : null}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-brand-slate/20 pt-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-brand-line pt-6">
         <Button
           variant="outline"
           size="lg"
-          className="h-12 px-6"
+          className="h-12 border-brand-line px-6 text-base font-medium text-brand-navy hover:border-brand-teal hover:text-brand-teal-700"
           onClick={goBack}
           disabled={isFirstStep || isSubmitting}
           data-testid="wizard-back"
         >
-          <ChevronLeft className="mr-1 h-4 w-4" />
+          <ChevronLeft className="mr-1 h-5 w-5" />
           Back
         </Button>
         {isLastStep ? (
           <Button
             size="lg"
-            className="h-12 bg-brand-teal px-8 text-brand-white hover:bg-brand-teal/90"
+            className="h-12 bg-brand-teal px-8 text-lg font-semibold text-brand-white hover:bg-brand-teal-700"
             onClick={handleSave}
             disabled={!isClinicianStepValid(state) || isSubmitting}
             data-testid="wizard-save"
@@ -149,13 +149,13 @@ export function ConsultWizard() {
         ) : (
           <Button
             size="lg"
-            className="h-12 bg-brand-teal px-8 text-brand-white hover:bg-brand-teal/90"
+            className="h-12 bg-brand-teal px-8 text-lg font-semibold text-brand-white hover:bg-brand-teal-700"
             onClick={goNext}
             disabled={!canContinue}
             data-testid="wizard-continue"
           >
             Continue
-            <ChevronRight className="ml-1 h-4 w-4" />
+            <ChevronRight className="ml-1 h-5 w-5" />
           </Button>
         )}
       </div>

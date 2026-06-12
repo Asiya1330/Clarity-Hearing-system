@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
 import { BackLink } from "@/components/BackLink";
+import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
@@ -24,7 +25,7 @@ export default function AdminClinicPage({ searchParams }: PageProps) {
 }
 
 function AdminLoading() {
-  return <p className="text-sm text-brand-slate">Loading…</p>;
+  return <p className="text-base text-brand-muted">Loading…</p>;
 }
 
 async function AdminClinicBody({ searchParams }: PageProps) {
@@ -59,7 +60,10 @@ async function AdminClinicBody({ searchParams }: PageProps) {
     .eq("id", clinicId)
     .maybeSingle();
 
-  const clinic = clinicRow as { name?: string; report_footer?: string | null } | null;
+  const clinic = clinicRow as {
+    name?: string;
+    report_footer?: string | null;
+  } | null;
 
   async function updateClinic(formData: FormData) {
     "use server";
@@ -116,20 +120,22 @@ async function AdminClinicBody({ searchParams }: PageProps) {
     redirect("/admin/clinic?saved=1");
   }
 
+  const fieldClass =
+    "h-12 w-full rounded-lg border border-brand-line px-3.5 py-2 text-base text-brand-navy placeholder:text-brand-muted/50 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/40";
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <BackLink href="/admin" />
-      <header>
-        <h1 className="text-2xl font-bold text-brand-navy">Clinic settings</h1>
-        <p className="mt-1 text-sm text-brand-slate">
-          Update clinic name and report footer. Both appear on all OViz reports.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Admin"
+        title="Clinic settings"
+        subtitle="Update clinic name and report footer. Both appear on all OViz reports."
+      />
 
       {saved && (
         <div
           role="status"
-          className="rounded-md border border-brand-teal/40 bg-brand-teal/5 p-3 text-sm text-brand-teal"
+          className="rounded-xl border border-brand-teal/40 bg-brand-tint px-4 py-3 text-base font-medium text-brand-teal-700"
         >
           Settings saved.
         </div>
@@ -137,7 +143,7 @@ async function AdminClinicBody({ searchParams }: PageProps) {
       {pageError && (
         <div
           role="alert"
-          className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-base text-destructive"
         >
           {pageError === "invalid"
             ? "Please check the form fields."
@@ -147,12 +153,12 @@ async function AdminClinicBody({ searchParams }: PageProps) {
 
       <form
         action={updateClinic}
-        className="flex flex-col gap-5 rounded-lg border border-brand-slate/20 bg-brand-white p-6"
+        className="flex flex-col gap-6 rounded-2xl border border-brand-line bg-brand-white p-7 shadow-sm"
       >
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <label
             htmlFor="clinic-name"
-            className="text-sm font-medium text-brand-navy"
+            className="text-base font-semibold text-brand-navy"
           >
             Clinic name <span className="text-destructive">*</span>
           </label>
@@ -163,18 +169,18 @@ async function AdminClinicBody({ searchParams }: PageProps) {
             required
             defaultValue={clinic?.name ?? ""}
             maxLength={200}
-            className="rounded-md border border-brand-slate/30 px-3 py-2 text-sm text-brand-navy placeholder-brand-slate/60 focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
+            className={fieldClass}
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <label
             htmlFor="report-footer"
-            className="text-sm font-medium text-brand-navy"
+            className="text-base font-semibold text-brand-navy"
           >
             Report footer
           </label>
-          <p className="text-xs text-brand-slate">
+          <p className="text-base text-brand-muted">
             Appears at the bottom of every OViz report — clinic address, phone,
             or custom text. Max 500 characters.
           </p>
@@ -185,14 +191,14 @@ async function AdminClinicBody({ searchParams }: PageProps) {
             defaultValue={clinic?.report_footer ?? ""}
             maxLength={500}
             placeholder="e.g. 123 Main St, Vancouver, BC · (604) 555-0100"
-            className="rounded-md border border-brand-slate/30 px-3 py-2 text-sm text-brand-navy placeholder-brand-slate/40 focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
+            className="w-full rounded-lg border border-brand-line px-3.5 py-2.5 text-base text-brand-navy placeholder:text-brand-muted/50 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
           />
         </div>
 
         <div>
           <Button
             type="submit"
-            className="bg-brand-teal text-brand-white hover:bg-brand-teal/90"
+            className="h-12 bg-brand-teal px-6 text-base font-semibold text-brand-white hover:bg-brand-teal-700"
           >
             Save settings
           </Button>

@@ -7,10 +7,12 @@ export function StepClinicianInputs({ state, update }: StepProps) {
   return (
     <div className="flex flex-col gap-8">
       <header>
-        <h2 className="text-2xl font-semibold text-brand-navy">
+        <h2 className="font-heading text-2xl font-semibold text-brand-navy">
           Clinician inputs
         </h2>
-        <p className="mt-1 text-brand-slate">From today&apos;s audiology results.</p>
+        <p className="mt-1 text-lg text-brand-muted">
+          From today&apos;s audiology results.
+        </p>
       </header>
 
       <NumberField
@@ -70,10 +72,10 @@ function NumberField({
   const outOfRange = value !== null && (value < min || value > max);
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-base font-semibold text-brand-navy">
+      <label htmlFor={id} className="text-lg font-semibold text-brand-navy">
         {label}
       </label>
-      <p className="text-sm text-brand-slate">{helper}</p>
+      <p className="text-base text-brand-muted">{helper}</p>
       <div className="flex items-center gap-3">
         <Input
           id={id}
@@ -87,17 +89,17 @@ function NumberField({
             const v = e.target.value;
             onChange(v === "" ? null : Number(v));
           }}
-          className={`h-14 w-32 text-2xl ${
+          className={`h-16 w-36 text-3xl font-semibold ${
             outOfRange
-              ? "border-destructive focus-visible:ring-destructive"
+              ? "border-destructive focus-visible:ring-destructive/40"
               : ""
           }`}
           aria-invalid={outOfRange}
         />
-        <span className="text-sm text-brand-slate">{unit}</span>
+        <span className="text-base text-brand-muted">{unit}</span>
       </div>
       {outOfRange ? (
-        <p className="text-sm text-destructive">
+        <p className="text-base font-medium text-destructive">
           Enter a value between {min} and {max}.
         </p>
       ) : null}

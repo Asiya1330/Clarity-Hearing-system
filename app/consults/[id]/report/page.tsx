@@ -2,10 +2,8 @@ import Image from "next/image";
 import { Suspense } from "react";
 import { BackLink } from "@/components/BackLink";
 import { PrintButton } from "@/components/report/print-button";
-import type {
-  ImpactOutputs,
-  TopGoal,
-} from "@/lib/calculators/impact";
+import { RisingLine } from "@/components/app/rising-line";
+import type { ImpactOutputs, TopGoal } from "@/lib/calculators/impact";
 import { createClient } from "@/lib/supabase/server";
 import type { ConsultInput } from "@/lib/zod/consult";
 
@@ -27,12 +25,12 @@ export default function ReportPage({ params }: PageProps) {
 
 function ReportSkeleton() {
   return (
-    <main className="bg-brand-white min-h-screen text-brand-navy">
+    <main className="min-h-screen bg-brand-white text-brand-navy">
       <div className="mx-auto max-w-xl px-8 py-20">
-        <h1 className="mb-3 text-2xl font-bold text-brand-navy">
+        <h1 className="mb-3 font-heading text-2xl font-bold text-brand-navy">
           OViz Hearing Impact Summary
         </h1>
-        <p className="text-brand-slate">Preparing report…</p>
+        <p className="text-brand-muted">Preparing report…</p>
       </div>
     </main>
   );
@@ -115,60 +113,67 @@ async function ReportBody({ params }: PageProps) {
     (consult as { patient_name?: string | null }).patient_name ||
     consult.patient_reference ||
     null;
-  const displayDate = (consult as { consult_date?: string | null }).consult_date;
-  const isFollowUp = (consult as { is_follow_up?: boolean | null }).is_follow_up ?? false;
+  const displayDate = (consult as { consult_date?: string | null })
+    .consult_date;
+  const isFollowUp =
+    (consult as { is_follow_up?: boolean | null }).is_follow_up ?? false;
 
   return (
-    <main className="bg-brand-white min-h-screen text-brand-navy print:bg-white">
+    <main className="min-h-screen bg-brand-white text-brand-navy print:bg-white">
       <div className="mx-auto max-w-[820px] px-8 py-10 print:px-0 print:py-0">
         <div className="mb-6 flex items-center justify-between print:hidden">
           <BackLink href={`/consults/${id}`} />
           <PrintButton />
         </div>
 
-        <header className="mb-10 flex items-start justify-between gap-6 border-b-2 border-brand-navy pb-6 print:break-after-avoid">
-          <div className="flex flex-col gap-1">
-            <p className="text-xs uppercase tracking-[0.2em] text-brand-slate">
-              {clinicName}
-            </p>
-            <h1
-              className="text-3xl font-bold text-brand-navy"
-              data-testid="report-title"
-            >
-              OViz Hearing Impact Summary
-            </h1>
-            <p className="text-sm text-brand-slate">
-              Prepared by {clinicName} using OViz by OtoVantage.
-            </p>
-            <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-brand-slate">
-              {displayName && (
+        <header className="mb-10 border-b-2 border-brand-navy pb-6 print:break-after-avoid">
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex flex-col gap-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal-700">
+                {clinicName}
+              </p>
+              <h1
+                className="font-heading text-3xl font-bold text-brand-navy"
+                data-testid="report-title"
+              >
+                OViz Hearing Impact Summary
+              </h1>
+              <p className="text-base text-brand-muted">
+                Prepared by {clinicName} using OViz by OtoVantage.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-base text-brand-muted">
+                {displayName && (
+                  <span>
+                    <span className="font-semibold text-brand-navy">
+                      Patient:
+                    </span>{" "}
+                    {displayName}
+                  </span>
+                )}
+                {displayDate && (
+                  <span>
+                    <span className="font-semibold text-brand-navy">Date:</span>{" "}
+                    {new Date(displayDate + "T00:00:00").toLocaleDateString()}
+                  </span>
+                )}
                 <span>
-                  <span className="font-medium text-brand-navy">Patient:</span>{" "}
-                  {displayName}
+                  <span className="font-semibold text-brand-navy">
+                    Follow-up visit:
+                  </span>{" "}
+                  {isFollowUp ? "Yes" : "No"}
                 </span>
-              )}
-              {displayDate && (
-                <span>
-                  <span className="font-medium text-brand-navy">Date:</span>{" "}
-                  {new Date(displayDate + "T00:00:00").toLocaleDateString()}
-                </span>
-              )}
-              <span>
-                <span className="font-medium text-brand-navy">
-                  Follow-up visit:
-                </span>{" "}
-                {isFollowUp ? "Yes" : "No"}
-              </span>
+              </div>
             </div>
+            <Image
+              src="/brand/oviz-by-otovantage-logo.png"
+              alt="OViz by OtoVantage"
+              width={954}
+              height={340}
+              priority
+              className="h-14 w-auto"
+            />
           </div>
-          <Image
-            src="/brand/oviz-by-otovantage-logo.png"
-            alt="OViz by OtoVantage"
-            width={954}
-            height={340}
-            priority
-            className="h-14 w-auto"
-          />
+          <RisingLine className="mt-5 h-3 w-full opacity-60 print:hidden" />
         </header>
 
         <section className="mb-10 grid grid-cols-3 gap-4 print:break-inside-avoid">
@@ -178,38 +183,38 @@ async function ReportBody({ params }: PageProps) {
         </section>
 
         <Section title="Brain Battery">
-          <p className="text-brand-slate">
-            How hard the brain is working to listen today, with projected
-            change over five years.
+          <p className="text-brand-muted">
+            How hard the brain is working to listen today, with projected change
+            over five years.
           </p>
           <BrainBattery battery={outputs.brainBattery} />
         </Section>
 
         <Section title="Word Understanding Scenario">
-          <p className="text-brand-slate">{outputs.wordUnderstanding.label}.</p>
+          <p className="text-brand-muted">{outputs.wordUnderstanding.label}.</p>
           <WordUnderstanding wu={outputs.wordUnderstanding} />
         </Section>
 
         <Section title="Social Radius">
-          <p className="text-brand-slate">
+          <p className="text-brand-muted">
             How far hearing comfortably reaches in everyday social settings.
           </p>
           <SocialRadius radius={outputs.socialRadius} />
         </Section>
 
         <Section title="Partner Impact Mirror">
-          <p className="text-brand-slate">
+          <p className="text-brand-muted">
             This hearing difficulty may be affecting both of you.
           </p>
           <PartnerImpact impact={outputs.partnerImpact} />
         </Section>
 
         <Section title="Real-Life Listening Goals">
-          <p className="text-brand-slate">
+          <p className="text-brand-muted">
             Patient-reported listening priorities.
           </p>
           {outputs.listeningMap.topGoals.length === 0 ? (
-            <p className="text-brand-slate">
+            <p className="text-brand-muted">
               No listening goals were captured for this consult.
             </p>
           ) : (
@@ -220,7 +225,7 @@ async function ReportBody({ params }: PageProps) {
         {showPhotosSection ? (
           <Section title="Ear Fit Photos">
             {photos.length === 0 ? (
-              <p className="text-brand-slate">
+              <p className="text-brand-muted">
                 No ear fit photos were included.
               </p>
             ) : (
@@ -234,7 +239,10 @@ async function ReportBody({ params }: PageProps) {
         </Section>
 
         <Section title="Disclaimer">
-          <p className="text-sm leading-relaxed text-brand-slate" data-testid="report-disclaimer">
+          <p
+            className="text-base leading-relaxed text-brand-muted"
+            data-testid="report-disclaimer"
+          >
             Educational projection based on published evidence and today&apos;s
             hearing results. Not a diagnosis, guarantee, or substitute for
             clinician judgment.
@@ -242,7 +250,7 @@ async function ReportBody({ params }: PageProps) {
         </Section>
 
         <footer
-          className="mt-12 border-t border-brand-slate/30 pt-6 text-center text-xs text-brand-slate"
+          className="mt-12 border-t border-brand-line pt-6 text-center text-sm text-brand-muted"
           data-testid="report-footer"
         >
           {reportFooter ? (
@@ -264,7 +272,9 @@ function Section({
 }) {
   return (
     <section className="mb-10 print:break-inside-avoid">
-      <h2 className="mb-3 text-xl font-semibold text-brand-navy">{title}</h2>
+      <h2 className="mb-3 font-heading text-xl font-semibold text-brand-navy">
+        {title}
+      </h2>
       <div className="flex flex-col gap-4">{children}</div>
     </section>
   );
@@ -272,11 +282,11 @@ function Section({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-brand-slate/30 bg-brand-white p-4">
-      <p className="text-xs uppercase tracking-wide text-brand-slate">
-        {label}
+    <div className="rounded-xl border border-brand-line bg-brand-mist/50 p-4">
+      <p className="text-xs uppercase tracking-wide text-brand-muted">{label}</p>
+      <p className="mt-1 font-heading text-2xl font-semibold text-brand-navy">
+        {value}
       </p>
-      <p className="mt-1 text-2xl font-semibold text-brand-navy">{value}</p>
     </div>
   );
 }
@@ -287,7 +297,7 @@ function Bar({ pct, ariaLabel }: { pct: number; ariaLabel: string }) {
     <div
       role="img"
       aria-label={ariaLabel}
-      className="oviz-print-color h-3 w-full overflow-hidden rounded-full bg-brand-slate/15"
+      className="oviz-print-color h-3 w-full overflow-hidden rounded-full bg-brand-line"
     >
       <div
         className="oviz-print-color h-full rounded-full bg-brand-teal"
@@ -315,10 +325,10 @@ function BrainBattery({
       {rows.map((row) => (
         <div key={row.label} className="flex flex-col gap-2">
           <div className="flex items-baseline justify-between">
-            <span className="text-sm font-medium text-brand-navy">
+            <span className="text-base font-medium text-brand-navy">
               {row.label}
             </span>
-            <span className="text-sm tabular-nums text-brand-slate">
+            <span className="text-base tabular-nums text-brand-muted">
               {Math.round(row.value)}%
             </span>
           </div>
@@ -344,10 +354,10 @@ function WordUnderstanding({
       {rows.map((row) => (
         <div key={row.label} className="flex flex-col gap-2">
           <div className="flex items-baseline justify-between">
-            <span className="text-sm font-medium text-brand-navy">
+            <span className="text-base font-medium text-brand-navy">
               {row.label}
             </span>
-            <span className="text-sm tabular-nums text-brand-slate">
+            <span className="text-base tabular-nums text-brand-muted">
               {Math.round(row.value)}%
             </span>
           </div>
@@ -369,19 +379,19 @@ function SocialRadius({
   ];
   return (
     <div className="flex flex-col gap-4">
-      <div className="text-sm text-brand-slate">
+      <div className="text-base text-brand-muted">
         Current social strain:{" "}
-        <span className="text-brand-navy">
+        <span className="font-semibold text-brand-navy">
           {Math.round(radius.socialStrain)} / 100
         </span>
       </div>
       {rows.map((row) => (
         <div key={row.label} className="flex flex-col gap-2">
           <div className="flex items-baseline justify-between">
-            <span className="text-sm font-medium text-brand-navy">
+            <span className="text-base font-medium text-brand-navy">
               {row.label}
             </span>
-            <span className="text-sm tabular-nums text-brand-slate">
+            <span className="text-base tabular-nums text-brand-muted">
               {row.value.toFixed(1)} / 10
             </span>
           </div>
@@ -403,30 +413,30 @@ function PartnerImpact({
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-md border border-brand-slate/30 bg-brand-white p-4">
-          <p className="text-xs uppercase tracking-wide text-brand-slate">
+        <div className="rounded-xl border border-brand-line bg-brand-mist/50 p-4">
+          <p className="text-xs uppercase tracking-wide text-brand-muted">
             Repeats per day
           </p>
-          <p className="mt-1 text-3xl font-semibold text-brand-navy">
+          <p className="mt-1 font-heading text-3xl font-semibold text-brand-navy">
             {Math.round(impact.repeatsPerDay)}
           </p>
-          <p className="mt-2 text-xs text-brand-slate">
+          <p className="mt-2 text-xs text-brand-muted">
             Assuming {impact.secondsPerRepeat} seconds per repeat.
           </p>
         </div>
-        <div className="rounded-md border border-brand-slate/30 bg-brand-white p-4">
-          <p className="text-xs uppercase tracking-wide text-brand-slate">
+        <div className="rounded-xl border border-brand-line bg-brand-mist/50 p-4">
+          <p className="text-xs uppercase tracking-wide text-brand-muted">
             Annual partner hours
           </p>
-          <p className="mt-1 text-3xl font-semibold text-brand-navy">
+          <p className="mt-1 font-heading text-3xl font-semibold text-brand-navy">
             {impact.annualPartnerHours.toFixed(1)}
           </p>
-          <p className="mt-2 text-xs text-brand-slate">
+          <p className="mt-2 text-xs text-brand-muted">
             Hours per year spent repeating.
           </p>
         </div>
       </div>
-      <p className="text-sm leading-relaxed text-brand-slate">
+      <p className="text-base leading-relaxed text-brand-muted">
         {impact.partnerImpactSummary}
       </p>
     </div>
@@ -439,17 +449,17 @@ function ListeningGoals({ goals }: { goals: TopGoal[] }) {
       {goals.map((goal, idx) => (
         <li
           key={`${goal.name ?? "goal"}-${idx}`}
-          className="rounded-md border border-brand-slate/30 bg-brand-white p-4"
+          className="rounded-xl border border-brand-line bg-brand-white p-4"
         >
           <div className="flex items-baseline justify-between gap-4">
-            <span className="font-medium text-brand-navy">
+            <span className="font-semibold text-brand-navy">
               {idx + 1}. {goal.name ?? "Listening goal"}
             </span>
-            <span className="text-sm tabular-nums text-brand-slate">
+            <span className="text-base tabular-nums text-brand-muted">
               priority {goal.priorityScore.toFixed(1)} / 10
             </span>
           </div>
-          <div className="mt-2 grid grid-cols-2 gap-4 text-xs text-brand-slate">
+          <div className="mt-2 grid grid-cols-2 gap-4 text-sm text-brand-muted">
             <span>Difficulty: {goal.difficulty} / 10</span>
             <span>Importance: {goal.importance} / 10</span>
           </div>
@@ -474,7 +484,7 @@ function PhotosGrid({ photos }: { photos: PhotoUrl[] }) {
           key={photo.url}
           src={photo.url}
           alt={`Ear fit photo ${idx + 1}`}
-          className="aspect-square w-full rounded-md border border-brand-slate/30 object-cover"
+          className="aspect-square w-full rounded-xl border border-brand-line object-cover"
         />
       ))}
     </div>
@@ -483,21 +493,20 @@ function PhotosGrid({ photos }: { photos: PhotoUrl[] }) {
 
 function Assumptions({ modelVersion }: { modelVersion: string }) {
   return (
-    <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-brand-slate">
+    <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed text-brand-muted">
       <li>
         Brain Battery: cognitive listening effort grows with PTA and word
-        recognition deficit, amplified by self-reported symptoms. Capped at
-        100.
+        recognition deficit, amplified by self-reported symptoms. Capped at 100.
       </li>
       <li>
         Untreated drain: projected additional listening cost over five years,
-        scaled by how long the loss has been unaddressed. Treatment is modeled
-        as reducing — not eliminating — drain.
+        scaled by how long the loss has been unaddressed. Treatment is modeled as
+        reducing — not eliminating — drain.
       </li>
       <li>
         Word Understanding: annual drift starts at one percentage point and
-        accelerates above approximately 40 dB PTA. Treatment slows drift but
-        does not project a future score above today&apos;s.
+        accelerates above approximately 40 dB PTA. Treatment slows drift but does
+        not project a future score above today&apos;s.
       </li>
       <li>
         Social Radius: derived from PTA, noise avoidance, and conversational
@@ -510,8 +519,8 @@ function Assumptions({ modelVersion }: { modelVersion: string }) {
         only — they are not quantitative inputs to other outputs.
       </li>
       <li>
-        Listening Goals: priority = 0.6 × difficulty + 0.4 × importance on a
-        0–10 scale. Patient picks up to three situations; results show the
+        Listening Goals: priority = 0.6 × difficulty + 0.4 × importance on a 0–10
+        scale. Patient picks up to three situations; results show the
         patient-reported listening priorities.
       </li>
       <li>Model version: {modelVersion}.</li>
@@ -521,13 +530,13 @@ function Assumptions({ modelVersion }: { modelVersion: string }) {
 
 function Blocked() {
   return (
-    <main className="bg-brand-white min-h-screen text-brand-navy">
+    <main className="min-h-screen bg-brand-white text-brand-navy">
       <div className="mx-auto max-w-xl px-8 py-20">
-        <h1 className="mb-3 text-2xl font-bold text-brand-navy">
+        <h1 className="mb-3 font-heading text-2xl font-bold text-brand-navy">
           OViz Hearing Impact Summary
         </h1>
-        <p className="text-brand-slate">Report cannot be generated yet.</p>
-        <p className="mt-2 text-sm text-brand-slate">
+        <p className="text-brand-muted">Report cannot be generated yet.</p>
+        <p className="mt-2 text-base text-brand-muted">
           A consult must be saved before its report can be prepared.
         </p>
       </div>

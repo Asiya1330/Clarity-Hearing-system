@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
 import { BackLink } from "@/components/BackLink";
+import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
@@ -30,7 +31,7 @@ export default function AdminLocationsPage({ searchParams }: PageProps) {
 }
 
 function AdminLoading() {
-  return <p className="text-sm text-brand-slate">Loading…</p>;
+  return <p className="text-base text-brand-muted">Loading…</p>;
 }
 
 async function AdminLocationsBody({ searchParams }: PageProps) {
@@ -102,14 +103,12 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
       redirect("/admin/locations?error=invalid");
     }
 
-    const { error: insertError } = await supabase
-      .from("locations")
-      .insert({
-        clinic_id: clinicId,
-        name: parsed.data.name,
-        address: parsed.data.address ?? null,
-        active: true,
-      });
+    const { error: insertError } = await supabase.from("locations").insert({
+      clinic_id: clinicId,
+      name: parsed.data.name,
+      address: parsed.data.address ?? null,
+      active: true,
+    });
 
     if (insertError) {
       console.error("admin.locations.create failed", {
@@ -123,21 +122,22 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
     redirect("/admin/locations?created=1");
   }
 
+  const fieldClass =
+    "h-12 w-full rounded-lg border border-brand-line px-3.5 py-2 text-base text-brand-navy placeholder:text-brand-muted/50 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/40";
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <BackLink href="/admin" />
-      <header>
-        <h1 className="text-2xl font-bold text-brand-navy">Locations</h1>
-        <p className="mt-1 text-sm text-brand-slate">
-          Manage clinic locations. Locations can be associated with consults for
-          reporting.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Admin"
+        title="Locations"
+        subtitle="Manage clinic locations. Locations can be associated with consults for reporting."
+      />
 
       {created && (
         <div
           role="status"
-          className="rounded-md border border-brand-teal/40 bg-brand-teal/5 p-3 text-sm text-brand-teal"
+          className="rounded-xl border border-brand-teal/40 bg-brand-tint px-4 py-3 text-base font-medium text-brand-teal-700"
         >
           Location created.
         </div>
@@ -145,7 +145,7 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
       {pageError && (
         <div
           role="alert"
-          className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-base text-destructive"
         >
           {pageError === "invalid"
             ? "Please check the form fields."
@@ -154,14 +154,12 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
       )}
 
       {locations.length > 0 ? (
-        <div className="rounded-lg border border-brand-slate/20 bg-brand-white">
-          <table className="w-full text-sm">
+        <div className="overflow-hidden rounded-2xl border border-brand-line bg-brand-white shadow-sm">
+          <table className="w-full text-base">
             <thead>
-              <tr className="border-b border-brand-slate/15">
-                <th className="px-4 py-3 text-left font-semibold text-brand-navy">
-                  Name
-                </th>
-                <th className="px-4 py-3 text-left font-semibold text-brand-navy">
+              <tr className="border-b border-brand-line bg-brand-mist text-left">
+                <th className="px-5 py-4 font-semibold text-brand-navy">Name</th>
+                <th className="px-5 py-4 font-semibold text-brand-navy">
                   Address
                 </th>
               </tr>
@@ -170,12 +168,12 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
               {locations.map((loc) => (
                 <tr
                   key={loc.id}
-                  className="border-b border-brand-slate/10 last:border-0"
+                  className="border-b border-brand-line last:border-0"
                 >
-                  <td className="px-4 py-3 font-medium text-brand-navy">
+                  <td className="px-5 py-4 font-medium text-brand-navy">
                     {loc.name}
                   </td>
-                  <td className="px-4 py-3 text-brand-slate">
+                  <td className="px-5 py-4 text-brand-muted">
                     {loc.address ?? "—"}
                   </td>
                 </tr>
@@ -184,18 +182,18 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
           </table>
         </div>
       ) : (
-        <p className="text-sm text-brand-slate">No locations added yet.</p>
+        <p className="text-base text-brand-muted">No locations added yet.</p>
       )}
 
-      <section className="rounded-lg border border-brand-slate/20 bg-brand-white p-6">
-        <h2 className="mb-4 text-base font-semibold text-brand-navy">
+      <section className="rounded-2xl border border-brand-line bg-brand-white p-7 shadow-sm">
+        <h2 className="mb-5 font-heading text-xl font-semibold text-brand-navy">
           Add location
         </h2>
-        <form action={createLocation} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
+        <form action={createLocation} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="location-name"
-              className="text-sm font-medium text-brand-navy"
+              className="text-base font-semibold text-brand-navy"
             >
               Location name <span className="text-destructive">*</span>
             </label>
@@ -206,14 +204,14 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
               required
               placeholder="e.g. Downtown Clinic"
               maxLength={200}
-              className="rounded-md border border-brand-slate/30 px-3 py-2 text-sm text-brand-navy placeholder-brand-slate/40 focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
+              className={fieldClass}
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="location-address"
-              className="text-sm font-medium text-brand-navy"
+              className="text-base font-semibold text-brand-navy"
             >
               Address
             </label>
@@ -223,14 +221,14 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
               type="text"
               placeholder="e.g. 123 Main St, Vancouver, BC"
               maxLength={500}
-              className="rounded-md border border-brand-slate/30 px-3 py-2 text-sm text-brand-navy placeholder-brand-slate/40 focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
+              className={fieldClass}
             />
           </div>
 
           <div>
             <Button
               type="submit"
-              className="bg-brand-teal text-brand-white hover:bg-brand-teal/90"
+              className="h-12 bg-brand-teal px-6 text-base font-semibold text-brand-white hover:bg-brand-teal-700"
             >
               Add location
             </Button>

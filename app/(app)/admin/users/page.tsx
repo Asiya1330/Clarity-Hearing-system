@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
 import { BackLink } from "@/components/BackLink";
+import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
@@ -24,8 +25,8 @@ type Member = {
 
 const roleBadgeClass: Record<string, string> = {
   owner: "bg-brand-navy/10 text-brand-navy",
-  admin: "bg-brand-teal/10 text-brand-teal",
-  staff: "bg-brand-slate/10 text-brand-slate",
+  admin: "bg-brand-tint text-brand-teal-700",
+  staff: "bg-brand-slate/15 text-brand-muted",
 };
 
 const errorMessages: Record<string, string> = {
@@ -54,7 +55,7 @@ export default function AdminUsersPage({ searchParams }: PageProps) {
 }
 
 function AdminLoading() {
-  return <p className="text-sm text-brand-slate">Loading…</p>;
+  return <p className="text-base text-brand-muted">Loading…</p>;
 }
 
 async function AdminUsersBody({ searchParams }: PageProps) {
@@ -195,14 +196,12 @@ async function AdminUsersBody({ searchParams }: PageProps) {
       redirect("/admin/users?error=invite-invalid");
     }
 
-    const { error: insertError } = await supabase
-      .from("clinic_invites")
-      .insert({
-        clinic_id: clinicId,
-        invited_by: user.id,
-        email: parsed.data.email,
-        role: parsed.data.role,
-      });
+    const { error: insertError } = await supabase.from("clinic_invites").insert({
+      clinic_id: clinicId,
+      invited_by: user.id,
+      email: parsed.data.email,
+      role: parsed.data.role,
+    });
 
     if (insertError) {
       console.error("admin.users.invite failed", {
@@ -216,20 +215,22 @@ async function AdminUsersBody({ searchParams }: PageProps) {
     redirect("/admin/users?invited=1");
   }
 
+  const fieldClass =
+    "h-12 w-full rounded-lg border border-brand-line px-3.5 py-2 text-base text-brand-navy placeholder:text-brand-muted/50 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/40";
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <BackLink href="/admin" />
-      <header>
-        <h1 className="text-2xl font-bold text-brand-navy">Users</h1>
-        <p className="mt-1 text-sm text-brand-slate">
-          Manage who has access to OViz for this clinic.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Admin"
+        title="Users"
+        subtitle="Manage who has access to OViz for this clinic."
+      />
 
       {(saved ?? invited) && (
         <div
           role="status"
-          className="rounded-md border border-brand-teal/40 bg-brand-teal/5 p-3 text-sm text-brand-teal"
+          className="rounded-xl border border-brand-teal/40 bg-brand-tint px-4 py-3 text-base font-medium text-brand-teal-700"
         >
           {invited ? "Invitation created." : "Role updated."}
         </div>
@@ -237,24 +238,22 @@ async function AdminUsersBody({ searchParams }: PageProps) {
       {pageError && (
         <div
           role="alert"
-          className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-base text-destructive"
         >
           {errorMessages[pageError] ?? "Something went wrong. Please try again."}
         </div>
       )}
 
-      <div className="rounded-lg border border-brand-slate/20 bg-brand-white">
-        <table className="w-full text-sm">
+      <div className="overflow-hidden rounded-2xl border border-brand-line bg-brand-white shadow-sm">
+        <table className="w-full text-base">
           <thead>
-            <tr className="border-b border-brand-slate/15">
-              <th className="px-4 py-3 text-left font-semibold text-brand-navy">
+            <tr className="border-b border-brand-line bg-brand-mist text-left">
+              <th className="px-5 py-4 font-semibold text-brand-navy">
                 Name / Email
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-brand-navy">
-                Role
-              </th>
+              <th className="px-5 py-4 font-semibold text-brand-navy">Role</th>
               {isOwner && (
-                <th className="px-4 py-3 text-left font-semibold text-brand-navy">
+                <th className="px-5 py-4 font-semibold text-brand-navy">
                   Change role
                 </th>
               )}
@@ -265,7 +264,7 @@ async function AdminUsersBody({ searchParams }: PageProps) {
               <tr>
                 <td
                   colSpan={isOwner ? 3 : 2}
-                  className="px-4 py-6 text-center text-sm text-brand-slate"
+                  className="px-5 py-8 text-center text-base text-brand-muted"
                 >
                   No users found.
                 </td>
@@ -274,25 +273,25 @@ async function AdminUsersBody({ searchParams }: PageProps) {
               members.map((member) => (
                 <tr
                   key={member.id}
-                  className="border-b border-brand-slate/10 last:border-0"
+                  className="border-b border-brand-line last:border-0"
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-4">
                     <p className="font-medium text-brand-navy">
                       {member.full_name ?? "—"}
                     </p>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-4">
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium capitalize ${
                         roleBadgeClass[member.role] ??
-                        "bg-brand-slate/10 text-brand-slate"
+                        "bg-brand-slate/15 text-brand-muted"
                       }`}
                     >
                       {member.role}
                     </span>
                   </td>
                   {isOwner && (
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-4">
                       {member.id !== user.id ? (
                         <form
                           action={changeRole}
@@ -306,7 +305,8 @@ async function AdminUsersBody({ searchParams }: PageProps) {
                           <select
                             name="role"
                             defaultValue={member.role}
-                            className="rounded border border-brand-slate/30 px-2 py-1 text-xs text-brand-navy focus:border-brand-teal focus:outline-none"
+                            aria-label="Role"
+                            className="h-10 rounded-lg border border-brand-line px-3 text-base text-brand-navy focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
                           >
                             <option value="owner">Owner</option>
                             <option value="admin">Admin</option>
@@ -316,13 +316,13 @@ async function AdminUsersBody({ searchParams }: PageProps) {
                             type="submit"
                             size="sm"
                             variant="outline"
-                            className="h-7 border-brand-teal/40 text-xs text-brand-teal hover:bg-brand-teal/5"
+                            className="h-10 border-brand-teal/40 text-sm font-medium text-brand-teal-700 hover:bg-brand-tint"
                           >
                             Save
                           </Button>
                         </form>
                       ) : (
-                        <span className="text-xs text-brand-slate">You</span>
+                        <span className="text-base text-brand-muted">You</span>
                       )}
                     </td>
                   )}
@@ -333,20 +333,20 @@ async function AdminUsersBody({ searchParams }: PageProps) {
         </table>
       </div>
 
-      <section className="rounded-lg border border-brand-slate/20 bg-brand-white p-6">
-        <h2 className="mb-1 text-base font-semibold text-brand-navy">
+      <section className="rounded-2xl border border-brand-line bg-brand-white p-7 shadow-sm">
+        <h2 className="font-heading text-xl font-semibold text-brand-navy">
           Invite a user
         </h2>
-        <p className="mb-4 text-xs text-brand-slate">
+        <p className="mb-5 mt-1 text-base text-brand-muted">
           Creates an invite record. Email delivery will be enabled in a future
           update.
         </p>
-        <form action={inviteUser} className="flex flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
+        <form action={inviteUser} className="flex flex-col gap-5">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
               <label
                 htmlFor="invite-email"
-                className="text-sm font-medium text-brand-navy"
+                className="text-base font-semibold text-brand-navy"
               >
                 Email <span className="text-destructive">*</span>
               </label>
@@ -356,13 +356,13 @@ async function AdminUsersBody({ searchParams }: PageProps) {
                 type="email"
                 required
                 placeholder="clinician@example.com"
-                className="rounded-md border border-brand-slate/30 px-3 py-2 text-sm text-brand-navy placeholder-brand-slate/40 focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
+                className={fieldClass}
               />
             </div>
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-2">
               <label
                 htmlFor="invite-role"
-                className="text-sm font-medium text-brand-navy"
+                className="text-base font-semibold text-brand-navy"
               >
                 Role <span className="text-destructive">*</span>
               </label>
@@ -370,7 +370,7 @@ async function AdminUsersBody({ searchParams }: PageProps) {
                 id="invite-role"
                 name="role"
                 defaultValue="staff"
-                className="rounded-md border border-brand-slate/30 px-3 py-2 text-sm text-brand-navy focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal"
+                className={fieldClass}
               >
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
@@ -380,7 +380,7 @@ async function AdminUsersBody({ searchParams }: PageProps) {
           <div>
             <Button
               type="submit"
-              className="bg-brand-teal text-brand-white hover:bg-brand-teal/90"
+              className="h-12 bg-brand-teal px-6 text-base font-semibold text-brand-white hover:bg-brand-teal-700"
             >
               Send invitation
             </Button>

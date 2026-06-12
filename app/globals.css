@@ -65,6 +65,10 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-inter), system-ui, sans-serif;
+    /* Slightly looser default leading aids older readers. */
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   h1 {
     font-family: var(--font-inter), system-ui, sans-serif;
@@ -75,8 +79,81 @@
       sans-serif;
     font-weight: 600;
   }
+
+  /* Age-friendly, highly visible keyboard focus on every interactive element.
+     Benefits all users; required by WCAG 2.4.7. */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 3px solid #008b8b;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
+/* ----------------------------------------------------------------------------
+   Marketing / auth surface helpers (scoped via .oviz-surface wrapper so the
+   authenticated app and report layouts are unaffected).
+---------------------------------------------------------------------------- */
+.oviz-surface {
+  font-size: 1.125rem; /* 18px base for comfortable reading */
+}
+.oviz-surface :where(h1, h2, h3) {
+  font-family: var(--font-montserrat), var(--font-inter), system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #002147;
+}
+.oviz-surface .oviz-eyebrow {
+  font-size: 0.9375rem; /* 15px */
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #00696a;
+}
+
+/* The signature "rising line" — drawn on load, calm float, motion-safe. */
+.oviz-rise-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  pathLength: 1;
+  animation: oviz-draw 1.8s ease-out forwards;
+}
+@keyframes oviz-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.oviz-reveal {
+  animation: oviz-rise 0.7s ease-out both;
+}
+@keyframes oviz-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oviz-rise-path {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .oviz-reveal {
+    animation: none;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Existing utilities preserved verbatim (used by the consult/report screens).
+---------------------------------------------------------------------------- */
 .oviz-print-color {
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;

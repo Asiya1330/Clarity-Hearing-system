@@ -117,7 +117,7 @@ async function DashboardBody() {
             className="h-14 shrink-0 bg-brand-teal px-8 text-lg font-semibold text-brand-white hover:bg-brand-teal-700"
             data-testid="start-consult-button"
           >
-            <Link href="/consults/new">
+            <Link href="/consults/start">
               Start OViz Consult
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>

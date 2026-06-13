@@ -68,7 +68,7 @@ async function NavLinks() {
       <Link href="/dashboard" className={linkClass}>
         Dashboard
       </Link>
-      <Link href="/consults/new" className={linkClass}>
+      <Link href="/consults/start" className={linkClass}>
         New consult
       </Link>
       {isAdminOrOwner && (

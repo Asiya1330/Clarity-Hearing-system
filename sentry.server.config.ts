@@ -1,18 +1,19 @@
+// This file configures the initialization of Sentry on the server.
+// The config you add here will be used whenever the server handles a request.
+// https://docs.sentry.io/platforms/javascript/guides/nextjs/
+
 import * as Sentry from "@sentry/nextjs";
-import { beforeSend } from "@/lib/sentry/phi-filter";
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV,
+  dsn: "https://985d1450d7d5b07d9f33d66cd7ab185b@o4511191126441984.ingest.us.sentry.io/4511327992479744",
 
-  // 10 % sample rate for performance monitoring.
-  tracesSampleRate: 0.1,
+  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
+  tracesSampleRate: 1,
 
-  // sendDefaultPii defaults to false — never set true in a healthcare app.
-  // enableLogs is omitted — console output may contain clinic/patient context.
+  // Enable logs to be sent to Sentry
+  enableLogs: true,
 
-  // Next.js redirect() and notFound() throw internally; they are not errors.
-  ignoreErrors: ["NEXT_NOT_FOUND", "NEXT_REDIRECT"],
-
-  beforeSend,
+  // Enable sending user PII (Personally Identifiable Information)
+  // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
+  sendDefaultPii: true,
 });

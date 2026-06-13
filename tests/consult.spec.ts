@@ -13,17 +13,32 @@ import { test, expect } from "@playwright/test";
 
 test("clinician can start an OViz consult", async ({ page }) => {
   await page.goto("/dashboard");
-  const startBtn = page.getByTestId("start-consult-btn");
+  const startBtn = page.getByTestId("start-consult-button");
   await expect(startBtn).toBeVisible();
   await startBtn.click();
+
+  // The Start CTA now leads to the intake-mode chooser.
+  await page.waitForURL("**/consults/start");
+  // Let the client component hydrate before clicking the Link (avoids a
+  // pre-hydration "dead click" that never triggers client-side navigation).
+  await page.waitForLoadState("networkidle");
+  await expect(page.getByTestId("mode-in-clinic")).toBeVisible();
+
+  // "In Clinic" opens the existing full wizard at /consults/new.
+  await page.getByTestId("mode-in-clinic").click();
   await page.waitForURL("**/consults/new");
-  await expect(page.getByRole("heading", { name: "Clinician inputs" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Patient information" }),
+  ).toBeVisible();
 });
 
 test("Continue is disabled until all required clinician fields are valid", async ({
   page,
 }) => {
   await page.goto("/consults/new");
+
+  // Step 1 is patient info (valid by default); advance to clinician inputs.
+  await page.getByTestId("wizard-continue").click();
 
   const continueBtn = page.getByTestId("wizard-continue");
   await expect(continueBtn).toBeDisabled();
@@ -43,6 +58,8 @@ test("Continue is disabled until all required clinician fields are valid", async
 
 test("PTA cannot exceed 120 — shows out-of-range error", async ({ page }) => {
   await page.goto("/consults/new");
+  // Advance past the patient-info step to reach clinician inputs.
+  await page.getByTestId("wizard-continue").click();
 
   const ptaInput = page.locator("#pta");
   await ptaInput.fill("121");
@@ -54,6 +71,8 @@ test("PTA cannot exceed 120 — shows out-of-range error", async ({ page }) => {
 
 test("WRS cannot exceed 100 — shows out-of-range error", async ({ page }) => {
   await page.goto("/consults/new");
+  // Advance past the patient-info step to reach clinician inputs.
+  await page.getByTestId("wizard-continue").click();
 
   const wrsInput = page.locator("#wrs");
   await wrsInput.fill("101");
@@ -65,6 +84,9 @@ test("WRS cannot exceed 100 — shows out-of-range error", async ({ page }) => {
 
 test("Partner Impact Mirror shows annual repeat burden", async ({ page }) => {
   await page.goto("/consults/new");
+
+  // Advance past the patient-info step to reach clinician inputs.
+  await page.getByTestId("wizard-continue").click();
 
   // Complete clinician step to unlock Continue
   await page.locator("#pta").fill("45");
@@ -92,6 +114,9 @@ test("Real-Life Listening Map accepts only up to 3 situations", async ({
   page,
 }) => {
   await page.goto("/consults/new");
+
+  // Advance past the patient-info step to reach clinician inputs.
+  await page.getByTestId("wizard-continue").click();
 
   // Complete clinician step
   await page.locator("#pta").fill("45");

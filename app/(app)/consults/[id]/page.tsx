@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BackLink } from "@/components/BackLink";
 import { PageHeader } from "@/components/app/page-header";
+import { CompleteConsultForm } from "@/components/consult/complete-consult-form";
+import { IntakeLinkPanel } from "@/components/consult/intake-link-panel";
 import { ResultsDashboard } from "@/components/consult/results-dashboard";
 import { EarFitPhotos, type ExistingPhoto } from "@/components/EarFitPhotos";
 import { Button } from "@/components/ui/button";
@@ -39,7 +41,21 @@ async function ConsultBody({ params }: PageProps) {
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: modelRun, error: modelRunError } = await supabase
+  // Fetch the consult first: with email/kiosk intake a consult can exist
+  // before any model run does (awaiting_patient / patient_complete).
+  const { data: consult, error: consultError } = await supabase
+    .from("consults")
+    .select(
+      "clinic_id, status, intake_mode, patient_responses_submitted_at, photo_consent, patient_name, consult_date, is_follow_up",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (consultError || !consult) {
+    notFound();
+  }
+
+  const { data: modelRun } = await supabase
     .from("model_runs")
     .select("outputs, model_version, created_at")
     .eq("consult_id", id)
@@ -47,8 +63,17 @@ async function ConsultBody({ params }: PageProps) {
     .limit(1)
     .maybeSingle();
 
-  if (modelRunError || !modelRun) {
-    notFound();
+  if (!modelRun) {
+    return (
+      <PendingConsult
+        consultId={id}
+        status={consult.status as string}
+        intakeMode={(consult.intake_mode as string) ?? "in_clinic"}
+        patientName={consult.patient_name as string | null}
+        consultDate={consult.consult_date as string | null}
+        submittedAt={consult.patient_responses_submitted_at as string | null}
+      />
+    );
   }
 
   const outputs = modelRun.outputs as ImpactOutputs;
@@ -58,13 +83,7 @@ async function ConsultBody({ params }: PageProps) {
   let initialConsent = false;
   let initialPhotos: ExistingPhoto[] = [];
 
-  const { data: consult } = await supabase
-    .from("consults")
-    .select("clinic_id, photo_consent, patient_name, consult_date, is_follow_up")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (consult) {
+  {
     initialConsent = consult.photo_consent === true;
 
     const { data: clinic } = await supabase
@@ -162,6 +181,81 @@ async function ConsultBody({ params }: PageProps) {
         initialConsent={initialConsent}
         initialPhotos={initialPhotos}
       />
+    </div>
+  );
+}
+
+function PendingConsult({
+  consultId,
+  status,
+  intakeMode,
+  patientName,
+  consultDate,
+  submittedAt,
+}: {
+  consultId: string;
+  status: string;
+  intakeMode: string;
+  patientName: string | null;
+  consultDate: string | null;
+  submittedAt: string | null;
+}) {
+  const awaiting = status === "awaiting_patient";
+  const received = status === "patient_complete";
+  const modeLabel = intakeMode === "kiosk" ? "Kiosk" : "Email";
+
+  return (
+    <div className="flex flex-col gap-8">
+      <BackLink href="/dashboard" />
+      <PageHeader
+        eyebrow={`${modeLabel} intake`}
+        title="Consult in progress"
+        subtitle={
+          awaiting
+            ? "Waiting for the patient to answer their questions."
+            : "Patient responses received. Add the clinician inputs to generate results."
+        }
+      />
+
+      {(patientName || consultDate) && (
+        <div className="flex flex-wrap gap-x-8 gap-y-2 rounded-xl border border-brand-line bg-brand-white px-5 py-4 text-base text-brand-muted">
+          {patientName && (
+            <span>
+              <span className="font-semibold text-brand-navy">Patient:</span>{" "}
+              {patientName}
+            </span>
+          )}
+          {consultDate && (
+            <span>
+              <span className="font-semibold text-brand-navy">Date:</span>{" "}
+              {new Date(consultDate + "T00:00:00").toLocaleDateString()}
+            </span>
+          )}
+          {submittedAt && (
+            <span>
+              <span className="font-semibold text-brand-navy">
+                Responses received:
+              </span>{" "}
+              {new Date(submittedAt).toLocaleString()}
+            </span>
+          )}
+        </div>
+      )}
+
+      {awaiting ? <IntakeLinkPanel consultId={consultId} /> : null}
+
+      {received ? (
+        <section className="rounded-2xl border border-brand-line bg-brand-white p-7 shadow-sm">
+          <h2 className="font-heading text-xl font-semibold text-brand-navy">
+            Clinician inputs
+          </h2>
+          <p className="mb-6 mt-1 text-base text-brand-muted">
+            From today&apos;s audiology results. Results are generated as soon
+            as these are saved.
+          </p>
+          <CompleteConsultForm consultId={consultId} />
+        </section>
+      ) : null}
     </div>
   );
 }

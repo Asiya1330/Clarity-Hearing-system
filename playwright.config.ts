@@ -6,6 +6,15 @@ import path from "path";
 // are available in globalSetup/globalTeardown which run outside Next.js.
 loadEnv({ path: path.resolve(__dirname, ".env.local") });
 
+// Ensure SUPABASE_SERVICE_ROLE_KEY is populated for tests (maps from Next env var names)
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  process.env.SUPABASE_SERVICE_ROLE_KEY =
+    process.env.NEXT_SECRET_SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_API_KEY ||
+    process.env.NEXT_SECRET_SUPABASE_API_KEY;
+}
+
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: false,
@@ -15,7 +24,7 @@ export default defineConfig({
   reporter: "html",
 
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: process.env.PW_BASE_URL || "http://localhost:3001",
     trace: "on-first-retry",
   },
 
@@ -49,7 +58,7 @@ export default defineConfig({
 
   webServer: {
     command: "npm run dev",
-    url: "http://localhost:3000",
+    url: process.env.PW_BASE_URL || "http://localhost:3001",
     reuseExistingServer: true,
     timeout: 120_000,
   },

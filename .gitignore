@@ -49,6 +49,8 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 /tests/.auth/
+/playwright-suite.log
+*.log
 
 # Keys and secrets
 *.key

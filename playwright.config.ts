@@ -6,12 +6,13 @@ import path from "path";
 // are available in globalSetup/globalTeardown which run outside Next.js.
 loadEnv({ path: path.resolve(__dirname, ".env.local") });
 
-// Ensure SUPABASE_SERVICE_ROLE_KEY is populated for tests (maps from Next env var names)
+// Ensure SUPABASE_SERVICE_ROLE_KEY is populated for tests (maps from Next env var names).
+// NOTE: NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY is intentionally excluded here — that variable
+// name is a footgun (the NEXT_PUBLIC_ prefix makes it eligible for client-bundle inclusion).
+// Use NEXT_SECRET_SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SERVICE_ROLE_KEY in .env.local.
 if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
   process.env.SUPABASE_SERVICE_ROLE_KEY =
     process.env.NEXT_SECRET_SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_API_KEY ||
     process.env.NEXT_SECRET_SUPABASE_API_KEY;
 }
 

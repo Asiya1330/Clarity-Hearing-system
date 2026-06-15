@@ -150,8 +150,8 @@ export async function POST(request: NextRequest) {
     clinic_id: clinicId,
     storage_path: path,
     upload_status: "pending",
-    file_size: parsed.data.fileSize,
-    uploaded_by: user.id,
+    file_size_bytes: parsed.data.fileSize,
+    created_by: user.id,
   });
   if (insertError) {
     console.error("ear_fit_photos.insert failed", {

@@ -10,10 +10,12 @@ setup("authenticate pro user", async ({ page }) => {
   fs.mkdirSync(AUTH_DIR, { recursive: true });
 
   await page.goto("/auth/login");
+  await page.waitForLoadState("networkidle");
+  // Ensure form inputs are visible and page has finished any HMR compilation.
   await page.getByTestId("login-email").fill(E2E_PRO_EMAIL);
   await page.getByTestId("login-password").fill(E2E_PASSWORD);
   await page.getByTestId("login-button").click();
-  await page.waitForURL("**/dashboard", { timeout: 15_000 });
+  await page.waitForURL("**/dashboard", { timeout: 30_000 });
 
   await page.context().storageState({ path: path.join(AUTH_DIR, "pro.json") });
 });

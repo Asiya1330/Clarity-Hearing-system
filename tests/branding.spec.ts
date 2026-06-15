@@ -73,7 +73,7 @@ test("primary action buttons carry the bg-brand-teal class", async ({
   await page.goto("/dashboard");
 
   // Start consult button on dashboard
-  const startBtn = page.getByTestId("start-consult-btn");
+  const startBtn = page.getByTestId("start-consult-button");
   await expect(startBtn).toBeVisible();
   const startClass = await startBtn.getAttribute("class");
   expect(startClass).toContain("bg-brand-teal");

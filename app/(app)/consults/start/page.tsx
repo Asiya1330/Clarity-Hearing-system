@@ -47,7 +47,7 @@ export default function StartConsultPage() {
       </div>
 
       <p className="max-w-prose text-base leading-relaxed text-brand-muted">
-        Email and kiosk responses are saved to the patient's consult automatically. When you're ready, open the consult from the dashboard, add the clinician inputs, and the results are generated.
+        Email and kiosk responses are saved to the patient&apos;s consult automatically. When you&apos;re ready, open the consult from the dashboard, add the clinician inputs, and the results are generated.
       </p>
     </div>
   );

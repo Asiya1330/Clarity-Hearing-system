@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/auth/form-error";
 import {
   Card,
   CardContent,
@@ -12,7 +13,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -64,43 +64,33 @@ export function SignUpForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <div className="flex justify-center px-4 py-2">
-        <Image
-          src="/brand/oviz-by-otovantage-logo.png"
-          alt="OViz by OtoVantage"
-          width={954}
-          height={340}
-          priority
-          className="h-16 w-auto"
-        />
-      </div>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl text-brand-navy">
-            Create account
-          </CardTitle>
-          <CardDescription className="text-brand-slate">
-            Set up your OViz by OtoVantage account.
+          <CardTitle>Create account</CardTitle>
+          <CardDescription>
+            Set up your clinic&apos;s OViz account.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-base text-brand-navy">
+                  Email
+                </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="you@clinic.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                </div>
+                <Label htmlFor="password" className="text-base text-brand-navy">
+                  Password
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -110,9 +100,12 @@ export function SignUpForm({
                 />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="repeat-password">Repeat Password</Label>
-                </div>
+                <Label
+                  htmlFor="repeat-password"
+                  className="text-base text-brand-navy"
+                >
+                  Repeat password
+                </Label>
                 <Input
                   id="repeat-password"
                   type="password"
@@ -121,15 +114,23 @@ export function SignUpForm({
                   onChange={(e) => setRepeatPassword(e.target.value)}
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating an account..." : "Sign up"}
+              {error && <FormError message={error} />}
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating account…" : "Create account"}
               </Button>
             </div>
-            <div className="mt-4 text-center text-sm">
+            <div className="mt-6 text-center text-base text-brand-muted">
               Already have an account?{" "}
-              <Link href="/auth/login" className="underline underline-offset-4">
-                Login
+              <Link
+                href="/auth/login"
+                className="font-medium text-brand-teal-700 underline-offset-4 hover:underline"
+              >
+                Sign in
               </Link>
             </div>
           </form>

@@ -3,6 +3,8 @@
 import * as Sentry from "@sentry/nextjs";
 import Link from "next/link";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { RisingLine } from "@/components/app/rising-line";
 
 interface Props {
   error: Error & { digest?: string };
@@ -17,38 +19,35 @@ export default function RootError({ error, reset }: Props) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-white px-6">
+    <div className="oviz-surface flex min-h-screen items-center justify-center bg-brand-mist/40 px-6">
       <div className="max-w-md text-center">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-slate">
-          OViz by OtoVantage
-        </p>
-        <h1 className="mb-3 text-2xl font-bold text-brand-navy">
-          An unexpected error occurred
+        <div className="mb-3 flex items-center justify-center gap-3">
+          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-teal-700">
+            OViz by OtoVantage
+          </span>
+          <RisingLine className="h-3 w-16 opacity-70" />
+        </div>
+        <h1 className="mb-3 font-heading text-3xl font-semibold text-brand-navy">
+          Something went wrong
         </h1>
-        <p className="mb-6 text-brand-slate">
-          OViz could not complete this request. Try reloading the page. If the
-          problem continues, contact your clinic administrator.
+        <p className="mb-6 text-lg leading-relaxed text-brand-muted">
+          OViz couldn&apos;t complete this request. Reload the page to try
+          again. If it keeps happening, contact your clinic administrator.
         </p>
 
         {error.digest && (
-          <p className="mb-4 font-mono text-xs text-brand-slate">
+          <p className="mb-6 font-mono text-sm text-brand-muted">
             Reference: {error.digest}
           </p>
         )}
 
         <div className="flex justify-center gap-3">
-          <button
-            onClick={reset}
-            className="rounded-md bg-brand-teal px-5 py-2.5 text-sm font-semibold text-brand-white hover:bg-brand-teal/90"
-          >
+          <Button onClick={reset} size="lg">
             Try again
-          </button>
-          <Link
-            href="/dashboard"
-            className="rounded-md border border-brand-slate/30 px-5 py-2.5 text-sm font-semibold text-brand-navy hover:bg-brand-slate/5"
-          >
-            Go to dashboard
-          </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/dashboard">Go to dashboard</Link>
+          </Button>
         </div>
       </div>
     </div>

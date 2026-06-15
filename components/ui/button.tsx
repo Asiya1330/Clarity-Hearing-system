@@ -4,27 +4,33 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+// Age-friendly sizing and an accessible focus ring are intentional:
+// OViz serves older patients and clinicians. The visible focus outline is
+// defined globally in globals.css (3px teal); variants here must NOT suppress
+// it with `outline-none`. Text-bearing teal fills hover into brand-teal-700
+// (6.5:1 on white) so labels stay legible on interaction.
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+          "bg-brand-teal text-brand-white shadow-sm hover:bg-brand-teal-700",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+          "border border-brand-line bg-brand-white text-brand-navy shadow-sm hover:border-brand-teal hover:bg-brand-mist hover:text-brand-teal-700",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-brand-navy text-brand-white shadow-sm hover:bg-brand-ink",
+        ghost: "text-brand-navy hover:bg-brand-mist hover:text-brand-teal-700",
+        link: "text-brand-teal-700 underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9",
+        // Comfortable, touch-friendly defaults (>=44px) for an older audience.
+        default: "h-11 px-5 text-base [&_svg]:size-5",
+        sm: "h-9 rounded-md px-3 text-sm [&_svg]:size-4",
+        lg: "h-14 px-8 text-lg [&_svg]:size-5",
+        icon: "h-11 w-11 [&_svg]:size-5",
       },
     },
     defaultVariants: {

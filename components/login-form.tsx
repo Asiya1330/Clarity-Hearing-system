@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/auth/form-error";
 import {
   Card,
   CardContent,
@@ -12,7 +13,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -49,33 +49,25 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <div className="flex justify-center px-4 py-2">
-        <Image
-          src="/brand/oviz-by-otovantage-logo.png"
-          alt="OViz by OtoVantage"
-          width={954}
-          height={340}
-          priority
-          className="h-16 w-auto"
-        />
-      </div>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl text-brand-navy">Sign in</CardTitle>
-          <CardDescription className="text-brand-slate">
-            Enter your email below to access OViz by OtoVantage.
+          <CardTitle>Sign in</CardTitle>
+          <CardDescription>
+            Enter your email to access OViz by OtoVantage.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} data-testid="login-form">
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-base text-brand-navy">
+                  Email
+                </Label>
                 <Input
                   id="email"
                   data-testid="login-email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="you@clinic.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -83,12 +75,17 @@ export function LoginForm({
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label
+                    htmlFor="password"
+                    className="text-base text-brand-navy"
+                  >
+                    Password
+                  </Label>
                   <Link
                     href="/auth/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    className="ml-auto inline-block text-base font-medium text-brand-teal-700 underline-offset-4 hover:underline"
                   >
-                    Forgot your password?
+                    Forgot password?
                   </Link>
                 </div>
                 <Input
@@ -100,18 +97,28 @@ export function LoginForm({
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              {error && <p className="text-sm text-red-500" data-testid="login-error">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading} data-testid="login-button">
-                {isLoading ? "Logging in..." : "Login"}
+              {error && (
+                <div data-testid="login-error">
+                  <FormError message={error} />
+                </div>
+              )}
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={isLoading}
+                data-testid="login-button"
+              >
+                {isLoading ? "Signing in…" : "Sign in"}
               </Button>
             </div>
-            <div className="mt-4 text-center text-sm">
+            <div className="mt-6 text-center text-base text-brand-muted">
               Don&apos;t have an account?{" "}
               <Link
                 href="/auth/sign-up"
-                className="underline underline-offset-4"
+                className="font-medium text-brand-teal-700 underline-offset-4 hover:underline"
               >
-                Sign up
+                Create one
               </Link>
             </div>
           </form>

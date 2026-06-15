@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
 export default function RootPage() {
@@ -31,11 +33,57 @@ async function RootBody() {
   return <Landing />;
 }
 
-function Landing() {
+// The brand signature: a flat soundwave on the left resolving into a climbing
+// line — "today's hearing, projected forward." Drawn on load (motion-safe).
+function HeroRisingLine() {
   return (
-    <div className="min-h-screen bg-brand-white">
+    <svg
+      viewBox="0 0 1200 200"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      className="h-28 w-full sm:h-36"
+    >
+      <path
+        className="oviz-rise-path"
+        d="M0,150 L60,150 L90,90 L120,170 L150,60 L180,170 L210,120 L300,120 C520,120 700,96 860,64 C1000,36 1120,22 1200,14"
+        fill="none"
+        stroke="#008B8B"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function Landing() {
+  const projections = [
+    {
+      name: "Brain Battery",
+      blurb: "How hard the brain is working to listen, today and over time.",
+    },
+    {
+      name: "Word Understanding",
+      blurb: "A clear scenario for everyday speech clarity.",
+    },
+    {
+      name: "Social Radius",
+      blurb: "How far comfortable hearing reaches in real situations.",
+    },
+    {
+      name: "Partner Impact Mirror",
+      blurb: "The shared, day-to-day effect on the people closest by.",
+    },
+    {
+      name: "Real-Life Listening Map",
+      blurb: "The patient's own listening priorities, ranked.",
+    },
+  ];
+
+  return (
+    <div className="oviz-surface min-h-screen bg-brand-white text-brand-navy">
       {/* Header */}
-      <header className="border-b border-brand-slate/15 bg-brand-white">
+      <header className="border-b border-brand-line bg-brand-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Image
             src="/brand/oviz-by-otovantage-logo.png"
@@ -45,69 +93,84 @@ function Landing() {
             priority
             className="h-10 w-auto"
           />
-          <nav className="flex items-center gap-4">
-            <Link
-              href="/auth/login"
-              className="text-sm font-medium text-brand-navy hover:text-brand-teal"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/auth/sign-up"
-              className="rounded-md bg-brand-teal px-4 py-2 text-sm font-medium text-brand-white hover:bg-brand-teal/90"
-            >
-              Create account
-            </Link>
+          <nav className="flex items-center gap-2 sm:gap-3">
+            <Button asChild variant="ghost">
+              <Link href="/auth/login">Sign in</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/auth/sign-up">Create account</Link>
+            </Button>
           </nav>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-5xl px-6 py-20 text-center">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">
-          OViz by OtoVantage
-        </p>
-        <h1 className="text-5xl font-bold leading-tight text-brand-navy">
-          Evidence-informed hearing
-          <br />
-          consult for clinicians
+      <section className="mx-auto max-w-5xl px-6 pb-8 pt-20 text-center">
+        <p className="oviz-reveal oviz-eyebrow">OViz by OtoVantage</p>
+        <h1 className="oviz-reveal mx-auto mt-4 max-w-3xl font-heading text-4xl font-semibold leading-[1.1] tracking-tight text-brand-navy sm:text-6xl">
+          Make today&apos;s hearing results
+          <br className="hidden sm:block" /> impossible to ignore.
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-brand-slate">
-          OViz is a B2B hearing-clinic consult and patient-education platform.
-          It generates educational projections — Brain Battery, Word
-          Understanding, Social Radius, and Partner Impact — to support
-          clinician-led consultations.
+        <p className="oviz-reveal mx-auto mt-6 max-w-prose text-xl leading-relaxed text-brand-muted">
+          OViz turns a clinic&apos;s hearing measurements into clear, evidence-
+          informed projections you can talk through with a patient — Brain
+          Battery, Word Understanding, Social Radius, and Partner Impact — in
+          one clinician-led consult.
         </p>
-        <p className="mx-auto mt-3 max-w-xl text-sm text-brand-slate/70">
-          Educational projection based on published evidence and today&apos;s
-          hearing results. Not a diagnosis, guarantee, or substitute for
-          clinician judgment.
-        </p>
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/auth/sign-up"
-            className="rounded-md bg-brand-teal px-8 py-3 text-sm font-medium text-brand-white hover:bg-brand-teal/90"
-          >
-            Create account
-          </Link>
-          <Link
-            href="/auth/login"
-            className="rounded-md border border-brand-navy/20 px-8 py-3 text-sm font-medium text-brand-navy hover:border-brand-teal hover:text-brand-teal"
-          >
-            Sign in
-          </Link>
+        <div className="oviz-reveal mt-10 flex flex-wrap items-center justify-center gap-3">
+          <Button asChild size="lg">
+            <Link href="/auth/sign-up">Create account</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/auth/login">Sign in</Link>
+          </Button>
         </div>
       </section>
 
-      {/* Tier cards */}
-      <section className="border-t border-brand-slate/15 bg-brand-white">
-        <div className="mx-auto max-w-5xl px-6 py-16">
-          <h2 className="mb-2 text-center text-3xl font-bold text-brand-navy">
-            Plans
-          </h2>
-          <p className="mb-10 text-center text-brand-slate">
-            Choose the tier that fits your clinic during setup.
-          </p>
+      {/* Signature rising line */}
+      <div className="mx-auto max-w-6xl px-6">
+        <HeroRisingLine />
+      </div>
+
+      {/* What it projects */}
+      <section className="border-t border-brand-line bg-brand-mist/40">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <div className="mb-10 text-center">
+            <p className="oviz-eyebrow">In one consult</p>
+            <h2 className="mt-3 font-heading text-3xl font-semibold text-brand-navy">
+              Five projections, one conversation
+            </h2>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {projections.map((p) => (
+              <div
+                key={p.name}
+                className="rounded-2xl border border-brand-line bg-brand-white p-7 shadow-sm"
+              >
+                <h3 className="font-heading text-xl font-semibold text-brand-navy">
+                  {p.name}
+                </h3>
+                <p className="mt-2 text-lg leading-relaxed text-brand-muted">
+                  {p.blurb}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Tiers */}
+      <section className="border-t border-brand-line bg-brand-white">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <div className="mb-10 text-center">
+            <p className="oviz-eyebrow">Plans</p>
+            <h2 className="mt-3 font-heading text-3xl font-semibold text-brand-navy">
+              Choose the tier that fits your clinic
+            </h2>
+            <p className="mt-3 text-lg text-brand-muted">
+              Set your plan during clinic setup. Change it any time.
+            </p>
+          </div>
           <div className="grid gap-6 md:grid-cols-3">
             <TierCard
               name="Starter"
@@ -150,13 +213,13 @@ function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-brand-slate/15 bg-brand-white">
-        <div className="mx-auto max-w-5xl px-6 py-8 text-center text-xs text-brand-slate">
-          <p>
-            OViz by OtoVantage &mdash; The Strategic High Ground for Hearing
-            Healthcare Operations.
+      <footer className="border-t border-brand-line bg-brand-white">
+        <div className="mx-auto max-w-prose px-6 py-10 text-center text-base text-brand-muted">
+          <p className="font-medium text-brand-navy">
+            OViz by OtoVantage — the strategic high ground for hearing
+            healthcare operations.
           </p>
-          <p className="mt-2 text-brand-slate/60">
+          <p className="mt-3">
             Educational projection based on published evidence and today&apos;s
             hearing results. Not a diagnosis, guarantee, or substitute for
             clinician judgment.
@@ -180,39 +243,45 @@ function TierCard({
 }) {
   return (
     <div
-      className={`rounded-lg border p-6 ${
+      className={`flex flex-col rounded-2xl border p-7 shadow-sm ${
         highlighted
-          ? "border-brand-teal bg-brand-teal/5 ring-1 ring-brand-teal"
-          : "border-brand-slate/20 bg-brand-white"
+          ? "border-brand-teal bg-brand-tint/40 ring-1 ring-brand-teal"
+          : "border-brand-line bg-brand-white"
       }`}
     >
-      {highlighted && (
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-brand-teal">
+      {highlighted ? (
+        <span className="mb-3 inline-flex w-fit rounded-full bg-brand-teal px-3 py-1 text-sm font-semibold text-brand-white">
           Most popular
-        </p>
+        </span>
+      ) : (
+        <span className="mb-3 h-7" aria-hidden="true" />
       )}
-      <h3 className="text-xl font-bold text-brand-navy">{name}</h3>
-      <p className="mt-1 text-sm text-brand-slate">{tagline}</p>
-      <ul className="mt-5 flex flex-col gap-2">
+      <h3 className="font-heading text-2xl font-semibold text-brand-navy">
+        {name}
+      </h3>
+      <p className="mt-1 text-lg leading-relaxed text-brand-muted">{tagline}</p>
+      <ul className="mt-6 flex flex-1 flex-col gap-3">
         {features.map((f) => (
-          <li key={f} className="flex items-start gap-2 text-sm text-brand-slate">
-            <span className="mt-px text-brand-teal">✓</span>
+          <li
+            key={f}
+            className="flex items-start gap-3 text-lg text-brand-navy"
+          >
+            <Check
+              className="mt-1 h-5 w-5 shrink-0 text-brand-teal-700"
+              aria-hidden="true"
+            />
             {f}
           </li>
         ))}
       </ul>
-      <div className="mt-6">
-        <Link
-          href="/auth/sign-up"
-          className={`block w-full rounded-md px-4 py-2 text-center text-sm font-medium ${
-            highlighted
-              ? "bg-brand-teal text-brand-white hover:bg-brand-teal/90"
-              : "border border-brand-navy/20 text-brand-navy hover:border-brand-teal hover:text-brand-teal"
-          }`}
-        >
-          Get started
-        </Link>
-      </div>
+      <Button
+        asChild
+        size="lg"
+        variant={highlighted ? "default" : "outline"}
+        className="mt-7 w-full"
+      >
+        <Link href="/auth/sign-up">Get started</Link>
+      </Button>
     </div>
   );
 }

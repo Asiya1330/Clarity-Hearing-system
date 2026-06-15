@@ -33,7 +33,7 @@ test("formal lockup 'OViz by OtoVantage' appears on the login page", async ({
     page.getByAltText("OViz by OtoVantage"),
   ).toBeVisible();
   await expect(
-    page.getByText("Enter your email below to access OViz by OtoVantage."),
+    page.getByText("Enter your email to access OViz by OtoVantage."),
   ).toBeVisible();
 });
 

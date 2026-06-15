@@ -42,7 +42,7 @@ export default function GlobalError({ error, reset }: Props) {
               fontWeight: 600,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              color: "#708090",
+              color: "#44525E",
             }}
           >
             OViz by OtoVantage
@@ -62,7 +62,7 @@ export default function GlobalError({ error, reset }: Props) {
             style={{
               margin: "0 0 1.5rem",
               fontSize: "0.9375rem",
-              color: "#708090",
+              color: "#44525E",
               lineHeight: 1.6,
             }}
           >
@@ -76,7 +76,7 @@ export default function GlobalError({ error, reset }: Props) {
                 margin: "0 0 1.25rem",
                 fontSize: "0.75rem",
                 fontFamily: "monospace",
-                color: "#708090",
+                color: "#44525E",
               }}
             >
               Reference: {error.digest}

@@ -12,7 +12,7 @@ test("user can log in with valid credentials", async ({ page }) => {
   // Formal lockup (test 14 coverage on login page)
   await expect(page.getByAltText("OViz by OtoVantage")).toBeVisible();
   await expect(
-    page.getByText("Enter your email below to access OViz by OtoVantage."),
+    page.getByText("Enter your email to access OViz by OtoVantage."),
   ).toBeVisible();
 
   await page.getByTestId("login-email").fill(

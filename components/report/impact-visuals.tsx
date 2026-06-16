@@ -3,7 +3,6 @@ import type {
   BrainBattery,
   PartnerImpact,
   SocialRadius,
-  TopGoal,
   WordUnderstanding,
 } from "@/lib/calculators/impact";
 
@@ -317,58 +316,3 @@ export function PartnerImpactViz({ impact }: { impact: PartnerImpact }) {
   );
 }
 
-// --- Real-Life Listening Map ----------------------------------------------
-export function ListeningMapViz({ goals }: { goals: TopGoal[] }) {
-  if (goals.length === 0) {
-    return (
-      <p className="text-lg text-brand-muted">
-        No listening goals were captured for this consult.
-      </p>
-    );
-  }
-  return (
-    <ol className="flex flex-col">
-      {goals.map((g, i) => {
-        const pct = Math.min(Math.max(g.priorityScore * 10, 0), 100);
-        const top = i === 0;
-        return (
-          <li
-            key={`${g.name ?? "goal"}-${i}`}
-            className="flex items-center gap-4 border-t border-brand-line py-3.5 first:border-t-0"
-          >
-            <span
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-heading text-lg font-semibold"
-              style={{
-                background: top ? VIZ.teal : VIZ.track,
-                color: top ? "#ffffff" : VIZ.muted,
-              }}
-              aria-hidden="true"
-            >
-              {i + 1}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="mb-1.5 truncate text-base font-medium text-brand-navy">
-                {g.name ?? "Listening goal"}
-              </p>
-              <div className="h-3.5 w-full overflow-hidden rounded-full bg-brand-line">
-                <div
-                  className="oviz-anim-grow-w oviz-print-color h-full rounded-full"
-                  style={{ width: `${pct}%`, background: VIZ.teal }}
-                />
-              </div>
-            </div>
-            <div className="shrink-0 text-right" style={{ minWidth: 76 }}>
-              <span
-                className="font-heading text-xl font-semibold"
-                style={{ color: VIZ.tealInk }}
-              >
-                {g.priorityScore.toFixed(1)}
-              </span>
-              <span className="block text-xs text-brand-muted">priority</span>
-            </div>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}

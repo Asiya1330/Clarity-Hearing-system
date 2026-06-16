@@ -78,8 +78,14 @@ function SituationRow({
           1,
         )} points, leaving ${goal.aidedDifficulty.toFixed(1)} of 10.`}
       >
-        <div className="h-full bg-brand-teal" style={{ width: `${reliefPct}%` }} />
-        <div className="h-full bg-brand-slate" style={{ width: `${remainPct}%` }} />
+        <div
+          className="oviz-anim-grow-w oviz-print-color h-full bg-brand-teal"
+          style={{ width: `${reliefPct}%` }}
+        />
+        <div
+          className="oviz-anim-grow-w oviz-print-color h-full bg-brand-slate"
+          style={{ width: `${remainPct}%` }}
+        />
       </div>
 
       <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 text-sm text-brand-muted">

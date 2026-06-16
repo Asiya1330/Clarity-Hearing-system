@@ -32,6 +32,11 @@ export default {
         "brand-mist": "#F1F5F6", // section background wash
         "brand-tint": "#E6F0F0", // pale-teal highlight surface
         "brand-line": "#E1E8EA", // hairline rules / borders
+        // --- Landing-redesign accessible palette ---
+        ink: "#002147", // body/number ink — 16:1
+        "muted-ink": "#455A64", // secondary text — 7.24:1 (shadcn `muted` is separate)
+        action: "#00736F", // small teal text — 5.70:1 AA
+        signal: "#008B8B", // LARGE non-text teal fill only
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

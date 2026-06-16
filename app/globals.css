@@ -116,16 +116,13 @@
 }
 
 /* The signature "rising line" — drawn on load, calm float, motion-safe. */
+/* Relies on the SVG <path> carrying the attribute pathLength="1" so the
+   dash math is resolution-independent. pathLength is an SVG presentation
+   attribute, not a CSS property, so it must live in the markup. */
 .oviz-rise-path {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  pathLength: 1;
   animation: oviz-draw 1.8s ease-out forwards;
-}
-@keyframes oviz-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
 }
 .oviz-reveal {
   animation: oviz-rise 0.7s ease-out both;
@@ -157,6 +154,49 @@
 .oviz-print-color {
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+}
+
+/* Report-visual entrance animations — screen only; the static state IS the
+   final state, so print and reduced-motion render the finished visual. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .oviz-anim-grow-w {
+    transform-origin: left center;
+    animation: oviz-grow-w 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .oviz-anim-fill {
+    transform-origin: bottom center;
+    animation: oviz-grow-h 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .oviz-anim-ring {
+    animation: oviz-ring 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .oviz-anim-draw {
+    stroke-dasharray: 700;
+    stroke-dashoffset: 700;
+    animation: oviz-draw 1.2s ease-out forwards;
+  }
+  .oviz-anim-fade {
+    animation: oviz-fade 0.8s ease-out both;
+  }
+}
+@keyframes oviz-grow-w {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes oviz-grow-h {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes oviz-ring {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+@keyframes oviz-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes oviz-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .oviz-range {

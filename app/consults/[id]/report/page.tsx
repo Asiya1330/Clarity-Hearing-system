@@ -4,11 +4,11 @@ import { BackLink } from "@/components/BackLink";
 import { PrintButton } from "@/components/report/print-button";
 import {
   BrainBatteryViz,
-  ListeningMapViz,
   PartnerImpactViz,
   SocialRadiusViz,
   WordUnderstandingViz,
 } from "@/components/report/impact-visuals";
+import { ListeningLiftMap } from "@/components/consult/listening-lift-map";
 import { RisingLine } from "@/components/app/rising-line";
 import type { ImpactOutputs } from "@/lib/calculators/impact";
 import { createClient } from "@/lib/supabase/server";
@@ -218,15 +218,12 @@ async function ReportBody({ params }: PageProps) {
 
         <Section title="Real-Life Listening Goals">
           <p className="text-brand-muted">
-            Patient-reported listening priorities.
+            What amplification could ease in the situations that matter most.
           </p>
-          {outputs.listeningMap.topGoals.length === 0 ? (
-            <p className="text-brand-muted">
-              No listening goals were captured for this consult.
-            </p>
-          ) : (
-            <ListeningMapViz goals={outputs.listeningMap.topGoals} />
-          )}
+          <ListeningLiftMap
+            topGoals={outputs.listeningMap.topGoals}
+            wrs={outputs.wordUnderstanding.current}
+          />
         </Section>
 
         {showPhotosSection ? (

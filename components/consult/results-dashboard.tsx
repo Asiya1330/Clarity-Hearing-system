@@ -1,12 +1,12 @@
 import {
   BrainBatteryViz,
-  ListeningMapViz,
   PartnerImpactViz,
   SocialRadiusViz,
   WordUnderstandingViz,
 } from "@/components/report/impact-visuals";
 import type { ImpactOutputs } from "@/lib/calculators/impact";
 import { Disclaimer } from "./disclaimer";
+import { ListeningLiftMap } from "./listening-lift-map";
 
 export function ResultsDashboard({ outputs }: { outputs: ImpactOutputs }) {
   const {
@@ -57,9 +57,12 @@ export function ResultsDashboard({ outputs }: { outputs: ImpactOutputs }) {
 
       <Card
         title="Real-Life Listening Map"
-        subtitle="Patient-reported listening priorities."
+        subtitle="What amplification could ease in the situations that matter most."
       >
-        <ListeningMapViz goals={listeningMap.topGoals} />
+        <ListeningLiftMap
+          topGoals={listeningMap.topGoals}
+          wrs={wordUnderstanding.current}
+        />
       </Card>
     </div>
   );

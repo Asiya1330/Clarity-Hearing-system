@@ -2,8 +2,15 @@ import Image from "next/image";
 import { Suspense } from "react";
 import { BackLink } from "@/components/BackLink";
 import { PrintButton } from "@/components/report/print-button";
+import {
+  BrainBatteryViz,
+  PartnerImpactViz,
+  SocialRadiusViz,
+  WordUnderstandingViz,
+} from "@/components/report/impact-visuals";
+import { ListeningLiftMap } from "@/components/consult/listening-lift-map";
 import { RisingLine } from "@/components/app/rising-line";
-import type { ImpactOutputs, TopGoal } from "@/lib/calculators/impact";
+import type { ImpactOutputs } from "@/lib/calculators/impact";
 import { createClient } from "@/lib/supabase/server";
 import type { ConsultInput } from "@/lib/zod/consult";
 
@@ -187,39 +194,36 @@ async function ReportBody({ params }: PageProps) {
             How hard the brain is working to listen today, with projected change
             over five years.
           </p>
-          <BrainBattery battery={outputs.brainBattery} />
+          <BrainBatteryViz battery={outputs.brainBattery} />
         </Section>
 
         <Section title="Word Understanding Scenario">
           <p className="text-brand-muted">{outputs.wordUnderstanding.label}.</p>
-          <WordUnderstanding wu={outputs.wordUnderstanding} />
+          <WordUnderstandingViz wu={outputs.wordUnderstanding} />
         </Section>
 
         <Section title="Social Radius">
           <p className="text-brand-muted">
             How far hearing comfortably reaches in everyday social settings.
           </p>
-          <SocialRadius radius={outputs.socialRadius} />
+          <SocialRadiusViz radius={outputs.socialRadius} />
         </Section>
 
         <Section title="Partner Impact Mirror">
           <p className="text-brand-muted">
             This hearing difficulty may be affecting both of you.
           </p>
-          <PartnerImpact impact={outputs.partnerImpact} />
+          <PartnerImpactViz impact={outputs.partnerImpact} />
         </Section>
 
         <Section title="Real-Life Listening Goals">
           <p className="text-brand-muted">
-            Patient-reported listening priorities.
+            What amplification could ease in the situations that matter most.
           </p>
-          {outputs.listeningMap.topGoals.length === 0 ? (
-            <p className="text-brand-muted">
-              No listening goals were captured for this consult.
-            </p>
-          ) : (
-            <ListeningGoals goals={outputs.listeningMap.topGoals} />
-          )}
+          <ListeningLiftMap
+            topGoals={outputs.listeningMap.topGoals}
+            wrs={outputs.wordUnderstanding.current}
+          />
         </Section>
 
         {showPhotosSection ? (
@@ -288,190 +292,6 @@ function Stat({ label, value }: { label: string; value: string }) {
         {value}
       </p>
     </div>
-  );
-}
-
-function Bar({ pct, ariaLabel }: { pct: number; ariaLabel: string }) {
-  const clamped = Math.min(Math.max(pct, 0), 100);
-  return (
-    <div
-      role="img"
-      aria-label={ariaLabel}
-      className="oviz-print-color h-3 w-full overflow-hidden rounded-full bg-brand-line"
-    >
-      <div
-        className="oviz-print-color h-full rounded-full bg-brand-teal"
-        style={{ width: `${clamped}%` }}
-      />
-    </div>
-  );
-}
-
-function BrainBattery({
-  battery,
-}: {
-  battery: ImpactOutputs["brainBattery"];
-}) {
-  const today = battery.brainLoad;
-  const untreated = Math.min(battery.brainLoad + battery.untreatedDrain, 100);
-  const treated = Math.min(battery.brainLoad + battery.treatedDrain, 100);
-  const rows: { label: string; value: number }[] = [
-    { label: "Today", value: today },
-    { label: "5 years untreated", value: untreated },
-    { label: "5 years with treatment", value: treated },
-  ];
-  return (
-    <div className="flex flex-col gap-4">
-      {rows.map((row) => (
-        <div key={row.label} className="flex flex-col gap-2">
-          <div className="flex items-baseline justify-between">
-            <span className="text-base font-medium text-brand-navy">
-              {row.label}
-            </span>
-            <span className="text-base tabular-nums text-brand-muted">
-              {Math.round(row.value)}%
-            </span>
-          </div>
-          <Bar pct={row.value} ariaLabel={`Brain load ${row.label}`} />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function WordUnderstanding({
-  wu,
-}: {
-  wu: ImpactOutputs["wordUnderstanding"];
-}) {
-  const rows: { label: string; value: number }[] = [
-    { label: "Today", value: wu.current },
-    { label: "5 years untreated", value: wu.untreated5Year },
-    { label: "5 years with treatment", value: wu.treated5Year },
-  ];
-  return (
-    <div className="flex flex-col gap-4">
-      {rows.map((row) => (
-        <div key={row.label} className="flex flex-col gap-2">
-          <div className="flex items-baseline justify-between">
-            <span className="text-base font-medium text-brand-navy">
-              {row.label}
-            </span>
-            <span className="text-base tabular-nums text-brand-muted">
-              {Math.round(row.value)}%
-            </span>
-          </div>
-          <Bar pct={row.value} ariaLabel={`Word understanding ${row.label}`} />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function SocialRadius({
-  radius,
-}: {
-  radius: ImpactOutputs["socialRadius"];
-}) {
-  const rows: { label: string; value: number }[] = [
-    { label: "Today", value: radius.currentRadius },
-    { label: "With treatment", value: radius.treatedRadius },
-  ];
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="text-base text-brand-muted">
-        Current social strain:{" "}
-        <span className="font-semibold text-brand-navy">
-          {Math.round(radius.socialStrain)} / 100
-        </span>
-      </div>
-      {rows.map((row) => (
-        <div key={row.label} className="flex flex-col gap-2">
-          <div className="flex items-baseline justify-between">
-            <span className="text-base font-medium text-brand-navy">
-              {row.label}
-            </span>
-            <span className="text-base tabular-nums text-brand-muted">
-              {row.value.toFixed(1)} / 10
-            </span>
-          </div>
-          <Bar
-            pct={(row.value / 10) * 100}
-            ariaLabel={`Social radius ${row.label}`}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function PartnerImpact({
-  impact,
-}: {
-  impact: ImpactOutputs["partnerImpact"];
-}) {
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-xl border border-brand-line bg-brand-mist/50 p-4">
-          <p className="text-xs uppercase tracking-wide text-brand-muted">
-            Repeats per day
-          </p>
-          <p className="mt-1 font-heading text-3xl font-semibold text-brand-navy">
-            {Math.round(impact.repeatsPerDay)}
-          </p>
-          <p className="mt-2 text-xs text-brand-muted">
-            Assuming {impact.secondsPerRepeat} seconds per repeat.
-          </p>
-        </div>
-        <div className="rounded-xl border border-brand-line bg-brand-mist/50 p-4">
-          <p className="text-xs uppercase tracking-wide text-brand-muted">
-            Annual partner hours
-          </p>
-          <p className="mt-1 font-heading text-3xl font-semibold text-brand-navy">
-            {impact.annualPartnerHours.toFixed(1)}
-          </p>
-          <p className="mt-2 text-xs text-brand-muted">
-            Hours per year spent repeating.
-          </p>
-        </div>
-      </div>
-      <p className="text-base leading-relaxed text-brand-muted">
-        {impact.partnerImpactSummary}
-      </p>
-    </div>
-  );
-}
-
-function ListeningGoals({ goals }: { goals: TopGoal[] }) {
-  return (
-    <ol className="flex flex-col gap-3">
-      {goals.map((goal, idx) => (
-        <li
-          key={`${goal.name ?? "goal"}-${idx}`}
-          className="rounded-xl border border-brand-line bg-brand-white p-4"
-        >
-          <div className="flex items-baseline justify-between gap-4">
-            <span className="font-semibold text-brand-navy">
-              {idx + 1}. {goal.name ?? "Listening goal"}
-            </span>
-            <span className="text-base tabular-nums text-brand-muted">
-              priority {goal.priorityScore.toFixed(1)} / 10
-            </span>
-          </div>
-          <div className="mt-2 grid grid-cols-2 gap-4 text-sm text-brand-muted">
-            <span>Difficulty: {goal.difficulty} / 10</span>
-            <span>Importance: {goal.importance} / 10</span>
-          </div>
-          <div className="mt-3">
-            <Bar
-              pct={goal.priorityScore * 10}
-              ariaLabel={`Priority score for ${goal.name ?? "goal"}`}
-            />
-          </div>
-        </li>
-      ))}
-    </ol>
   );
 }
 

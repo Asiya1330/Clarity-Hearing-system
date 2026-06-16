@@ -46,6 +46,7 @@ function HeroRisingLine() {
       <path
         className="oviz-rise-path"
         d="M0,150 L60,150 L90,90 L120,170 L150,60 L180,170 L210,120 L300,120 C520,120 700,96 860,64 C1000,36 1120,22 1200,14"
+        pathLength={1}
         fill="none"
         stroke="#008B8B"
         strokeWidth="4"

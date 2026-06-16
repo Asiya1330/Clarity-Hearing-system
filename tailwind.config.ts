@@ -32,6 +32,12 @@ export default {
         "brand-mist": "#F1F5F6", // section background wash
         "brand-tint": "#E6F0F0", // pale-teal highlight surface
         "brand-line": "#E1E8EA", // hairline rules / borders
+        "brand-line-strong": "#C4D0D4", // slightly heavier hairline for emphasized rules
+        // --- Premium-report accessible palette ---
+        ink: "#001A38", // body/number ink — 16:1
+        "muted-ink": "#455A64", // secondary text — 7.24:1 on white
+        action: "#00736F", // small teal text — 5.70:1 AA on white
+        signal: "#008B8B", // large non-text teal fill / accent
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

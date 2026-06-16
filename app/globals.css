@@ -237,6 +237,44 @@
   outline-offset: 4px;
 }
 
+/* Scroll-triggered reveal primitive — each <RevealOnScroll> root carries
+   .oviz-reveal-on-scroll and gets the .in modifier when the IntersectionObserver
+   fires. Transitions are motion-safe; reduced-motion (and print) skip to the
+   final state instantly so the patient never sees a blank card. */
+.oviz-reveal-on-scroll {
+  opacity: 1;
+  transform: none;
+}
+@media screen and (prefers-reduced-motion: no-preference) {
+  .oviz-reveal-on-scroll:not(.in) {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .oviz-reveal-on-scroll {
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/* Bubble pop-in for the partner-impact repeat dots. Index-staggered via
+   inline transition-delay so each bubble appears after the one before it. */
+.oviz-bubble {
+  opacity: 1;
+  transform: none;
+}
+@media screen and (prefers-reduced-motion: no-preference) {
+  .oviz-reveal-on-scroll:not(.in) .oviz-bubble {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  .oviz-bubble {
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
 @media print {
   @page {
     size: letter;
@@ -245,5 +283,23 @@
   body {
     background: #ffffff !important;
     color: #002147 !important;
+  }
+  /* Snap every entrance animation to its finished state on print so the saved
+     PDF never captures a half-drawn chart, regardless of timing. */
+  .oviz-reveal-on-scroll,
+  .oviz-reveal-on-scroll:not(.in),
+  .oviz-anim-grow-w,
+  .oviz-anim-fill,
+  .oviz-anim-ring,
+  .oviz-anim-draw,
+  .oviz-anim-fade,
+  .oviz-reveal,
+  .oviz-rise-path,
+  .oviz-bubble {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+    stroke-dashoffset: 0 !important;
   }
 }

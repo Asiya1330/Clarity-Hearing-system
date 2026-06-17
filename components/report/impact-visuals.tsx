@@ -307,18 +307,40 @@ export function wuYearSeries(current: number, endpoint: number): number[] {
 }
 
 export function WordUnderstandingViz({ wu }: { wu: WordUnderstanding }) {
-  const y = (pct: number) => 290 - clampPct(pct) * 2.45;
-  const cur = y(wu.current);
-  const tre = y(wu.treated5Year);
-  const unt = y(wu.untreated5Year);
+  const [showUnaided, setShowUnaided] = useState(false);
+  const [showAided, setShowAided] = useState(false);
+
+  const todayY = wuYScale(wu.current);
+  const untEndY = wuYScale(wu.untreated5Year);
+  const treEndY = wuYScale(wu.treated5Year);
+
+  const untSeries = wuYearSeries(wu.current, wu.untreated5Year);
+  const treSeries = wuYearSeries(wu.current, wu.treated5Year);
+  const toPathD = (series: number[]) =>
+    series
+      .map(
+        (pct, year) =>
+          `${year === 0 ? "M" : "L"} ${wuXScale(year)},${wuYScale(pct)}`,
+      )
+      .join(" ");
+
+  // Gridline percents (true values) + the 0 floor line.
+  const gridPercents = [100, 90, 80, 70, 60, 50];
+  const xLabels = [
+    "Today",
+    ...Array.from({ length: WU_YEARS }, (_, i) => `Year ${i + 1}`),
+  ];
+  // Axis break sits midway between the 50% line and the 0% floor.
+  const breakY = (wuYScale(50) + wuYScale(0)) / 2;
 
   return (
     <div className="flex flex-col gap-4">
       <svg
-        viewBox="0 0 660 340"
+        viewBox="0 0 720 360"
         role="img"
-        aria-label={`Word understanding: ${Math.round(wu.current)} percent today; in five years, ${Math.round(wu.treated5Year)} percent with help and ${Math.round(wu.untreated5Year)} percent without help.`}
-        className="w-full max-w-[660px]"
+        data-testid="wu-chart"
+        aria-label={`Word understanding over ${WU_YEARS} years. Today about ${Math.round(wu.current)} percent of words understood. In ${WU_YEARS} years, about ${Math.round(wu.treated5Year)} percent with help versus ${Math.round(wu.untreated5Year)} percent without help.`}
+        className="w-full max-w-[720px]"
       >
         <title>Word understanding over five years</title>
         <desc>
@@ -326,132 +348,260 @@ export function WordUnderstandingViz({ wu }: { wu: WordUnderstanding }) {
           with help, the amber path declines without help.
         </desc>
 
-        {/* Gridlines at 25% / 50% / 75% / 100% */}
+        {/* Horizontal gridlines (60–100 expanded) plus the 0% floor. */}
         <g stroke={VIZ.line} strokeWidth="1.5">
-          <line x1="92" y1={y(100)} x2="610" y2={y(100)} />
-          <line x1="92" y1={y(75)} x2="610" y2={y(75)} />
-          <line x1="92" y1={y(50)} x2="610" y2={y(50)} />
-          <line x1="92" y1={y(25)} x2="610" y2={y(25)} />
-          <line x1="92" y1={y(0)} x2="610" y2={y(0)} />
+          {gridPercents.map((p) => (
+            <line key={p} x1={90} y1={wuYScale(p)} x2={560} y2={wuYScale(p)} />
+          ))}
+          <line x1={90} y1={wuYScale(0)} x2={560} y2={wuYScale(0)} />
         </g>
 
-        {/* Y-axis tick labels (percent) */}
+        {/* Faint vertical gridline at each year. */}
+        <g stroke={VIZ.line} strokeWidth="1">
+          {Array.from({ length: WU_YEARS + 1 }, (_, year) => (
+            <line
+              key={year}
+              x1={wuXScale(year)}
+              y1={wuYScale(100)}
+              x2={wuXScale(year)}
+              y2={wuYScale(0)}
+            />
+          ))}
+        </g>
+
+        {/* Axis break: two short white slashes notch the axis to signal the
+            compressed/broken lower range between 50% and 0%. */}
+        <g stroke="#fff" strokeWidth="4" strokeLinecap="round">
+          <line x1={82} y1={breakY + 6} x2={104} y2={breakY - 6} />
+          <line x1={82} y1={breakY + 12} x2={104} y2={breakY} />
+        </g>
+
+        {/* Y-axis tick labels — every gridline shows its true percent. */}
         <g
           fill={VIZ.muted}
-          fontSize="15"
+          fontSize="14"
           fontFamily="Inter, sans-serif"
           textAnchor="end"
         >
-          <text x="80" y={y(100) + 5}>
-            100%
-          </text>
-          <text x="80" y={y(50) + 5}>
-            50%
-          </text>
-          <text x="80" y={y(0) + 5}>
+          {gridPercents.map((p) => (
+            <text key={p} x={78} y={wuYScale(p) + 5}>
+              {p}%
+            </text>
+          ))}
+          <text x={78} y={wuYScale(0) + 5}>
             0%
           </text>
         </g>
 
         <text
-          x="32"
-          y="165"
+          x={30}
+          y={185}
           fill={VIZ.muted}
           fontSize="14"
           fontFamily="Inter, sans-serif"
           textAnchor="middle"
-          transform="rotate(-90 32 165)"
+          transform="rotate(-90 30 185)"
         >
           Words understood (%)
         </text>
 
-        {/* X-axis labels */}
+        {/* X-axis labels: Today, Year 1 … Year 5. */}
         <g
           fill={VIZ.navy}
-          fontSize="16"
+          fontSize="15"
           fontWeight="600"
           fontFamily="Inter, sans-serif"
           textAnchor="middle"
         >
-          <text x="92" y="320">
-            Today
-          </text>
-          <text x="430" y="320">
-            In 5 years
-          </text>
+          {xLabels.map((label, year) => (
+            <text key={label} x={wuXScale(year)} y={342}>
+              {label}
+            </text>
+          ))}
         </g>
 
-        {/* The two lines, drawn from Today outward. */}
-        <polyline
-          className="oviz-anim-draw oviz-print-color"
-          points={`92,${cur} 430,${unt}`}
+        {/* Today's level — navy dotted baseline; auto-draws first on reveal. */}
+        <line
+          className="oviz-anim-draw oviz-wu-today oviz-print-color"
+          x1={wuXScale(0)}
+          y1={todayY}
+          x2={wuXScale(WU_YEARS)}
+          y2={todayY}
+          stroke={VIZ.navy}
+          strokeWidth={4}
+          strokeDasharray="2 9"
+          strokeLinecap="round"
+        />
+
+        {/* Projection paths — button-gated; no auto-draw on reveal. */}
+        <path
+          className={`oviz-wu-proj oviz-print-color${showUnaided ? " is-shown" : ""}`}
+          data-testid="wu-line-unaided"
+          d={toPathD(untSeries)}
           fill="none"
           stroke={VIZ.amber}
-          strokeWidth="5"
+          strokeWidth={6}
           strokeLinecap="round"
+          strokeLinejoin="round"
+          pathLength={1}
+          style={{ strokeDashoffset: showUnaided ? 0 : 1 }}
         />
-        <polyline
-          className="oviz-anim-draw oviz-print-color"
-          points={`92,${cur} 430,${tre}`}
+        <path
+          className={`oviz-wu-proj oviz-print-color${showAided ? " is-shown" : ""}`}
+          data-testid="wu-line-aided"
+          d={toPathD(treSeries)}
           fill="none"
           stroke={VIZ.teal}
-          strokeWidth="5"
+          strokeWidth={6}
           strokeLinecap="round"
+          strokeLinejoin="round"
+          pathLength={1}
+          style={{ strokeDashoffset: showAided ? 0 : 1 }}
         />
 
-        {/* Today and endpoint dots */}
-        <circle cx="92" cy={cur} r="8" fill={VIZ.navy} />
-        <circle cx="430" cy={tre} r="8" fill={VIZ.teal} />
-        <circle cx="430" cy={unt} r="8" fill={VIZ.amber} />
-
-        {/* Value labels */}
+        {/* Today start dot + label. */}
+        <circle cx={wuXScale(0)} cy={todayY} r={7} fill={VIZ.navy} />
         <text
-          x="92"
-          y={cur - 14}
+          x={wuXScale(0) + 6}
+          y={todayY - 12}
           fill={VIZ.navy}
-          fontSize="16"
+          fontSize="15"
           fontWeight="700"
           fontFamily="Inter, sans-serif"
-          textAnchor="middle"
+          textAnchor="start"
         >
           {Math.round(wu.current)}% today
         </text>
-        <text
-          x="446"
-          y={tre + 5}
-          fill={VIZ.tealInk}
-          fontSize="18"
-          fontWeight="700"
-          fontFamily="Inter, sans-serif"
+
+        {/* Endpoint captions, tied to each toggle. */}
+        <g
+          className={`oviz-wu-cap${showUnaided ? " is-shown" : ""}`}
+          data-testid="wu-cap-unaided"
         >
-          {Math.round(wu.treated5Year)}% with help
-        </text>
-        <text
-          x="446"
-          y={unt + 24}
-          fill={VIZ.amber}
-          fontSize="18"
-          fontWeight="700"
-          fontFamily="Inter, sans-serif"
+          <circle cx={wuXScale(WU_YEARS)} cy={untEndY} r={7} fill={VIZ.amber} />
+          <text
+            x={566}
+            y={untEndY + 5}
+            fill={VIZ.amber}
+            fontSize="18"
+            fontWeight="700"
+            fontFamily="Inter, sans-serif"
+          >
+            {Math.round(wu.untreated5Year)}%
+          </text>
+          <text
+            x={566}
+            y={untEndY + 23}
+            fill={VIZ.amber}
+            fontSize="13"
+            fontFamily="Inter, sans-serif"
+          >
+            without help
+          </text>
+        </g>
+        <g
+          className={`oviz-wu-cap${showAided ? " is-shown" : ""}`}
+          data-testid="wu-cap-aided"
         >
-          {Math.round(wu.untreated5Year)}% without help
-        </text>
+          <circle cx={wuXScale(WU_YEARS)} cy={treEndY} r={7} fill={VIZ.teal} />
+          <text
+            x={566}
+            y={treEndY + 5}
+            fill={VIZ.tealInk}
+            fontSize="18"
+            fontWeight="700"
+            fontFamily="Inter, sans-serif"
+          >
+            {Math.round(wu.treated5Year)}%
+          </text>
+          <text
+            x={566}
+            y={treEndY + 23}
+            fill={VIZ.tealInk}
+            fontSize="13"
+            fontFamily="Inter, sans-serif"
+          >
+            with help
+          </text>
+        </g>
       </svg>
+
+      {/* Toggles — each reveals its own projection line + caption. */}
+      <div
+        className="flex flex-wrap gap-3 print:hidden"
+        role="group"
+        aria-label={`Reveal ${WU_YEARS}-year projections`}
+      >
+        <button
+          type="button"
+          onClick={() => setShowUnaided((s) => !s)}
+          aria-pressed={showUnaided}
+          data-testid="wu-btn-unaided"
+          className={[
+            "inline-flex h-12 items-center gap-2 rounded-xl border-2 border-[#B45309] px-4 text-base font-semibold text-[#B45309] transition-colors",
+            showUnaided ? "bg-[#B45309]/10" : "bg-transparent",
+          ].join(" ")}
+        >
+          <span
+            aria-hidden="true"
+            className="inline-block h-3 w-3 rounded-sm bg-[#B45309]"
+          />
+          In {WU_YEARS} years without help
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowAided((s) => !s)}
+          aria-pressed={showAided}
+          data-testid="wu-btn-aided"
+          className={[
+            "inline-flex h-12 items-center gap-2 rounded-xl border-2 border-brand-teal px-4 text-base font-semibold text-brand-teal-700 transition-colors",
+            showAided ? "bg-brand-tint" : "bg-brand-tint/40",
+          ].join(" ")}
+        >
+          <span
+            aria-hidden="true"
+            className="inline-block h-3 w-3 rounded-sm bg-brand-teal"
+          />
+          In {WU_YEARS} years with help
+        </button>
+      </div>
+
+      {/* Print fallback: state both outcomes so the PDF needs no buttons. */}
+      <p className="hidden text-base text-brand-muted print:block">
+        In {WU_YEARS} years, modelled word understanding is about{" "}
+        {Math.round(wu.untreated5Year)}% without help and about{" "}
+        {Math.round(wu.treated5Year)}% with help.
+      </p>
 
       <div className="flex flex-wrap gap-x-6 gap-y-2 text-base text-brand-navy">
         <span className="inline-flex items-center gap-2">
-          <span className="oviz-print-color h-1.5 w-6 rounded-full bg-brand-navy" />
-          Today
+          <span
+            aria-hidden="true"
+            className="oviz-print-color inline-block w-6 border-t-[3px] border-dotted border-brand-navy"
+          />
+          Today&apos;s level
         </span>
         <span className="inline-flex items-center gap-2">
-          <span className="oviz-print-color h-1.5 w-6 rounded-full bg-[#B45309]" />
-          In 5 years, without help
+          <span
+            aria-hidden="true"
+            className="oviz-print-color inline-block h-1.5 w-6 rounded-full bg-[#B45309]"
+          />
+          Without help
         </span>
         <span className="inline-flex items-center gap-2">
-          <span className="oviz-print-color h-1.5 w-6 rounded-full bg-brand-teal" />
-          In 5 years, with help
+          <span
+            aria-hidden="true"
+            className="oviz-print-color inline-block h-1.5 w-6 rounded-full bg-brand-teal"
+          />
+          With help
         </span>
       </div>
+
+      <p className="text-sm text-brand-muted">
+        The vertical scale is expanded between 60% and 100% so year-to-year
+        changes are easy to see; every gridline still shows its true percent,
+        and the lower range is compressed (marked by the break).
+      </p>
     </div>
   );
 }

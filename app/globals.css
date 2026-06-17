@@ -213,6 +213,64 @@
     opacity: 1;
   }
 }
+
+/* Word Understanding — the today baseline draws first on scroll-in; the two
+   projection lines are revealed individually by their toggle buttons (not by
+   the reveal scope). Scoped to the reveal system so print / reduced-motion /
+   no-JS all finalise to the complete chart (see those blocks below). */
+@media screen and (prefers-reduced-motion: no-preference) {
+  /* Today baseline: zero entrance delay so it draws before any other line, and
+     it keeps its dotted "2 9" pattern — this dedicated class overrides
+     .oviz-anim-draw's solid 700-dash. Only the dash phase settles on reveal, so
+     the final state stays dotted with stroke-dashoffset 0. */
+  .oviz-reveal-scope .oviz-anim-draw.oviz-wu-today {
+    stroke-dasharray: 2 9;
+    stroke-dashoffset: 33;
+    transition: stroke-dashoffset 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0ms;
+  }
+  .oviz-reveal-scope.in-view .oviz-anim-draw.oviz-wu-today {
+    stroke-dashoffset: 0;
+  }
+
+  /* Projection paths (pathLength = 1): hidden until their toggle adds .is-shown.
+     The component also sets the inline stroke-dashoffset from React state; both
+     resolve to 0 when shown so the draw transition lands. These are NOT gated by
+     .in-view, so they never auto-draw on scroll. */
+  .oviz-wu-proj {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .oviz-wu-proj.is-shown {
+    stroke-dashoffset: 0;
+  }
+
+  /* Endpoint captions fade in only when their projection's flag is set. */
+  .oviz-wu-cap {
+    opacity: 0;
+    transition: opacity 0.4s ease-out;
+  }
+  .oviz-wu-cap.is-shown {
+    opacity: 1;
+  }
+}
+
+/* Reduced-motion: finalise the today baseline and BOTH projection lines +
+   captions to their drawn state regardless of React toggle state, mirroring how
+   the marketing visuals finalise above. */
+@media (prefers-reduced-motion: reduce) {
+  .oviz-wu-today,
+  .oviz-wu-proj {
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+  }
+  .oviz-wu-cap {
+    opacity: 1 !important;
+    transition: none !important;
+  }
+}
+
 /* Kept: still referenced by the marketing .oviz-rise-path rule above. */
 @keyframes oviz-draw {
   to { stroke-dashoffset: 0; }
@@ -314,6 +372,8 @@
   .oviz-anim-fade,
   .oviz-reveal,
   .oviz-rise-path,
+  .oviz-wu-proj,
+  .oviz-wu-cap,
   .oviz-bubble {
     opacity: 1 !important;
     transform: none !important;

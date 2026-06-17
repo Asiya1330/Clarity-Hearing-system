@@ -19,6 +19,7 @@ import {
   WordUnderstandingViz,
 } from "@/components/report/impact-visuals";
 import { PrintButton } from "@/components/report/print-button";
+import { Reveal } from "@/components/report/reveal";
 import { SectionCard } from "@/components/report/section-card";
 import type { ImpactOutputs } from "@/lib/calculators/impact";
 import { createClient } from "@/lib/supabase/server";
@@ -226,7 +227,9 @@ async function ReportBody({ params }: PageProps) {
             }
             whatWeCanDo="reducing listening effort is one of the clearest day-to-day benefits people notice with the right support."
           >
-            <BrainBatteryViz battery={outputs.brainBattery} />
+            <Reveal>
+              <BrainBatteryViz battery={outputs.brainBattery} />
+            </Reveal>
           </SectionCard>
 
           <SectionCard
@@ -245,7 +248,9 @@ async function ReportBody({ params }: PageProps) {
             }
             whatWeCanDo={`support won't turn back the clock, but it slows the slide — modelled at about ${wrsTreated}% with help versus ${wrsUntreated}% without, in five years.`}
           >
-            <WordUnderstandingViz wu={outputs.wordUnderstanding} />
+            <Reveal>
+              <WordUnderstandingViz wu={outputs.wordUnderstanding} />
+            </Reveal>
           </SectionCard>
 
           <SectionCard
@@ -264,7 +269,9 @@ async function ReportBody({ params }: PageProps) {
             }
             whatWeCanDo="a wider comfortable radius means staying part of group conversations instead of stepping back from them."
           >
-            <SocialRadiusViz radius={outputs.socialRadius} />
+            <Reveal>
+              <SocialRadiusViz radius={outputs.socialRadius} />
+            </Reveal>
           </SectionCard>
 
           <SectionCard
@@ -284,7 +291,9 @@ async function ReportBody({ params }: PageProps) {
             }
             whatWeCanDo="fewer repeats is one of the first changes partners notice — it gives that time back to both of you."
           >
-            <PartnerImpactViz impact={outputs.partnerImpact} />
+            <Reveal>
+              <PartnerImpactViz impact={outputs.partnerImpact} />
+            </Reveal>
           </SectionCard>
 
           <SectionCard
@@ -302,10 +311,12 @@ async function ReportBody({ params }: PageProps) {
             }
             whatWeCanDo="your goals lead the plan — progress is measured against the situations you chose, not a generic checklist."
           >
-            <ListeningLiftMap
-              topGoals={outputs.listeningMap.topGoals}
-              wrs={outputs.wordUnderstanding.current}
-            />
+            <Reveal>
+              <ListeningLiftMap
+                topGoals={outputs.listeningMap.topGoals}
+                wrs={outputs.wordUnderstanding.current}
+              />
+            </Reveal>
           </SectionCard>
         </div>
 

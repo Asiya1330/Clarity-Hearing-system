@@ -40,7 +40,7 @@ export function ListeningLiftMap({
 
       <ol className="flex flex-col">
         {lift.goals.map((g, i) => (
-          <SituationRow key={`${g.name ?? "goal"}-${i}`} goal={g} />
+          <SituationRow key={`${g.name ?? "goal"}-${i}`} goal={g} index={i} />
         ))}
       </ol>
 
@@ -61,12 +61,15 @@ export function ListeningLiftMap({
 
 function SituationRow({
   goal,
+  index = 0,
 }: {
   goal: ReturnType<typeof calculateListeningLift>["goals"][number];
+  index?: number;
 }) {
   const todayPct = (goal.difficulty / 10) * 100;
   const aidedPct = (goal.aidedDifficulty / 10) * 100;
   const reliefPct = Math.max(0, todayPct - aidedPct);
+  const delay = `${index * 140}ms`;
 
   return (
     <li className="flex flex-col gap-2 border-b border-brand-line py-4 last:border-b-0">
@@ -97,7 +100,7 @@ function SituationRow({
         <span
           aria-hidden="true"
           className="oviz-anim-grow-w oviz-print-color absolute inset-y-0 left-0 bg-brand-slate"
-          style={{ width: `${aidedPct}%` }}
+          style={{ width: `${aidedPct}%`, transitionDelay: delay }}
         />
 
         {/* Teal: the zone amplification is modelled to ease. */}
@@ -107,6 +110,7 @@ function SituationRow({
           style={{
             left: `${aidedPct}%`,
             width: `${reliefPct}%`,
+            transitionDelay: delay,
           }}
         />
 

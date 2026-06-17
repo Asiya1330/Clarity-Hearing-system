@@ -14,6 +14,7 @@ import {
   SocialRadiusViz,
   WordUnderstandingViz,
 } from "@/components/report/impact-visuals";
+import { Reveal } from "@/components/report/reveal";
 import { SectionCard } from "@/components/report/section-card";
 import type { ImpactOutputs } from "@/lib/calculators/impact";
 
@@ -55,7 +56,9 @@ export function ResultsDashboard({ outputs }: { outputs: ImpactOutputs }) {
         }
         whatWeCanDo="reducing listening effort is one of the clearest day-to-day benefits people notice with the right support."
       >
-        <BrainBatteryViz battery={brainBattery} />
+        <Reveal>
+          <BrainBatteryViz battery={brainBattery} />
+        </Reveal>
       </SectionCard>
 
       <SectionCard
@@ -72,7 +75,9 @@ export function ResultsDashboard({ outputs }: { outputs: ImpactOutputs }) {
         }
         whatWeCanDo={`support won't turn back the clock, but it slows the slide — modelled at about ${wrsTreated}% with help versus ${wrsUntreated}% without, in five years.`}
       >
-        <WordUnderstandingViz wu={wordUnderstanding} />
+        <Reveal>
+          <WordUnderstandingViz wu={wordUnderstanding} />
+        </Reveal>
       </SectionCard>
 
       <SectionCard
@@ -91,7 +96,9 @@ export function ResultsDashboard({ outputs }: { outputs: ImpactOutputs }) {
         }
         whatWeCanDo="a wider comfortable radius means staying part of group conversations instead of stepping back from them."
       >
-        <SocialRadiusViz radius={socialRadius} />
+        <Reveal>
+          <SocialRadiusViz radius={socialRadius} />
+        </Reveal>
       </SectionCard>
 
       <SectionCard
@@ -111,7 +118,9 @@ export function ResultsDashboard({ outputs }: { outputs: ImpactOutputs }) {
         }
         whatWeCanDo="fewer repeats is one of the first changes partners notice — it gives that time back to both of you."
       >
-        <PartnerImpactViz impact={partnerImpact} />
+        <Reveal>
+          <PartnerImpactViz impact={partnerImpact} />
+        </Reveal>
       </SectionCard>
 
       <SectionCard
@@ -129,10 +138,12 @@ export function ResultsDashboard({ outputs }: { outputs: ImpactOutputs }) {
         }
         whatWeCanDo="your goals lead the plan — progress is measured against the situations you chose, not a generic checklist."
       >
-        <ListeningLiftMap
-          topGoals={listeningMap.topGoals}
-          wrs={wordUnderstanding.current}
-        />
+        <Reveal>
+          <ListeningLiftMap
+            topGoals={listeningMap.topGoals}
+            wrs={wordUnderstanding.current}
+          />
+        </Reveal>
       </SectionCard>
     </div>
   );

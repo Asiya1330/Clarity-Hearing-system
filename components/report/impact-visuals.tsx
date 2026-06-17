@@ -262,6 +262,50 @@ function ScenarioTab({
 // every quarter. The path draw uses the existing .oviz-anim-draw rule, so the
 // reveal-on-scroll wrapper provides the timing.
 
+const WU_YEARS = 5;
+
+// Nonlinear percent→Y within a 720x360 viewBox. Piecewise-linear between these
+// stops (expands the 60–100 band, compresses 0–50). Clamp inputs to [0,100].
+// stops (percent, y px): [100,55],[90,100],[80,150],[70,205],[60,255],[50,285],[0,315]
+const WU_Y_STOPS: ReadonlyArray<readonly [number, number]> = [
+  [0, 315],
+  [50, 285],
+  [60, 255],
+  [70, 205],
+  [80, 150],
+  [90, 100],
+  [100, 55],
+];
+
+export function wuYScale(pct: number): number {
+  const p = clampPct(pct);
+  for (let i = 0; i < WU_Y_STOPS.length - 1; i++) {
+    const [p0, y0] = WU_Y_STOPS[i];
+    const [p1, y1] = WU_Y_STOPS[i + 1];
+    if (p <= p1) {
+      const t = (p - p0) / (p1 - p0);
+      return y0 + t * (y1 - y0);
+    }
+  }
+  return WU_Y_STOPS[WU_Y_STOPS.length - 1][1];
+}
+
+// X position for a given year (0..WU_YEARS) across plot x ∈ [90, 560].
+export function wuXScale(year: number): number {
+  return 90 + year * (470 / WU_YEARS);
+}
+
+// Linearly interpolate the percent value at a given year between year 0 (current)
+// and year WU_YEARS (endpoint). Returns an array of length WU_YEARS+1.
+export function wuYearSeries(current: number, endpoint: number): number[] {
+  const start = clampPct(current);
+  const end = clampPct(endpoint);
+  return Array.from(
+    { length: WU_YEARS + 1 },
+    (_, i) => start + ((end - start) * i) / WU_YEARS,
+  );
+}
+
 export function WordUnderstandingViz({ wu }: { wu: WordUnderstanding }) {
   const y = (pct: number) => 290 - clampPct(pct) * 2.45;
   const cur = y(wu.current);

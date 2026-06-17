@@ -157,46 +157,65 @@
 }
 
 /* Report-visual entrance animations — screen only; the static state IS the
-   final state, so print and reduced-motion render the finished visual. */
+   final state, so print and reduced-motion render the finished visual.
+   These no longer autoplay on load: each visual sits in its empty start state
+   while inside a .oviz-reveal-scope and transitions to its final state only
+   once that scope gains .in-view (set by <Reveal> when it scrolls into view).
+   Because the empty state is scoped under .oviz-reveal-scope and gated by this
+   screen + no-preference query, print / reduced-motion / no-JS skip straight
+   to the finished visual. Per-visual entrance delay via --oviz-reveal-delay. */
 @media screen and (prefers-reduced-motion: no-preference) {
-  .oviz-anim-grow-w {
+  .oviz-reveal-scope .oviz-anim-grow-w {
     transform-origin: left center;
-    animation: oviz-grow-w 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform: scaleX(0);
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--oviz-reveal-delay, 0ms);
   }
-  .oviz-anim-fill {
+  .oviz-reveal-scope.in-view .oviz-anim-grow-w {
+    transform: scaleX(1);
+  }
+
+  .oviz-reveal-scope .oviz-anim-fill {
     transform-origin: bottom center;
-    animation: oviz-grow-h 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform: scaleY(0);
+    transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--oviz-reveal-delay, 0ms);
   }
-  .oviz-anim-ring {
-    animation: oviz-ring 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  .oviz-reveal-scope.in-view .oviz-anim-fill {
+    transform: scaleY(1);
   }
-  .oviz-anim-draw {
+
+  .oviz-reveal-scope .oviz-anim-ring {
+    transform: scale(0);
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--oviz-reveal-delay, 0ms);
+  }
+  .oviz-reveal-scope.in-view .oviz-anim-ring {
+    transform: scale(1);
+  }
+
+  .oviz-reveal-scope .oviz-anim-draw {
     stroke-dasharray: 700;
     stroke-dashoffset: 700;
-    animation: oviz-draw 1.2s ease-out forwards;
+    transition: stroke-dashoffset 1.2s ease-out;
+    transition-delay: var(--oviz-reveal-delay, 0ms);
   }
-  .oviz-anim-fade {
-    animation: oviz-fade 0.8s ease-out both;
+  .oviz-reveal-scope.in-view .oviz-anim-draw {
+    stroke-dashoffset: 0;
+  }
+
+  .oviz-reveal-scope .oviz-anim-fade {
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
+    transition-delay: var(--oviz-reveal-delay, 0ms);
+  }
+  .oviz-reveal-scope.in-view .oviz-anim-fade {
+    opacity: 1;
   }
 }
-@keyframes oviz-grow-w {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-@keyframes oviz-grow-h {
-  from { transform: scaleY(0); }
-  to { transform: scaleY(1); }
-}
-@keyframes oviz-ring {
-  from { transform: scale(0); }
-  to { transform: scale(1); }
-}
+/* Kept: still referenced by the marketing .oviz-rise-path rule above. */
 @keyframes oviz-draw {
   to { stroke-dashoffset: 0; }
-}
-@keyframes oviz-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 .oviz-range {
@@ -237,6 +256,44 @@
   outline-offset: 4px;
 }
 
+/* Scroll-triggered reveal primitive — each <RevealOnScroll> root carries
+   .oviz-reveal-on-scroll and gets the .in modifier when the IntersectionObserver
+   fires. Transitions are motion-safe; reduced-motion (and print) skip to the
+   final state instantly so the patient never sees a blank card. */
+.oviz-reveal-on-scroll {
+  opacity: 1;
+  transform: none;
+}
+@media screen and (prefers-reduced-motion: no-preference) {
+  .oviz-reveal-on-scroll:not(.in) {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .oviz-reveal-on-scroll {
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/* Bubble pop-in for the partner-impact repeat dots. Index-staggered via
+   inline transition-delay so each bubble appears after the one before it. */
+.oviz-bubble {
+  opacity: 1;
+  transform: none;
+}
+@media screen and (prefers-reduced-motion: no-preference) {
+  .oviz-reveal-on-scroll:not(.in) .oviz-bubble {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  .oviz-bubble {
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
 @media print {
   @page {
     size: letter;
@@ -245,5 +302,23 @@
   body {
     background: #ffffff !important;
     color: #002147 !important;
+  }
+  /* Snap every entrance animation to its finished state on print so the saved
+     PDF never captures a half-drawn chart, regardless of timing. */
+  .oviz-reveal-on-scroll,
+  .oviz-reveal-on-scroll:not(.in),
+  .oviz-anim-grow-w,
+  .oviz-anim-fill,
+  .oviz-anim-ring,
+  .oviz-anim-draw,
+  .oviz-anim-fade,
+  .oviz-reveal,
+  .oviz-rise-path,
+  .oviz-bubble {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+    stroke-dashoffset: 0 !important;
   }
 }

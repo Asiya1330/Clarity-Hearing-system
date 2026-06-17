@@ -34,6 +34,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* The report scroll-reveal is driven by JS (IntersectionObserver sets
+            .in-view). With JS disabled that class never lands, so the impact
+            visuals would stay stuck in their empty pre-reveal state. This
+            <noscript> forces every reveal-scoped visual to its final state so
+            no-JS users still see the finished charts. */}
+        <noscript>
+          <style>{`
+            .oviz-reveal-scope .oviz-anim-grow-w,
+            .oviz-reveal-scope .oviz-anim-fill { transform: none !important; }
+            .oviz-reveal-scope .oviz-anim-ring { transform: scale(1) !important; }
+            .oviz-reveal-scope .oviz-anim-draw { stroke-dashoffset: 0 !important; }
+            .oviz-reveal-scope .oviz-anim-fade { opacity: 1 !important; }
+          `}</style>
+        </noscript>
+      </head>
       <body
         className={`${inter.variable} ${montserrat.variable} font-sans antialiased`}
       >

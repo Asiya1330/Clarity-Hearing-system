@@ -1,15 +1,26 @@
+import {
+  BatteryCharging,
+  Clock,
+  MapPinned,
+  MessagesSquare,
+  Users,
+} from "lucide-react";
 import Image from "next/image";
 import { Suspense } from "react";
+
+import { RisingLine } from "@/components/app/rising-line";
 import { BackLink } from "@/components/BackLink";
-import { PrintButton } from "@/components/report/print-button";
+import { ListeningLiftMap } from "@/components/consult/listening-lift-map";
+import { AtAGlance } from "@/components/report/at-a-glance";
 import {
   BrainBatteryViz,
   PartnerImpactViz,
   SocialRadiusViz,
   WordUnderstandingViz,
 } from "@/components/report/impact-visuals";
-import { ListeningLiftMap } from "@/components/consult/listening-lift-map";
-import { RisingLine } from "@/components/app/rising-line";
+import { PrintButton } from "@/components/report/print-button";
+import { Reveal } from "@/components/report/reveal";
+import { SectionCard } from "@/components/report/section-card";
 import type { ImpactOutputs } from "@/lib/calculators/impact";
 import { createClient } from "@/lib/supabase/server";
 import type { ConsultInput } from "@/lib/zod/consult";
@@ -125,15 +136,22 @@ async function ReportBody({ params }: PageProps) {
   const isFollowUp =
     (consult as { is_follow_up?: boolean | null }).is_follow_up ?? false;
 
+  const effortPct = Math.round(outputs.brainBattery.brainLoad);
+  const wrsPct = Math.round(outputs.wordUnderstanding.current);
+  const wrsTreated = Math.round(outputs.wordUnderstanding.treated5Year);
+  const wrsUntreated = Math.round(outputs.wordUnderstanding.untreated5Year);
+  const repeats = Math.round(outputs.partnerImpact.repeatsPerDay);
+  const bestGoal = outputs.listeningMap.topGoals[0]?.name ?? null;
+
   return (
     <main className="min-h-screen bg-brand-white text-brand-navy print:bg-white">
-      <div className="mx-auto max-w-[820px] px-8 py-10 print:px-0 print:py-0">
+      <div className="mx-auto max-w-[880px] px-8 py-10 print:px-0 print:py-0">
         <div className="mb-6 flex items-center justify-between print:hidden">
           <BackLink href={`/consults/${id}`} />
           <PrintButton />
         </div>
 
-        <header className="mb-10 border-b-2 border-brand-navy pb-6 print:break-after-avoid">
+        <header className="mb-8 border-b-2 border-brand-navy pb-6 print:break-after-avoid">
           <div className="flex items-start justify-between gap-6">
             <div className="flex flex-col gap-1">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal-700">
@@ -183,51 +201,127 @@ async function ReportBody({ params }: PageProps) {
           <RisingLine className="mt-5 h-3 w-full opacity-60 print:hidden" />
         </header>
 
-        <section className="mb-10 grid grid-cols-3 gap-4 print:break-inside-avoid">
+        <section className="mb-8 grid grid-cols-3 gap-4 print:break-inside-avoid">
           <Stat label="PTA" value={`${inputs.pta} dB HL`} />
           <Stat label="WRS" value={`${inputs.wrs}%`} />
           <Stat label="Loss duration" value={`${inputs.durationYears} yr`} />
         </section>
 
-        <Section title="Brain Battery">
-          <p className="text-brand-muted">
-            How hard the brain is working to listen today, with projected change
-            over five years.
-          </p>
-          <BrainBatteryViz battery={outputs.brainBattery} />
-        </Section>
+        <div className="mb-8">
+          <AtAGlance outputs={outputs} />
+        </div>
 
-        <Section title="Word Understanding Scenario">
-          <p className="text-brand-muted">{outputs.wordUnderstanding.label}.</p>
-          <WordUnderstandingViz wu={outputs.wordUnderstanding} />
-        </Section>
+        <div className="flex flex-col gap-7">
+          <SectionCard
+            icon={BatteryCharging}
+            kicker="How hard your brain is working"
+            title="Brain Battery"
+            takeaway={
+              <>
+                Think of listening like a battery. Right now the brain spends
+                about{" "}
+                <b className="font-semibold">{effortPct}% of its energy</b>{" "}
+                just to follow sound — leaving less for remembering, focusing
+                and enjoying the moment.
+              </>
+            }
+            whatWeCanDo="reducing listening effort is one of the clearest day-to-day benefits people notice with the right support."
+          >
+            <Reveal>
+              <BrainBatteryViz battery={outputs.brainBattery} />
+            </Reveal>
+          </SectionCard>
 
-        <Section title="Social Radius">
-          <p className="text-brand-muted">
-            How far hearing comfortably reaches in everyday social settings.
-          </p>
-          <SocialRadiusViz radius={outputs.socialRadius} />
-        </Section>
+          <SectionCard
+            icon={MessagesSquare}
+            kicker="How many words you catch"
+            title="Word Understanding Scenario"
+            takeaway={
+              <>
+                You catch about{" "}
+                <b className="font-semibold">
+                  {wrsPct}% of clearly spoken words
+                </b>{" "}
+                today. {outputs.wordUnderstanding.label}; without support that
+                tends to slip a little each year.
+              </>
+            }
+            whatWeCanDo={`support won't turn back the clock, but it slows the slide — modelled at about ${wrsTreated}% with help versus ${wrsUntreated}% without, in five years.`}
+          >
+            <Reveal>
+              <WordUnderstandingViz wu={outputs.wordUnderstanding} />
+            </Reveal>
+          </SectionCard>
 
-        <Section title="Partner Impact Mirror">
-          <p className="text-brand-muted">
-            This hearing difficulty may be affecting both of you.
-          </p>
-          <PartnerImpactViz impact={outputs.partnerImpact} />
-        </Section>
+          <SectionCard
+            icon={Users}
+            kicker="How far comfortable hearing reaches"
+            title="Social Radius"
+            takeaway={
+              <>
+                Comfortable conversation reaches about{" "}
+                <b className="font-semibold">
+                  {outputs.socialRadius.currentRadius.toFixed(1)} of 10
+                </b>{" "}
+                today. With support, that circle can grow to take in more of
+                the room.
+              </>
+            }
+            whatWeCanDo="a wider comfortable radius means staying part of group conversations instead of stepping back from them."
+          >
+            <Reveal>
+              <SocialRadiusViz radius={outputs.socialRadius} />
+            </Reveal>
+          </SectionCard>
 
-        <Section title="Real-Life Listening Goals">
-          <p className="text-brand-muted">
-            What amplification could ease in the situations that matter most.
-          </p>
-          <ListeningLiftMap
-            topGoals={outputs.listeningMap.topGoals}
-            wrs={outputs.wordUnderstanding.current}
-          />
-        </Section>
+          <SectionCard
+            icon={Clock}
+            kicker="This affects both of you"
+            title="Partner Impact Mirror"
+            takeaway={
+              <>
+                A partner repeats themselves about{" "}
+                <b className="font-semibold">{repeats} times a day</b>. Over a
+                year, that adds up to{" "}
+                <b className="font-semibold">
+                  {outputs.partnerImpact.annualPartnerHours.toFixed(1)} hours
+                </b>{" "}
+                of shared time spent on what hearing made hard to catch.
+              </>
+            }
+            whatWeCanDo="fewer repeats is one of the first changes partners notice — it gives that time back to both of you."
+          >
+            <Reveal>
+              <PartnerImpactViz impact={outputs.partnerImpact} />
+            </Reveal>
+          </SectionCard>
+
+          <SectionCard
+            icon={MapPinned}
+            kicker="What matters most to you"
+            title="Real-Life Listening Map"
+            takeaway={
+              <>
+                These are the moments{" "}
+                <b className="font-semibold">you told us matter</b>.{" "}
+                {bestGoal
+                  ? `Amplification eases the most difficulty in ${bestGoal}, less in noisier rooms.`
+                  : "Each track shows where amplification could help and what would still remain."}
+              </>
+            }
+            whatWeCanDo="your goals lead the plan — progress is measured against the situations you chose, not a generic checklist."
+          >
+            <Reveal>
+              <ListeningLiftMap
+                topGoals={outputs.listeningMap.topGoals}
+                wrs={outputs.wordUnderstanding.current}
+              />
+            </Reveal>
+          </SectionCard>
+        </div>
 
         {showPhotosSection ? (
-          <Section title="Ear Fit Photos">
+          <PlainSection title="Ear Fit Photos">
             {photos.length === 0 ? (
               <p className="text-brand-muted">
                 No ear fit photos were included.
@@ -235,14 +329,14 @@ async function ReportBody({ params }: PageProps) {
             ) : (
               <PhotosGrid photos={photos} />
             )}
-          </Section>
+          </PlainSection>
         ) : null}
 
-        <Section title="Assumptions">
+        <PlainSection title="Assumptions">
           <Assumptions modelVersion={modelVersion} />
-        </Section>
+        </PlainSection>
 
-        <Section title="Disclaimer">
+        <PlainSection title="Disclaimer">
           <p
             className="text-base leading-relaxed text-brand-muted"
             data-testid="report-disclaimer"
@@ -251,7 +345,7 @@ async function ReportBody({ params }: PageProps) {
             hearing results. Not a diagnosis, guarantee, or substitute for
             clinician judgment.
           </p>
-        </Section>
+        </PlainSection>
 
         <footer
           className="mt-12 border-t border-brand-line pt-6 text-center text-sm text-brand-muted"
@@ -267,7 +361,8 @@ async function ReportBody({ params }: PageProps) {
   );
 }
 
-function Section({
+/** Footer/photos/assumptions don't need the patient-friendly chrome. */
+function PlainSection({
   title,
   children,
 }: {
@@ -275,7 +370,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mb-10 print:break-inside-avoid">
+    <section className="mt-10 print:break-inside-avoid">
       <h2 className="mb-3 font-heading text-xl font-semibold text-brand-navy">
         {title}
       </h2>
@@ -340,8 +435,9 @@ function Assumptions({ modelVersion }: { modelVersion: string }) {
       </li>
       <li>
         Listening Goals: priority = 0.6 × difficulty + 0.4 × importance on a 0–10
-        scale. Patient picks up to three situations; results show the
-        patient-reported listening priorities.
+        scale. Patient picks up to three situations; amplification benefit is
+        modelled per situation, scaled by WRS, and capped so residual difficulty
+        always remains.
       </li>
       <li>Model version: {modelVersion}.</li>
     </ul>

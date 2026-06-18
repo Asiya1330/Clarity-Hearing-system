@@ -54,10 +54,10 @@ test.describe("Word Understanding visual", () => {
 
   test("both toggle buttons exist and start unpressed", async ({ page }) => {
     await expect(
-      page.getByRole("button", { name: "In 5 years without help" }),
+      page.getByRole("button", { name: "In 5 years without hearing aids" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "In 5 years with help" }),
+      page.getByRole("button", { name: "In 5 years with hearing aids" }),
     ).toBeVisible();
 
     await expect(page.getByTestId("wu-btn-unaided")).toHaveAttribute(

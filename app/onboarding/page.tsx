@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { BackLink } from "@/components/BackLink";
 import { RisingLine } from "@/components/app/rising-line";
+import { LogoAssetField } from "@/components/onboarding/logo-asset-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,6 +62,10 @@ export default function OnboardingPage() {
   const [clinicName, setClinicName] = useState("");
   const [locationName, setLocationName] = useState("");
   const [fullName, setFullName] = useState("");
+  // Clinic logo lives entirely on the client: LogoAssetField persists it to
+  // localStorage. It is deliberately NOT sent in the /api/onboarding POST so the
+  // onboarding contract and server-side data structures stay unchanged.
+  const [logo, setLogo] = useState<string | null>(null);
   const [tier, setTier] = useState<Tier>("starter");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +76,9 @@ export default function OnboardingPage() {
     setError(null);
 
     try {
+      // NOTE: `logo` is intentionally omitted from this payload. Logo
+      // persistence is local-only (see LogoAssetField); the onboarding contract
+      // and request body are unchanged.
       const res = await fetch("/api/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -175,6 +183,16 @@ export default function OnboardingPage() {
                   placeholder="Dr. Jane Smith"
                   className="h-14 text-lg"
                 />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <span className="text-base font-medium text-brand-navy">
+                  Clinic logo{" "}
+                  <span className="font-normal text-brand-muted">
+                    (optional)
+                  </span>
+                </span>
+                <LogoAssetField value={logo} onChange={setLogo} />
               </div>
             </div>
           </div>

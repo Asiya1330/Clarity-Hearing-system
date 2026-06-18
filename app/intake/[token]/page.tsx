@@ -6,6 +6,28 @@ import { RisingLine } from "@/components/app/rising-line";
 
 interface PageProps {
   params: Promise<{ token: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}
+
+/**
+ * Resolve the kiosk return path from the `return` query param. Only in-app
+ * relative paths are allowed (must start with "/" but not "//" or "/\", which
+ * browsers can treat as protocol-relative external links). Anything else falls
+ * back to the kiosk home — an external redirect is never permitted.
+ */
+function resolveReturnTo(
+  value: string | string[] | undefined,
+): string {
+  const candidate = Array.isArray(value) ? value[0] : value;
+  if (
+    typeof candidate === "string" &&
+    candidate.startsWith("/") &&
+    candidate[1] !== "/" &&
+    candidate[1] !== "\\"
+  ) {
+    return candidate;
+  }
+  return "/kiosk";
 }
 
 type LinkRow = {
@@ -16,7 +38,7 @@ type LinkRow = {
   used_at: string | null;
 };
 
-export default function IntakePage({ params }: PageProps) {
+export default function IntakePage({ params, searchParams }: PageProps) {
   return (
     <div className="oviz-surface min-h-screen bg-brand-mist/40">
       <header className="border-b border-brand-line bg-brand-white">
@@ -36,7 +58,7 @@ export default function IntakePage({ params }: PageProps) {
 
       <main className="mx-auto w-full max-w-3xl px-6 py-10">
         <Suspense fallback={<IntakeLoading />}>
-          <IntakeContent params={params} />
+          <IntakeContent params={params} searchParams={searchParams} />
         </Suspense>
       </main>
     </div>
@@ -51,8 +73,9 @@ function IntakeLoading() {
   );
 }
 
-async function IntakeContent({ params }: PageProps) {
+async function IntakeContent({ params, searchParams }: PageProps) {
   const { token } = await params;
+  const returnTo = resolveReturnTo((await searchParams)?.return);
 
   let valid = false;
   let mode: "kiosk" | "email" = "email";
@@ -100,6 +123,7 @@ async function IntakeContent({ params }: PageProps) {
       mode={mode}
       patientName={patientName}
       clinicName={clinicName}
+      returnTo={returnTo}
     />
   ) : (
     <LinkUnavailable />

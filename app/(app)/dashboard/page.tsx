@@ -1,4 +1,4 @@
-import { ArrowRight, FileText, Plus } from "lucide-react";
+import { ArrowRight, AudioLines, FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -119,6 +119,43 @@ async function DashboardBody() {
           >
             <Link href="/consults/start">
               Start OViz Consult
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </Button>
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-brand-teal/30 bg-brand-tint/40 shadow-sm">
+        <div className="flex flex-col gap-5 p-8 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-4">
+            <span className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-teal text-brand-white sm:flex">
+              <AudioLines className="h-7 w-7" aria-hidden="true" />
+            </span>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="font-heading text-2xl font-semibold text-brand-navy">
+                  Audiogram → Conversation
+                </h2>
+                <span className="rounded-full border border-brand-teal/30 bg-brand-white px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-brand-teal-700">
+                  Demo
+                </span>
+              </div>
+              <p className="mt-1 max-w-prose text-lg leading-relaxed text-brand-muted">
+                Open the interactive demonstration any time — no patient session
+                needed. Walk a client through what their audiogram means in plain
+                language.
+              </p>
+            </div>
+          </div>
+          <Button
+            asChild
+            size="lg"
+            variant="secondary"
+            className="h-14 shrink-0 px-8 text-lg font-semibold"
+            data-testid="open-audiogram-tool-button"
+          >
+            <Link href="/tools/audiogram">
+              Open demo tool
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>

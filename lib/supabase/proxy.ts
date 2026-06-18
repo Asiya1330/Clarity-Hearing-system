@@ -47,6 +47,22 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
+  // Authenticated users have no use for the public marketing root — send them
+  // into the app. This is done here, not in app/page.tsx: with Cache Components
+  // the `/` route serves its prerendered marketing shell with a 200 before the
+  // page's server code runs, so a redirect() there is demoted to a client-side
+  // navigation that flashes the marketing page and can mis-route the session.
+  // A proxy redirect is a real 307 carrying the just-refreshed session cookies.
+  if (request.nextUrl.pathname === "/" && user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    const redirectResponse = NextResponse.redirect(url);
+    for (const cookie of supabaseResponse.cookies.getAll()) {
+      redirectResponse.cookies.set(cookie);
+    }
+    return redirectResponse;
+  }
+
   if (
     request.nextUrl.pathname !== "/" &&
     !user &&

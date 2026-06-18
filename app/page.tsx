@@ -1,7 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { Suspense } from "react";
 import {
   Building2,
   Check,
@@ -15,32 +13,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { RevealOnScroll } from "@/components/report/reveal-on-scroll";
 import { Reveal } from "@/components/report/reveal";
-import { createClient } from "@/lib/supabase/server";
 
+// Public marketing root: pure static content for everyone. Sending authenticated
+// users into the app is handled in the proxy (see lib/supabase/proxy.ts) — it
+// must be, because with Cache Components this page's static shell is served with
+// a 200 before any page-level code runs, so a redirect() here would be demoted to
+// a client-side navigation that flashes the marketing page and mis-routes.
 export default function RootPage() {
-  return (
-    <Suspense fallback={<Landing />}>
-      <RootBody />
-    </Suspense>
-  );
-}
-
-async function RootBody() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("clinic_id")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    redirect(profile?.clinic_id ? "/dashboard" : "/onboarding");
-  }
-
   return <Landing />;
 }
 

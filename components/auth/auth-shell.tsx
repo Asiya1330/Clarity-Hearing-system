@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { BackLink } from "@/components/BackLink";
 import { RisingLine } from "@/components/app/rising-line";
 
 /**
@@ -18,6 +19,9 @@ export function AuthShell({
     <div className="oviz-surface flex min-h-svh w-full flex-col bg-brand-mist/40">
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
+          <div className="mb-6">
+            <BackLink href="/" label="Back to home" />
+          </div>
           <div className="mb-8 flex flex-col items-center text-center">
             <Image
               src="/brand/oviz-by-otovantage-logo.png"

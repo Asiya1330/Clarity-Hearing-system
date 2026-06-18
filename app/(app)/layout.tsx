@@ -71,6 +71,9 @@ async function NavLinks() {
       <Link href="/consults/start" className={linkClass}>
         New consult
       </Link>
+      <Link href="/tools/audiogram" className={linkClass}>
+        Demo tool
+      </Link>
       {isAdminOrOwner && (
         <Link href="/admin" className={linkClass}>
           Admin

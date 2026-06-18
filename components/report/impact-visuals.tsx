@@ -63,8 +63,8 @@ type Scenario = "today" | "unaided" | "aided";
 
 const SCENARIO_LABEL: Record<Scenario, string> = {
   today: "Today",
-  unaided: "In 5 years, no help",
-  aided: "In 5 years, with help",
+  unaided: "In 5 years — without hearing aids",
+  aided: "In 5 years — with hearing aids",
 };
 
 const SCENARIO_BG: Record<Scenario, string> = {
@@ -101,7 +101,7 @@ export function BrainBatteryViz({ battery }: { battery: BrainBattery }) {
     <div
       className="flex flex-col gap-6"
       role="group"
-      aria-label={`Brain battery scenarios. Today ${scenarios.today} percent energy left, in five years without help ${scenarios.unaided}, with help ${scenarios.aided}.`}
+      aria-label={`Brain battery scenarios. Today ${scenarios.today} percent energy left, in five years without hearing aids ${scenarios.unaided}, with hearing aids ${scenarios.aided}.`}
     >
       <div className="flex flex-wrap items-center gap-7">
         <div className="flex shrink-0 items-center">
@@ -338,13 +338,13 @@ export function WordUnderstandingViz({ wu }: { wu: WordUnderstanding }) {
         viewBox="0 0 720 360"
         role="img"
         data-testid="wu-chart"
-        aria-label={`Word understanding over ${WU_YEARS} years. Today about ${Math.round(wu.current)} percent of words understood. In ${WU_YEARS} years, about ${Math.round(wu.treated5Year)} percent with help versus ${Math.round(wu.untreated5Year)} percent without help.`}
+        aria-label={`Word understanding over ${WU_YEARS} years. Today about ${Math.round(wu.current)} percent of words understood. In ${WU_YEARS} years, about ${Math.round(wu.treated5Year)} percent with hearing aids versus ${Math.round(wu.untreated5Year)} percent without hearing aids.`}
         className="w-full max-w-[720px]"
       >
         <title>Word understanding over five years</title>
         <desc>
           A line chart with two paths from today: the teal path stays higher
-          with help, the amber path declines without help.
+          with hearing aids, the amber path declines without hearing aids.
         </desc>
 
         {/* Horizontal gridlines (60–100 expanded) plus the 0% floor. */}
@@ -495,7 +495,7 @@ export function WordUnderstandingViz({ wu }: { wu: WordUnderstanding }) {
             fontSize="13"
             fontFamily="Inter, sans-serif"
           >
-            without help
+            without hearing aids
           </text>
         </g>
         <g
@@ -520,7 +520,7 @@ export function WordUnderstandingViz({ wu }: { wu: WordUnderstanding }) {
             fontSize="13"
             fontFamily="Inter, sans-serif"
           >
-            with help
+            with hearing aids
           </text>
         </g>
       </svg>
@@ -545,7 +545,7 @@ export function WordUnderstandingViz({ wu }: { wu: WordUnderstanding }) {
             aria-hidden="true"
             className="inline-block h-3 w-3 rounded-sm bg-[#B45309]"
           />
-          In {WU_YEARS} years without help
+          In {WU_YEARS} years without hearing aids
         </button>
         <button
           type="button"
@@ -561,15 +561,15 @@ export function WordUnderstandingViz({ wu }: { wu: WordUnderstanding }) {
             aria-hidden="true"
             className="inline-block h-3 w-3 rounded-sm bg-brand-teal"
           />
-          In {WU_YEARS} years with help
+          In {WU_YEARS} years with hearing aids
         </button>
       </div>
 
       {/* Print fallback: state both outcomes so the PDF needs no buttons. */}
       <p className="hidden text-base text-brand-muted print:block">
         In {WU_YEARS} years, modelled word understanding is about{" "}
-        {Math.round(wu.untreated5Year)}% without help and about{" "}
-        {Math.round(wu.treated5Year)}% with help.
+        {Math.round(wu.untreated5Year)}% without hearing aids and about{" "}
+        {Math.round(wu.treated5Year)}% with hearing aids.
       </p>
 
       <div className="flex flex-wrap gap-x-6 gap-y-2 text-base text-brand-navy">
@@ -585,14 +585,14 @@ export function WordUnderstandingViz({ wu }: { wu: WordUnderstanding }) {
             aria-hidden="true"
             className="oviz-print-color inline-block h-1.5 w-6 rounded-full bg-[#B45309]"
           />
-          Without help
+          Without hearing aids
         </span>
         <span className="inline-flex items-center gap-2">
           <span
             aria-hidden="true"
             className="oviz-print-color inline-block h-1.5 w-6 rounded-full bg-brand-teal"
           />
-          With help
+          With hearing aids
         </span>
       </div>
 
@@ -666,8 +666,16 @@ const SOCIAL_ZONES = [
 
 type SocialZoneStatus = "now" | "lift" | "beyond";
 
-export function SocialRadiusViz({ radius }: { radius: SocialRadius }) {
-  const [aided, setAided] = useState(true);
+export function SocialRadiusViz({
+  radius,
+  initialAided = true,
+}: {
+  radius: SocialRadius;
+  initialAided?: boolean;
+}) {
+  const [aided, setAided] = useState(initialAided);
+  // Toggled by the One-on-one tile to highlight that zone inside the fan.
+  const [zoneFocus, setZoneFocus] = useState(false);
 
   const rToday = srRadius(radius.currentRadius);
   const rTreated = srRadius(radius.treatedRadius);
@@ -685,30 +693,12 @@ export function SocialRadiusViz({ radius }: { radius: SocialRadius }) {
     return { ...z, mid, status };
   });
 
-  // Outermost zone newly brought into comfortable range by support.
-  const liftZone = [...zones].reverse().find((z) => z.status === "lift");
-
   const today = radius.currentRadius.toFixed(1);
   const treated = radius.treatedRadius.toFixed(1);
   const ticks = [0, 2, 4, 6, 8, 10];
 
   return (
     <div className="flex flex-col gap-6">
-      <p className="max-w-prose text-lg leading-relaxed text-brand-navy">
-        Today, comfortable conversation reaches{" "}
-        <b className="font-semibold">{today} of 10</b>.{" "}
-        {aided ? (
-          <>
-            With support it can reach <b className="font-semibold">{treated}</b>
-            {liftZone
-              ? ` — bringing ${liftZone.name} back into comfortable range.`
-              : ", taking in more of the room."}
-          </>
-        ) : (
-          "Show the reach with support to see how much further it can extend."
-        )}
-      </p>
-
       <svg
         viewBox="0 0 620 360"
         role="img"
@@ -750,6 +740,17 @@ export function SocialRadiusViz({ radius }: { radius: SocialRadius }) {
           d={srSector(SR_R0, rToday)}
           fill={VIZ.navy}
         />
+
+        {/* One-on-one zone focus — amber highlight toggled by the One-on-one
+            tile, linking the tile's colour to its zone inside the fan. */}
+        {zoneFocus ? (
+          <path
+            className="oviz-print-color"
+            data-testid="social-radius-zone-focus"
+            d={srSector(SR_R0, srRadius(3.5))}
+            fill={VIZ.amber}
+          />
+        ) : null}
 
         {/* Support lift — solid teal band over the recovered reach. Always in
             the DOM when there's a lift to show; hidden on screen when the
@@ -809,11 +810,15 @@ export function SocialRadiusViz({ radius }: { radius: SocialRadius }) {
           })}
         </g>
 
-        {/* Listener hub + YOU label. */}
+        {/* Listener hub + YOU label — solid amber so YOU is the high-contrast
+            focal point against the navy reach sector; the amber also links to
+            the One-on-one tile and its zone-focus highlight. */}
         <path
           className="oviz-print-color"
           d={srSector(0, SR_R0)}
-          fill={VIZ.navy}
+          fill={VIZ.amber}
+          stroke="#fff"
+          strokeWidth={2}
         />
         <text
           x={SR_CX}
@@ -867,62 +872,63 @@ export function SocialRadiusViz({ radius }: { radius: SocialRadius }) {
         })}
       </svg>
 
-      {/* Milestone cards — one per zone, dual-coded by colour, icon and text. */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {zones.map((z) => {
-          const card =
-            z.status === "now"
-              ? {
-                  glyph: "✓",
-                  label: "In reach today",
-                  color: VIZ.navy,
-                  text: "text-brand-navy",
-                }
-              : z.status === "lift"
-                ? {
-                    glyph: "✦",
-                    label: "Newly in reach with support",
-                    color: VIZ.tealInk,
-                    text: "text-brand-teal-700",
-                  }
-                : {
-                    glyph: "○",
-                    label: "Still beyond comfortable reach",
-                    color: VIZ.muted,
-                    text: "text-brand-muted",
-                  };
-          const beyond = z.status === "beyond";
-          return (
-            <div
-              key={z.name}
-              className={[
-                "flex flex-col gap-2 rounded-xl border-2 p-4",
-                beyond ? "border-dashed" : "border-solid",
-              ].join(" ")}
-              style={{ borderColor: beyond ? SR_LINE_STRONG : card.color }}
-            >
-              <div className="flex items-center gap-2.5">
-                <span
-                  aria-hidden="true"
-                  className="oviz-print-color inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base font-bold"
-                  style={{
-                    background: beyond ? "transparent" : card.color,
-                    border: beyond ? `2px dashed ${SR_LINE_STRONG}` : "none",
-                    color: beyond ? VIZ.muted : "#fff",
-                  }}
-                >
-                  {card.glyph}
+      {/* Controls + milestone cards — the reach-with-support toggle leads the
+          row as button #1, followed by one compact, dual-coded status chip per
+          zone. Equal-height (items-stretch) so they read as a single chip row. */}
+      <div className="flex flex-wrap items-stretch gap-2">
+        <button
+          type="button"
+          onClick={() => setAided((s) => !s)}
+          aria-pressed={aided}
+          className="inline-flex min-w-[150px] flex-1 items-center justify-center gap-2 rounded-lg border-2 border-brand-teal bg-brand-tint/40 px-3 py-2 text-sm font-semibold text-brand-teal-700 transition-colors hover:bg-brand-tint print:hidden"
+        >
+          <span aria-hidden="true">▸</span>
+          {aided ? "Hide reach with support" : "Show reach with support"}
+        </button>
+        {zones
+          .filter(
+            (z) => z.name !== "Family table" && z.name !== "Across the room",
+          )
+          .map((z) => {
+            const card =
+              z.status === "now"
+                ? { glyph: "✓", label: "In reach today" }
+                : z.status === "lift"
+                  ? { glyph: "✦", label: "Newly in reach with support" }
+                  : { glyph: "○", label: "Still beyond comfortable reach" };
+            return (
+              <button
+                key={z.name}
+                type="button"
+                onClick={() => setZoneFocus((s) => !s)}
+                aria-pressed={zoneFocus}
+                aria-label={`Highlight the ${z.name} zone in the chart`}
+                className={[
+                  "flex min-w-[150px] flex-1 flex-col gap-1 rounded-lg border-2 border-solid p-2.5 text-left transition-colors",
+                  zoneFocus
+                    ? "bg-[#FBF1E7]"
+                    : "bg-brand-white hover:bg-[#FBF1E7]/60",
+                ].join(" ")}
+                style={{ borderColor: VIZ.amber }}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    aria-hidden="true"
+                    className="oviz-print-color inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+                    style={{ background: VIZ.amber, color: "#fff" }}
+                  >
+                    {card.glyph}
+                  </span>
+                  <span className="font-heading text-sm font-semibold text-brand-navy">
+                    {z.name}
+                  </span>
+                </div>
+                <span className="text-xs font-medium text-brand-muted">
+                  {card.label}
                 </span>
-                <span className="font-heading text-base font-semibold text-brand-navy">
-                  {z.name}
-                </span>
-              </div>
-              <span className={`text-sm font-medium ${card.text}`}>
-                {card.label}
-              </span>
-            </div>
-          );
-        })}
+              </button>
+            );
+          })}
       </div>
 
       {/* Stat readouts. */}
@@ -953,16 +959,6 @@ export function SocialRadiusViz({ radius }: { radius: SocialRadius }) {
         </p>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setAided((s) => !s)}
-        aria-pressed={aided}
-        className="inline-flex min-h-[48px] w-fit items-center gap-2 rounded-xl border-2 border-brand-teal bg-brand-tint/40 px-4 text-base font-semibold text-brand-teal-700 transition-colors hover:bg-brand-tint print:hidden"
-      >
-        <span aria-hidden="true">▸</span>
-        {aided ? "Hide reach with support" : "Show reach with support"}
-      </button>
-
       {/* Honesty note — left amber rule; states the limits of support. */}
       <p
         className="border-l-4 pl-4 text-base leading-relaxed text-brand-muted"
@@ -970,11 +966,7 @@ export function SocialRadiusViz({ radius }: { radius: SocialRadius }) {
       >
         Support widens the circle — it doesn&apos;t restore normal hearing. Some
         difficulty stays in every setting, so the reach with support always
-        falls short of the full room. Comfort strain today is about{" "}
-        <span className="font-semibold text-brand-navy">
-          {Math.round(radius.socialStrain)} out of 100
-        </span>{" "}
-        (lower is easier).
+        falls short of the full room.
       </p>
     </div>
   );

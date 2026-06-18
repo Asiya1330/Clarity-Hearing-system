@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/app/page-header";
 import { CompleteConsultForm } from "@/components/consult/complete-consult-form";
 import { IntakeLinkPanel } from "@/components/consult/intake-link-panel";
 import { ResultsDashboard } from "@/components/consult/results-dashboard";
+import { PresentationMode } from "@/components/report/presentation-mode";
 import { EarFitPhotos, type ExistingPhoto } from "@/components/EarFitPhotos";
 import { Button } from "@/components/ui/button";
 import type { ImpactOutputs } from "@/lib/calculators/impact";
@@ -135,16 +136,19 @@ async function ConsultBody({ params }: PageProps) {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between gap-4">
         <BackLink href="/dashboard" />
-        <Button
-          asChild
-          className="h-12 bg-brand-teal px-5 text-base font-semibold text-brand-white hover:bg-brand-teal-700"
-          data-testid="open-oviz-report-button"
-        >
-          <Link href={`/consults/${id}/report`}>
-            <Printer className="h-5 w-5" />
-            Open OViz Report
-          </Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          <PresentationMode outputs={outputs} />
+          <Button
+            asChild
+            className="h-12 bg-brand-teal px-5 text-base font-semibold text-brand-white hover:bg-brand-teal-700"
+            data-testid="open-oviz-report-button"
+          >
+            <Link href={`/consults/${id}/report`}>
+              <Printer className="h-5 w-5" />
+              Open OViz Report
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <PageHeader

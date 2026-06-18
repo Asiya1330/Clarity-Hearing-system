@@ -26,12 +26,14 @@ export function ListeningLiftTracks({
   goals,
   bestResponder,
   wrs,
+  initialAided = true,
 }: {
   goals: LiftGoal[];
   bestResponder: string | null;
   wrs: number;
+  initialAided?: boolean;
 }) {
-  const [aided, setAided] = useState(true);
+  const [aided, setAided] = useState(initialAided);
 
   return (
     <div className="flex flex-col gap-4">

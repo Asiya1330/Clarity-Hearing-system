@@ -18,6 +18,7 @@ import {
   SocialRadiusViz,
   WordUnderstandingViz,
 } from "@/components/report/impact-visuals";
+import { PresentationMode } from "@/components/report/presentation-mode";
 import { PrintButton } from "@/components/report/print-button";
 import { Reveal } from "@/components/report/reveal";
 import { SectionCard } from "@/components/report/section-card";
@@ -156,7 +157,10 @@ async function ReportBody({ params }: PageProps) {
       <div className="mx-auto max-w-[880px] px-8 py-10 print:px-0 print:py-0">
         <div className="mb-6 flex items-center justify-between print:hidden">
           <BackLink href={`/consults/${id}`} />
-          <PrintButton />
+          <div className="flex items-center gap-3">
+            <PresentationMode outputs={outputs} clinicName={clinicName} />
+            <PrintButton />
+          </div>
         </div>
 
         <header className="mb-8 border-b-2 border-brand-navy pb-6 print:break-after-avoid">

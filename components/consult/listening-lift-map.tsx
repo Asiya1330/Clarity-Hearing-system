@@ -16,9 +16,11 @@ import { calculateListeningLift } from "@/lib/calculators/listening-lift";
 export function ListeningLiftMap({
   topGoals,
   wrs,
+  initialAided,
 }: {
   topGoals: TopGoal[];
   wrs: number;
+  initialAided?: boolean;
 }) {
   if (topGoals.length === 0) {
     return (
@@ -35,6 +37,7 @@ export function ListeningLiftMap({
       goals={lift.goals}
       bestResponder={lift.bestResponder}
       wrs={wrs}
+      initialAided={initialAided}
     />
   );
 }

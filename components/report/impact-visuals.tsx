@@ -1,6 +1,5 @@
 "use client";
 
-import { User2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type {
@@ -20,9 +19,9 @@ import type {
  *                    five-year scenarios.
  *   Word Understanding → "out of every 100 spoken words, how many do you
  *                         catch"; two divergent lines from today's point.
- *   Social Radius → "how far comfortable hearing reaches"; concentric zone
- *                    rings with a toggle to overlay the wider radius with
- *                    help.
+ *   Social Radius → "how far comfortable hearing reaches"; a listener-centred
+ *                    semicircular reach fan, with a toggle to add the wider
+ *                    radius reached with help.
  *   Partner Impact → "what your hearing costs your partner this year";
  *                    circular dial that counts up plus a staggered bubble row
  *                    standing in for a typical day of repeats.
@@ -607,136 +606,377 @@ export function WordUnderstandingViz({ wu }: { wu: WordUnderstanding }) {
 }
 
 // --- Social Radius ---------------------------------------------------------
-// Concentric zone rings with a person at the centre; the "today" radius fills
-// first, an optional toggle overlays the wider "with help" radius. Print and
-// reduced-motion always render both.
+// A listener-centred semicircular "reach fan": comfortable hearing radiates
+// from a hub at the centre out into the room. Today's reach is a solid navy
+// sector; the lift with support is a solid teal band ADJACENT to it (never an
+// overlapping translucent disc); the room that even support never covers is
+// filled with a faint diagonal hatch — the honesty area. The aided band is
+// shown by default so print / reduced-motion / no-JS render the supported
+// state, consistent with the other cards.
+
+// Geometry, in SVG user units. The fan is the upper semicircle (180°→0°).
+const SR_CX = 310;
+const SR_CY = 320;
+const SR_R0 = 34; // listener hub radius (reach 0)
+const SR_RMAX = 292; // outer radius (reach 10)
+const SR_LINE_STRONG = "#C4D0D4"; // brand-line-strong — dividers / outlines
+
+// reach (0..10) → pixel radius along the fan.
+function srRadius(reach: number): number {
+  return SR_R0 + (clampPct(reach * 10) / 100) * (SR_RMAX - SR_R0);
+}
+
+// Polar point on the fan; angle in degrees from the +x axis, y measured up.
+function srPoint(r: number, deg: number): { x: number; y: number } {
+  const rad = (deg * Math.PI) / 180;
+  return { x: SR_CX + r * Math.cos(rad), y: SR_CY - r * Math.sin(rad) };
+}
+
+// Filled upper-semicircle annular sector between inner ri and outer ro.
+function srSector(ri: number, ro: number): string {
+  const oL = srPoint(ro, 180);
+  const oR = srPoint(ro, 0);
+  const iR = srPoint(ri, 0);
+  const iL = srPoint(ri, 180);
+  return [
+    `M ${oL.x} ${oL.y}`,
+    `A ${ro} ${ro} 0 0 1 ${oR.x} ${oR.y}`,
+    `L ${iR.x} ${iR.y}`,
+    `A ${ri} ${ri} 0 0 0 ${iL.x} ${iL.y}`,
+    "Z",
+  ].join(" ");
+}
+
+// Upper-semicircle arc stroke at radius r (zone divider / outer rim).
+function srArc(r: number): string {
+  const a = srPoint(r, 180);
+  const b = srPoint(r, 0);
+  return `M ${a.x} ${a.y} A ${r} ${r} 0 0 1 ${b.x} ${b.y}`;
+}
+
+// Illustrative comfort zones on the 0–10 reach scale. PRESENTATION ONLY —
+// these name the existing number for the patient; they are NOT new clinical
+// claims. Kept as one array so they're easy to retune after audiologist
+// review. A zone's status is judged at its midpoint.
+const SOCIAL_ZONES = [
+  { name: "One-on-one", min: 0, max: 3.5 },
+  { name: "Family table", min: 3.5, max: 6.5 },
+  { name: "Across the room", min: 6.5, max: 10 },
+] as const;
+
+type SocialZoneStatus = "now" | "lift" | "beyond";
 
 export function SocialRadiusViz({ radius }: { radius: SocialRadius }) {
-  const [showAided, setShowAided] = useState(false);
-  const maxPx = 280;
-  const todayPx = (clampPct(radius.currentRadius * 10) / 100) * maxPx;
-  const aidedPx = (clampPct(radius.treatedRadius * 10) / 100) * maxPx;
+  const [aided, setAided] = useState(true);
+
+  const rToday = srRadius(radius.currentRadius);
+  const rTreated = srRadius(radius.treatedRadius);
+  // Whether support adds enough reach to be worth drawing as a band.
+  const hasLift = rTreated - rToday > 0.5;
+
+  const zones = SOCIAL_ZONES.map((z) => {
+    const mid = (z.min + z.max) / 2;
+    const status: SocialZoneStatus =
+      radius.currentRadius >= mid
+        ? "now"
+        : aided && radius.treatedRadius >= mid
+          ? "lift"
+          : "beyond";
+    return { ...z, mid, status };
+  });
+
+  // Outermost zone newly brought into comfortable range by support.
+  const liftZone = [...zones].reverse().find((z) => z.status === "lift");
+
+  const today = radius.currentRadius.toFixed(1);
+  const treated = radius.treatedRadius.toFixed(1);
+  const ticks = [0, 2, 4, 6, 8, 10];
 
   return (
-    <div className="flex flex-wrap items-center gap-8">
-      <div
-        className="relative h-[300px] w-[340px] shrink-0"
+    <div className="flex flex-col gap-6">
+      <p className="max-w-prose text-lg leading-relaxed text-brand-navy">
+        Today, comfortable conversation reaches{" "}
+        <b className="font-semibold">{today} of 10</b>.{" "}
+        {aided ? (
+          <>
+            With support it can reach <b className="font-semibold">{treated}</b>
+            {liftZone
+              ? ` — bringing ${liftZone.name} back into comfortable range.`
+              : ", taking in more of the room."}
+          </>
+        ) : (
+          "Show the reach with support to see how much further it can extend."
+        )}
+      </p>
+
+      <svg
+        viewBox="0 0 620 360"
         role="img"
-        aria-label={`Social radius: about ${radius.currentRadius.toFixed(1)} of 10 today, and about ${radius.treatedRadius.toFixed(1)} of 10 with help.`}
+        data-testid="social-radius-fan"
+        aria-label={`Reach fan. Today comfortable hearing reaches about ${today} of 10. With support it reaches about ${treated} of 10. The hatched outer area is the part of the room that stays beyond comfortable reach, even with support.`}
+        className="w-full max-w-[620px]"
       >
-        <ZoneRing diameter={300} label="Across the room" labelTop="6%" />
-        <ZoneRing diameter={210} label="Family table" labelTop="24%" />
-        <ZoneRing diameter={120} label="One-on-one" labelTop="40%" />
+        <defs>
+          <pattern
+            id="sr-hatch"
+            patternUnits="userSpaceOnUse"
+            width="12"
+            height="12"
+            patternTransform="rotate(45)"
+          >
+            <line
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="12"
+              stroke={VIZ.navySoft}
+              strokeWidth="2"
+            />
+          </pattern>
+        </defs>
 
-        {/* Aided overlay (rendered first so the today fill stays on top) */}
-        <div
-          aria-hidden="true"
-          className="oviz-print-color absolute left-1/2 top-1/2 rounded-full border-4 border-dashed transition-transform duration-700 ease-out print:!scale-100"
-          style={{
-            width: aidedPx,
-            height: aidedPx,
-            borderColor: VIZ.tealInk,
-            background: "rgba(0,139,139,0.16)",
-            transform: `translate(-50%, -50%) scale(${showAided ? 1 : 0})`,
-          }}
+        {/* Honesty area — the room beyond today's reach, faint 45° hatch. One
+            static layer: the opaque teal lift band (below) paints over the part
+            support recovers, so the hatch never depends on the toggle. */}
+        <path
+          className="oviz-print-color"
+          d={srSector(rToday, SR_RMAX)}
+          fill="url(#sr-hatch)"
         />
 
-        <div
-          aria-hidden="true"
-          className="oviz-anim-ring oviz-print-color absolute left-1/2 top-1/2 rounded-full border-[3.5px]"
-          style={{
-            width: todayPx,
-            height: todayPx,
-            transform: "translate(-50%, -50%)",
-            transformOrigin: "center",
-            borderColor: VIZ.navy,
-            background: "rgba(0,33,71,0.18)",
-          }}
+        {/* Today's reach — solid navy sector from the hub. */}
+        <path
+          className="oviz-print-color"
+          d={srSector(SR_R0, rToday)}
+          fill={VIZ.navy}
         />
 
-        <span
-          aria-hidden="true"
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-brand-navy"
+        {/* Support lift — solid teal band over the recovered reach. Always in
+            the DOM when there's a lift to show; hidden on screen when the
+            toggle is off, but forced visible on paper (print:opacity-100) so
+            the saved PDF never depends on the JS toggle state. No transition,
+            so reduced motion and print both land on the final state. */}
+        {hasLift ? (
+          <path
+            className={`oviz-print-color${aided ? "" : " opacity-0 print:opacity-100"}`}
+            data-testid="social-radius-lift"
+            d={srSector(rToday, rTreated)}
+            fill={VIZ.teal}
+          />
+        ) : null}
+
+        {/* Dashed zone dividers + solid outer rim. */}
+        <g
+          fill="none"
+          stroke={SR_LINE_STRONG}
+          strokeWidth="1.5"
+          strokeDasharray="4 6"
         >
-          <User2 className="h-8 w-8" />
-        </span>
+          <path d={srArc(srRadius(3.5))} />
+          <path d={srArc(srRadius(6.5))} />
+        </g>
+        <path
+          d={srArc(SR_RMAX)}
+          fill="none"
+          stroke={SR_LINE_STRONG}
+          strokeWidth="1.5"
+        />
+
+        {/* Numeric ticks 0..10 along the right radius. */}
+        <g
+          fill={VIZ.muted}
+          fontSize="14"
+          fontFamily="Inter, sans-serif"
+          textAnchor="middle"
+        >
+          {ticks.map((t) => {
+            const x = SR_CX + srRadius(t);
+            return (
+              <g key={t}>
+                <line
+                  x1={x}
+                  y1={SR_CY}
+                  x2={x}
+                  y2={SR_CY + 8}
+                  stroke={SR_LINE_STRONG}
+                  strokeWidth="1.5"
+                />
+                <text x={x} y={SR_CY + 26}>
+                  {t}
+                </text>
+              </g>
+            );
+          })}
+        </g>
+
+        {/* Listener hub + YOU label. */}
+        <path
+          className="oviz-print-color"
+          d={srSector(0, SR_R0)}
+          fill={VIZ.navy}
+        />
+        <text
+          x={SR_CX}
+          y={SR_CY - 11}
+          fill="#fff"
+          fontSize="13"
+          fontWeight="700"
+          fontFamily="Inter, sans-serif"
+          textAnchor="middle"
+        >
+          YOU
+        </text>
+
+        {/* Zone-name chips on the vertical centre line; fill encodes status. */}
+        {zones.map((z) => {
+          const cy = SR_CY - srRadius(z.mid);
+          const w = z.name.length * 7.6 + 24;
+          const beyond = z.status === "beyond";
+          const fill =
+            z.status === "now"
+              ? VIZ.navy
+              : z.status === "lift"
+                ? VIZ.tealInk
+                : "#fff";
+          return (
+            <g key={z.name} className="oviz-print-color">
+              <rect
+                x={SR_CX - w / 2}
+                y={cy - 13}
+                width={w}
+                height={26}
+                rx={13}
+                fill={fill}
+                stroke={beyond ? VIZ.navy : "none"}
+                strokeWidth={beyond ? 1.5 : 0}
+                strokeDasharray={beyond ? "4 4" : undefined}
+              />
+              <text
+                x={SR_CX}
+                y={cy + 5}
+                fill={beyond ? VIZ.navy : "#fff"}
+                fontSize="13"
+                fontWeight="600"
+                fontFamily="Inter, sans-serif"
+                textAnchor="middle"
+              >
+                {z.name}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Milestone cards — one per zone, dual-coded by colour, icon and text. */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {zones.map((z) => {
+          const card =
+            z.status === "now"
+              ? {
+                  glyph: "✓",
+                  label: "In reach today",
+                  color: VIZ.navy,
+                  text: "text-brand-navy",
+                }
+              : z.status === "lift"
+                ? {
+                    glyph: "✦",
+                    label: "Newly in reach with support",
+                    color: VIZ.tealInk,
+                    text: "text-brand-teal-700",
+                  }
+                : {
+                    glyph: "○",
+                    label: "Still beyond comfortable reach",
+                    color: VIZ.muted,
+                    text: "text-brand-muted",
+                  };
+          const beyond = z.status === "beyond";
+          return (
+            <div
+              key={z.name}
+              className={[
+                "flex flex-col gap-2 rounded-xl border-2 p-4",
+                beyond ? "border-dashed" : "border-solid",
+              ].join(" ")}
+              style={{ borderColor: beyond ? SR_LINE_STRONG : card.color }}
+            >
+              <div className="flex items-center gap-2.5">
+                <span
+                  aria-hidden="true"
+                  className="oviz-print-color inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base font-bold"
+                  style={{
+                    background: beyond ? "transparent" : card.color,
+                    border: beyond ? `2px dashed ${SR_LINE_STRONG}` : "none",
+                    color: beyond ? VIZ.muted : "#fff",
+                  }}
+                >
+                  {card.glyph}
+                </span>
+                <span className="font-heading text-base font-semibold text-brand-navy">
+                  {z.name}
+                </span>
+              </div>
+              <span className={`text-sm font-medium ${card.text}`}>
+                {card.label}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="flex max-w-md flex-col gap-3">
-        <p className="flex items-center gap-3 text-lg">
+      {/* Stat readouts. */}
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+        <p className="flex items-center gap-2.5 text-lg">
           <span
             aria-hidden="true"
             className="oviz-print-color inline-block h-4 w-4 rounded-sm"
             style={{ background: VIZ.navy }}
           />
-          <span>Today:</span>
+          <span className="text-brand-navy">Today</span>
           <span className="font-heading text-2xl font-semibold text-brand-navy">
-            {radius.currentRadius.toFixed(1)}
+            {today}
           </span>
           <span className="text-base text-brand-muted">/ 10 reach</span>
         </p>
-        <p className="flex items-center gap-3 text-lg">
+        <p className="flex items-center gap-2.5 text-lg">
           <span
             aria-hidden="true"
             className="oviz-print-color inline-block h-4 w-4 rounded-sm"
             style={{ background: VIZ.tealInk }}
           />
-          <span>With help:</span>
+          <span className="text-brand-navy">With support</span>
           <span className="font-heading text-2xl font-semibold text-brand-teal-700">
-            {radius.treatedRadius.toFixed(1)}
+            {treated}
           </span>
           <span className="text-base text-brand-muted">/ 10 reach</span>
         </p>
-
-        <button
-          type="button"
-          onClick={() => setShowAided((s) => !s)}
-          aria-pressed={showAided}
-          className="mt-1 inline-flex h-12 w-fit items-center justify-center rounded-xl border-2 border-brand-teal bg-brand-tint/40 px-4 text-base font-semibold text-brand-teal-700 transition-colors hover:bg-brand-tint print:hidden"
-        >
-          {showAided ? "Hide the circle with help" : "Show the circle with help"}
-        </button>
-
-        {/* Print fallback: caption rather than button. */}
-        <p className="hidden text-base text-brand-muted print:block">
-          Dashed teal circle: the wider reach modelled with help.
-        </p>
-
-        <p className="text-base text-brand-muted">
-          Social strain today:{" "}
-          <span className="font-semibold text-brand-navy">
-            {Math.round(radius.socialStrain)} / 100
-          </span>
-        </p>
       </div>
-    </div>
-  );
-}
 
-function ZoneRing({
-  diameter,
-  label,
-  labelTop,
-}: {
-  diameter: number;
-  label: string;
-  labelTop: string;
-}) {
-  return (
-    <>
-      <span
-        aria-hidden="true"
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-dashed border-brand-line"
-        style={{ width: diameter, height: diameter }}
-      />
-      <span
-        aria-hidden="true"
-        className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-brand-white px-2 py-px text-xs text-brand-muted"
-        style={{ top: labelTop }}
+      <button
+        type="button"
+        onClick={() => setAided((s) => !s)}
+        aria-pressed={aided}
+        className="inline-flex min-h-[48px] w-fit items-center gap-2 rounded-xl border-2 border-brand-teal bg-brand-tint/40 px-4 text-base font-semibold text-brand-teal-700 transition-colors hover:bg-brand-tint print:hidden"
       >
-        {label}
-      </span>
-    </>
+        <span aria-hidden="true">▸</span>
+        {aided ? "Hide reach with support" : "Show reach with support"}
+      </button>
+
+      {/* Honesty note — left amber rule; states the limits of support. */}
+      <p
+        className="border-l-4 pl-4 text-base leading-relaxed text-brand-muted"
+        style={{ borderColor: VIZ.amber }}
+      >
+        Support widens the circle — it doesn&apos;t restore normal hearing. Some
+        difficulty stays in every setting, so the reach with support always
+        falls short of the full room. Comfort strain today is about{" "}
+        <span className="font-semibold text-brand-navy">
+          {Math.round(radius.socialStrain)} out of 100
+        </span>{" "}
+        (lower is easier).
+      </p>
+    </div>
   );
 }
 

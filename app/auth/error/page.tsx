@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,13 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default async function Page({
+export default function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ error: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
-  const params = await searchParams;
-
   return (
     <AuthShell eyebrow="Something went wrong">
       <Card>
@@ -27,18 +26,18 @@ export default async function Page({
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-7">
-          {params?.error ? (
-            <p className="text-lg leading-relaxed text-brand-navy">
-              Error code:{" "}
-              <span className="font-semibold text-brand-teal-700">
-                {params.error}
-              </span>
-            </p>
-          ) : (
-            <p className="text-lg leading-relaxed text-brand-navy">
-              An unspecified error occurred.
-            </p>
-          )}
+          {/* The error code comes from searchParams (uncached, per-request), so
+              it must be read inside a Suspense boundary — required by Next's
+              Cache Components build. */}
+          <Suspense
+            fallback={
+              <p className="text-lg leading-relaxed text-brand-navy">
+                Checking what happened…
+              </p>
+            }
+          >
+            <ErrorCode searchParams={searchParams} />
+          </Suspense>
           <div className="flex flex-col gap-3">
             <Button asChild size="lg">
               <Link href="/auth/login">Back to sign in</Link>
@@ -50,5 +49,24 @@ export default async function Page({
         </CardContent>
       </Card>
     </AuthShell>
+  );
+}
+
+async function ErrorCode({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
+
+  return params?.error ? (
+    <p className="text-lg leading-relaxed text-brand-navy">
+      Error code:{" "}
+      <span className="font-semibold text-brand-teal-700">{params.error}</span>
+    </p>
+  ) : (
+    <p className="text-lg leading-relaxed text-brand-navy">
+      An unspecified error occurred.
+    </p>
   );
 }

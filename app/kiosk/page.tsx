@@ -17,6 +17,7 @@
  *   /kiosk?clinic=Bayview%20Hearing&location=Toronto&clinician=Dr.%20Lee
  */
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   ArrowRight,
   CheckCircle2,
@@ -56,7 +57,29 @@ const steps: { icon: LucideIcon; title: string; body: string }[] = [
   },
 ];
 
-export default async function KioskPage({
+export default function KioskPage({
+  searchParams,
+}: {
+  searchParams: Promise<KioskSearchParams>;
+}) {
+  // searchParams is uncached (per-request), so the screen that reads it must
+  // sit inside a Suspense boundary — required by Next's Cache Components build.
+  return (
+    <Suspense fallback={<KioskFallback />}>
+      <KioskHome searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+function KioskFallback() {
+  return (
+    <div className="oviz-surface flex min-h-svh items-center justify-center bg-brand-mist/40 text-brand-navy">
+      <p className="text-lg text-brand-muted">Loading…</p>
+    </div>
+  );
+}
+
+async function KioskHome({
   searchParams,
 }: {
   searchParams: Promise<KioskSearchParams>;

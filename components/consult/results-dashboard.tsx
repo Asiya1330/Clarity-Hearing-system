@@ -17,6 +17,7 @@ import {
 import { Reveal } from "@/components/report/reveal";
 import { SectionCard } from "@/components/report/section-card";
 import type { ImpactOutputs } from "@/lib/calculators/impact";
+import { calculateListeningLift } from "@/lib/calculators/listening-lift";
 
 import { Disclaimer } from "./disclaimer";
 
@@ -34,7 +35,14 @@ export function ResultsDashboard({ outputs }: { outputs: ImpactOutputs }) {
   const wrsTreated = Math.round(wordUnderstanding.treated5Year);
   const wrsUntreated = Math.round(wordUnderstanding.untreated5Year);
   const repeats = Math.round(partnerImpact.repeatsPerDay);
-  const bestGoal = listeningMap.topGoals[0]?.name ?? null;
+  // Reuse the same calculator + inputs the map renders from, so the takeaway's
+  // best situation and relief magnitude match the card exactly (no new math).
+  const lift = calculateListeningLift(
+    listeningMap.topGoals,
+    wordUnderstanding.current,
+  );
+  const bestResponder = lift.bestResponder;
+  const bestRelief = lift.goals.find((g) => g.name === bestResponder)?.relief;
 
   return (
     <div className="flex flex-col gap-6">
@@ -131,8 +139,8 @@ export function ResultsDashboard({ outputs }: { outputs: ImpactOutputs }) {
           <>
             These are the moments{" "}
             <b className="font-semibold">you told us matter</b>.{" "}
-            {bestGoal
-              ? `Amplification eases the most difficulty in ${bestGoal}, less in noisier rooms.`
+            {bestResponder && bestRelief !== undefined
+              ? `Amplification is modeled to ease the most difficulty in ${bestResponder} — up to ${bestRelief.toFixed(1)} points — though some difficulty remains in every situation.`
               : "Each track shows where amplification could help and what would still remain."}
           </>
         }

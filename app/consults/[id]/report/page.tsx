@@ -22,6 +22,7 @@ import { PrintButton } from "@/components/report/print-button";
 import { Reveal } from "@/components/report/reveal";
 import { SectionCard } from "@/components/report/section-card";
 import type { ImpactOutputs } from "@/lib/calculators/impact";
+import { calculateListeningLift } from "@/lib/calculators/listening-lift";
 import { createClient } from "@/lib/supabase/server";
 import type { ConsultInput } from "@/lib/zod/consult";
 
@@ -141,7 +142,14 @@ async function ReportBody({ params }: PageProps) {
   const wrsTreated = Math.round(outputs.wordUnderstanding.treated5Year);
   const wrsUntreated = Math.round(outputs.wordUnderstanding.untreated5Year);
   const repeats = Math.round(outputs.partnerImpact.repeatsPerDay);
-  const bestGoal = outputs.listeningMap.topGoals[0]?.name ?? null;
+  // Reuse the same calculator + inputs the map renders from, so the takeaway's
+  // best situation and relief magnitude match the card exactly (no new math).
+  const lift = calculateListeningLift(
+    outputs.listeningMap.topGoals,
+    outputs.wordUnderstanding.current,
+  );
+  const bestResponder = lift.bestResponder;
+  const bestRelief = lift.goals.find((g) => g.name === bestResponder)?.relief;
 
   return (
     <main className="min-h-screen bg-brand-white text-brand-navy print:bg-white">
@@ -304,8 +312,8 @@ async function ReportBody({ params }: PageProps) {
               <>
                 These are the moments{" "}
                 <b className="font-semibold">you told us matter</b>.{" "}
-                {bestGoal
-                  ? `Amplification eases the most difficulty in ${bestGoal}, less in noisier rooms.`
+                {bestResponder && bestRelief !== undefined
+                  ? `Amplification is modeled to ease the most difficulty in ${bestResponder} — up to ${bestRelief.toFixed(1)} points — though some difficulty remains in every situation.`
                   : "Each track shows where amplification could help and what would still remain."}
               </>
             }

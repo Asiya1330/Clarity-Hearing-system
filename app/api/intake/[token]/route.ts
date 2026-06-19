@@ -1,9 +1,25 @@
 import { NextResponse, type NextRequest } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PatientResponsesSchema } from "@/lib/zod/intake";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 interface RouteContext {
   params: Promise<{ token: string }>;
+}
+
+// Public, unauthenticated, service-role-backed endpoint — rate-limit it to
+// blunt token brute-forcing and submission abuse. GET (link validation) is
+// limited per IP; POST (submission) is limited per IP+token.
+const GET_LIMIT = 30; // requests
+const POST_LIMIT = 10; // requests
+const WINDOW_MS = 60_000; // per minute
+
+function rateLimited(retryAfterSeconds: number) {
+  return NextResponse.json(
+    { error: "Too many requests. Please slow down and try again." },
+    { status: 429, headers: { "retry-after": String(retryAfterSeconds) } },
+  );
 }
 
 type LinkRow = {
@@ -55,7 +71,10 @@ const NOT_FOUND = NextResponse.json(
   { status: 404 },
 );
 
-export async function GET(_request: NextRequest, context: RouteContext) {
+export async function GET(request: NextRequest, context: RouteContext) {
+  const rl = rateLimit(`intake:get:${clientIp(request)}`, GET_LIMIT, WINDOW_MS);
+  if (!rl.allowed) return rateLimited(rl.retryAfterSeconds);
+
   const { token } = await context.params;
   const open = await loadOpenIntake(token);
   if (!open) return NOT_FOUND;
@@ -69,6 +88,14 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   const { token } = await context.params;
+
+  const rl = rateLimit(
+    `intake:post:${clientIp(request)}:${token}`,
+    POST_LIMIT,
+    WINDOW_MS,
+  );
+  if (!rl.allowed) return rateLimited(rl.retryAfterSeconds);
+
   const open = await loadOpenIntake(token);
   if (!open) return NOT_FOUND;
 
@@ -113,6 +140,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
       consultId: link.consult_id,
       code: updateError.code,
     });
+    Sentry.captureException(new Error("intake.submit.update failed"), {
+      extra: { consultId: link.consult_id, code: updateError.code },
+    });
     return NextResponse.json(
       { error: "We could not save your answers. Please try again." },
       { status: 500 },
@@ -127,6 +157,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
     console.error("intake.submit.link-close failed", {
       linkId: link.id,
       code: linkError.code,
+    });
+    Sentry.captureException(new Error("intake.submit.link-close failed"), {
+      extra: { linkId: link.id, code: linkError.code },
     });
   }
 

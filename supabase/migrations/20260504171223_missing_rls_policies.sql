@@ -1,10 +1,13 @@
 -- Migration: missing_rls_policies
+-- Reconstructed into version control from the live migration ledger
+-- (supabase_migrations.schema_migrations, version 20260504171223). Already
+-- applied in production; committed here so the repo mirrors the real history.
 --
--- Adds INSERT/UPDATE policies that were absent from the initial schema.
--- Without model_runs INSERT, every consult save returns 500.
--- Without clinics/locations/profiles write policies, all admin mutations fail.
+-- NOTE: the "owner can update clinic profiles" policy created below has the
+-- privilege-escalation hole (no role gate); it is replaced in
+-- 20260619090000_hardened_rls_and_functions.sql.
 
--- model_runs INSERT: clinic members can insert model runs for their own consults
+-- model_runs INSERT: critical — without this every consult save returns 500
 create policy "clinic users can insert own model runs"
   on public.model_runs for insert
   with check (
@@ -15,12 +18,12 @@ create policy "clinic users can insert own model runs"
     )
   );
 
--- audit_logs INSERT: non-fatal audit trail
+-- audit_logs INSERT: non-fatal but should succeed
 create policy "clinic users can insert audit logs"
   on public.audit_logs for insert
   with check (clinic_id = current_clinic_id());
 
--- clinics UPDATE: required for admin/clinic settings page
+-- clinics UPDATE: required for admin clinic settings page
 create policy "owner or admin can update clinic"
   on public.clinics for update
   using (id = current_clinic_id())
@@ -34,7 +37,7 @@ create policy "owner or admin can update clinic"
     )
   );
 
--- locations INSERT: required for admin/locations page
+-- locations INSERT: required for admin locations page
 create policy "owner or admin can insert location"
   on public.locations for insert
   with check (
@@ -47,7 +50,7 @@ create policy "owner or admin can insert location"
     )
   );
 
--- profiles UPDATE: required for admin/users role-change page
+-- profiles UPDATE: required for admin users page role changes
 create policy "owner can update clinic profiles"
   on public.profiles for update
   using (clinic_id = current_clinic_id())

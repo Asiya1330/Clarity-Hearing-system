@@ -4,17 +4,25 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
+import { beforeSend, beforeSendTransaction } from "@/lib/sentry/phi-filter";
 
 Sentry.init({
   dsn: "https://985d1450d7d5b07d9f33d66cd7ab185b@o4511191126441984.ingest.us.sentry.io/4511327992479744",
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  // 10 % trace sampling — matches the client and keeps both cost and the
+  // volume of PHI-adjacent payloads bounded at scale.
+  tracesSampleRate: 0.1,
 
-  // Enable logs to be sent to Sentry
-  enableLogs: true,
+  // Do NOT forward console/edge logs to Sentry: log lines carry clinical
+  // payloads and are NOT routed through beforeSend, so they cannot be scrubbed.
+  enableLogs: false,
 
-  // Enable sending user PII (Personally Identifiable Information)
+  // Healthcare app — never attach PII (IP, headers, request bodies) by default.
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
-  sendDefaultPii: true,
+  sendDefaultPii: false,
+
+  // Last line of defence: recursively strip PHI/PII from every error and
+  // transaction payload before it leaves the edge runtime.
+  beforeSend,
+  beforeSendTransaction,
 });

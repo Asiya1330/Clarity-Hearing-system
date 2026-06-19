@@ -1,8 +1,7 @@
 -- Migration: consult_patient_fields
---
--- Adds patient-facing fields to consults for display on reports and detail pages.
--- patient_reference (existing) is kept for backward compat.
--- patient_name is preferred for new consults.
+-- Reconstructed into version control from the live migration ledger
+-- (supabase_migrations.schema_migrations, version 20260504174427). Already
+-- applied in production; committed here so the repo mirrors the real history.
 
 alter table public.consults
   add column if not exists patient_name   text,

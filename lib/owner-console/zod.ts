@@ -59,3 +59,8 @@ export const StaffRoleChangeSchema = z.object({
   role: z.enum(OWNER_CONSOLE_ROLES),
 });
 export type StaffRoleChangePayload = z.infer<typeof StaffRoleChangeSchema>;
+
+export const SupportViewEventSchema = z.object({
+  event: z.enum(["start", "close"]),
+});
+export type SupportViewEventPayload = z.infer<typeof SupportViewEventSchema>;

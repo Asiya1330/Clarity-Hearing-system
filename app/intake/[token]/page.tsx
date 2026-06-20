@@ -36,6 +36,7 @@ type LinkRow = {
   mode: "kiosk" | "email";
   expires_at: string;
   used_at: string | null;
+  revoked_at: string | null;
 };
 
 export default function IntakePage({ params, searchParams }: PageProps) {
@@ -86,14 +87,18 @@ async function IntakeContent({ params, searchParams }: PageProps) {
     const admin = createAdminClient();
     const { data: link } = await admin
       .from("intake_links")
-      .select("consult_id, clinic_id, mode, expires_at, used_at")
+      .select("consult_id, clinic_id, mode, expires_at, used_at, revoked_at")
       .eq("token", token)
       .maybeSingle();
 
     if (link) {
       const l = link as LinkRow;
+      // Revoked links (force-killed kiosk sessions) are treated exactly like
+      // used/expired links — same generic unavailable screen.
       const open =
-        !l.used_at && new Date(l.expires_at).getTime() >= Date.now();
+        !l.used_at &&
+        !l.revoked_at &&
+        new Date(l.expires_at).getTime() >= Date.now();
       if (open) {
         const { data: consult } = await admin
           .from("consults")
@@ -101,15 +106,18 @@ async function IntakeContent({ params, searchParams }: PageProps) {
           .eq("id", l.consult_id)
           .maybeSingle();
         if (consult?.status === "awaiting_patient") {
-          valid = true;
-          mode = l.mode;
-          patientName = (consult.patient_name as string | null) ?? null;
           const { data: clinic } = await admin
             .from("clinics")
-            .select("name")
+            .select("name, account_status")
             .eq("id", l.clinic_id)
             .maybeSingle();
-          if (clinic?.name) clinicName = clinic.name as string;
+          // Suspended clinics: link is unavailable (generic), same as expired.
+          if (clinic && clinic.account_status !== "suspended") {
+            valid = true;
+            mode = l.mode;
+            patientName = (consult.patient_name as string | null) ?? null;
+            if (clinic.name) clinicName = clinic.name as string;
+          }
         }
       }
     }

@@ -29,6 +29,7 @@ type LinkRow = {
   mode: "kiosk" | "email";
   expires_at: string;
   used_at: string | null;
+  revoked_at: string | null;
 };
 
 async function loadOpenIntake(token: string) {
@@ -36,13 +37,16 @@ async function loadOpenIntake(token: string) {
 
   const { data: link } = await admin
     .from("intake_links")
-    .select("id, consult_id, clinic_id, mode, expires_at, used_at")
+    .select("id, consult_id, clinic_id, mode, expires_at, used_at, revoked_at")
     .eq("token", token)
     .maybeSingle();
 
   if (!link) return null;
   const l = link as LinkRow;
   if (l.used_at) return null;
+  // A revoked link (e.g. force-killed kiosk session) is treated EXACTLY like a
+  // used/expired link — same generic unavailable response, no distinct signal.
+  if (l.revoked_at) return null;
   if (new Date(l.expires_at).getTime() < Date.now()) return null;
 
   const { data: consult } = await admin
@@ -54,9 +58,11 @@ async function loadOpenIntake(token: string) {
 
   const { data: clinic } = await admin
     .from("clinics")
-    .select("name")
+    .select("name, account_status")
     .eq("id", l.clinic_id)
     .maybeSingle();
+  // Suspended clinics: intake links stop working, same generic response.
+  if (!clinic || clinic.account_status === "suspended") return null;
 
   return {
     admin,

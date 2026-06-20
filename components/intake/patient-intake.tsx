@@ -60,6 +60,33 @@ export function PatientIntake({
     return () => clearTimeout(id);
   }, [done, mode, secondsLeft, returnTo, router]);
 
+  // Kiosk only: poll link validity so a force-killed (revoked) or expired
+  // session ejects the patient promptly. A 404 from GET means the link is no
+  // longer available — return to the kiosk home; a fresh load clears all local
+  // state. Email mode does not poll. (Polling, not realtime — the repo does not
+  // use Supabase realtime.)
+  useEffect(() => {
+    if (mode !== "kiosk" || done) return;
+    let cancelled = false;
+    const id = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/intake/${token}`, {
+          method: "GET",
+          cache: "no-store",
+        });
+        if (!cancelled && res.status === 404) {
+          router.push(returnTo);
+        }
+      } catch {
+        /* ignore transient network errors */
+      }
+    }, 12_000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [mode, done, token, returnTo, router]);
+
   const update = <K extends keyof WizardState>(
     key: K,
     value: WizardState[K],

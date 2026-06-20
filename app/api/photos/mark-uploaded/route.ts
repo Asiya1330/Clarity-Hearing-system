@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { isClinicSuspended } from "@/lib/clinic-access";
 
 const Body = z.object({
   photoId: z.string().uuid(),
@@ -36,6 +37,13 @@ export async function POST(request: NextRequest) {
     );
   }
   const clinicId = profile.clinic_id as string;
+
+  if (await isClinicSuspended(supabase, clinicId)) {
+    return NextResponse.json(
+      { error: "This clinic's account is currently paused." },
+      { status: 403 },
+    );
+  }
 
   let body: unknown;
   try {

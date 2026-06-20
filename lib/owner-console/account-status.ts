@@ -56,7 +56,6 @@ interface ClinicBillingRow {
 }
 
 async function loadClinicBilling(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   admin: ReturnType<typeof createAdminClient>,
   clinicId: string,
 ): Promise<ClinicBillingRow | null> {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { OWNER_CONSOLE_API_PREFIX } from "@/lib/owner-console/constants";
+import { OWNER_CONSOLE_API_PREFIX } from "@/lib/owner-console/paths";
 
 /** Resends to the CLINIC OWNER (raw recipient addresses are not retained for
  *  privacy). The button label and confirm copy make that explicit. */

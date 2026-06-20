@@ -11,20 +11,21 @@
  */
 
 /** The single hardcoded SaaS-owner identity. Highest privilege; cannot be
- *  revoked, disabled, or demoted by any console action. */
+ *  revoked, disabled, or demoted by any console action.
+ *
+ *  IMPORTANT: this value lives ONLY in this module (server/edge usage). Client
+ *  components must import route constants from ./paths.ts instead, so the owner
+ *  email is never bundled into client JS. */
 export const OVIZ_OWNER_EMAIL = "sl@evear.ca";
 
-/** Hidden access (email + password) landing page. */
-export const OWNER_CONSOLE_LOGIN_PATH = "/auth/oviz-control-room";
-
-/** Hidden TOTP MFA enrol / challenge page. */
-export const OWNER_CONSOLE_MFA_PATH = "/auth/oviz-control-room/mfa";
-
-/** Root of the authenticated owner console (route group (owner-console)). */
-export const OWNER_CONSOLE_ROOT_PATH = "/ops/oviz-control-room";
-
-/** Prefix for owner-console API route handlers. */
-export const OWNER_CONSOLE_API_PREFIX = "/api/owner-console";
+// Route constants are defined in the client-safe ./paths module and re-exported
+// here for server/edge convenience.
+export {
+  OWNER_CONSOLE_LOGIN_PATH,
+  OWNER_CONSOLE_MFA_PATH,
+  OWNER_CONSOLE_ROOT_PATH,
+  OWNER_CONSOLE_API_PREFIX,
+} from "./paths";
 
 /** Console roles, in descending privilege. Stored in
  *  auth.users.app_metadata.oviz_console_role. */

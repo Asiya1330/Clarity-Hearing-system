@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormError } from "@/components/auth/form-error";
 import { Panel } from "@/components/owner-console/console-ui";
-import { OWNER_CONSOLE_API_PREFIX } from "@/lib/owner-console/constants";
+import { OWNER_CONSOLE_API_PREFIX } from "@/lib/owner-console/paths";
 
 export interface ClinicActionsProps {
   clinicId: string;

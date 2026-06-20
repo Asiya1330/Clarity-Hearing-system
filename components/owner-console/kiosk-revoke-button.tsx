@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { OWNER_CONSOLE_API_PREFIX } from "@/lib/owner-console/constants";
+import { OWNER_CONSOLE_API_PREFIX } from "@/lib/owner-console/paths";
 
 export function KioskRevokeButton({ linkId }: { linkId: string }) {
   const router = useRouter();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { OWNER_CONSOLE_API_PREFIX } from "@/lib/owner-console/constants";
+import { OWNER_CONSOLE_API_PREFIX } from "@/lib/owner-console/paths";
 
 /**
  * Audits support-view open/close. Posts `start` on mount and `close` on

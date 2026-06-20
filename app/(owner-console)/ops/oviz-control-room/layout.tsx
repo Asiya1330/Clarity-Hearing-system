@@ -48,7 +48,9 @@ export default function OwnerConsoleLayout({
             </p>
           </div>
 
-          <ConsoleNav items={NAV} />
+          <Suspense fallback={<NavSkeleton />}>
+            <ConsoleNav items={NAV} />
+          </Suspense>
 
           <div className="mt-auto border-t border-brand-white/10 px-2 pt-4">
             <Suspense fallback={<IdentitySkeleton />}>
@@ -59,6 +61,19 @@ export default function OwnerConsoleLayout({
 
         <main className="min-w-0 flex-1 px-6 py-8">{children}</main>
       </div>
+    </div>
+  );
+}
+
+function NavSkeleton() {
+  return (
+    <div className="flex flex-col gap-1">
+      {NAV.map((item) => (
+        <div
+          key={item.href}
+          className="h-9 w-full animate-pulse rounded-lg bg-brand-white/10"
+        />
+      ))}
     </div>
   );
 }

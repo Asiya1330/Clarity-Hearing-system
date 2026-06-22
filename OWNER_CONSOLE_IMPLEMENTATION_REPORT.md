@@ -36,13 +36,40 @@ working tree. The lockfile is present and unchanged.)
 
 Playwright: see §10 (Testing).
 
+### Preview-branch verification (isolated Supabase branch off `oviz-production`)
+
+A disposable Supabase preview branch (no production data) was created and the
+migration applied to it:
+
+- ✅ Migration applies cleanly on top of the **current production schema**.
+- ✅ **Idempotent**: re-running the entire migration is a no-op (no errors).
+- ✅ All 4 owner-console tables: **RLS enabled, 0 policies** (deny-all to clients
+  by design).
+- ✅ Append-only enforced: `UPDATE`/`DELETE` on `admin_audit_logs` both fail with
+  `42501` (even via the privileged connection).
+- ✅ All 8 `clinics` columns + 3 `intake_links` columns + indexes present.
+- ✅ Security advisor: no new issues. The 4 `rls_enabled_no_policy` notices are
+  by design; the 2 SECURITY DEFINER warnings (`current_clinic_id`,
+  `current_user_role`) are **pre-existing** (from `hardened_rls_and_functions`).
+- ⚠️→✅ Performance advisor flagged 3 unindexed new FKs; **fixed** by adding
+  `email_logs(consult_id)`, `kiosk_session_events(clinic_id)`,
+  `kiosk_session_events(intake_link_id)` — re-check shows the warnings cleared.
+- ⚠️→✅ Branch revealed prod already has a later migration
+  (`20260622175858`); the owner-console migration was renamed to
+  `20260622193000` to apply last. The branch was deleted after verification.
+
 ---
 
 ## 3. Database migration
 
-`supabase/migrations/20260620120000_owner_console.sql` — **additive + idempotent**
-(timestamp is later than the previous newest, `20260619181940`). No existing
-table/column/policy is dropped or altered behaviourally.
+`supabase/migrations/20260622193000_owner_console.sql` — **additive + idempotent**.
+No existing table/column/policy is dropped or altered behaviourally.
+
+> Timestamp note: originally `20260620120000`, renamed to `20260622193000`
+> after a preview-branch test revealed production already carries a later
+> migration (`20260622175858 create_reporting_schema_and_views`) that is not in
+> this branch's repo. The rename keeps it last so `supabase db push` applies it
+> in order (no out-of-order migration).
 
 - `clinics` new columns: `account_status` (`active|suspended`, default active),
   `suspended_at/_by/_reason`, `stripe_customer_id`, `stripe_subscription_id`,
@@ -59,7 +86,10 @@ table/column/policy is dropped or altered behaviourally.
   `clinics(stripe_subscription_id)`, `admin_audit_logs(created_at desc)`,
   `admin_audit_logs(target_clinic_id, created_at desc)`,
   `email_logs(clinic_id, created_at desc)`,
-  `intake_links(clinic_id, mode, expires_at)`, `intake_links(revoked_at)`.
+  `intake_links(clinic_id, mode, expires_at)`, `intake_links(revoked_at)`,
+  plus FK-covering indexes added after the advisor check:
+  `email_logs(consult_id)`, `kiosk_session_events(clinic_id)`,
+  `kiosk_session_events(intake_link_id)`.
 
 RLS rule honoured: owner-console tables have **no** authenticated/anon policies;
 all access is server-side service-role after `requireOwnerConsoleAccess()`.

@@ -178,3 +178,13 @@ create index if not exists intake_links_clinic_mode_expires_idx
   on public.intake_links (clinic_id, mode, expires_at);
 create index if not exists intake_links_revoked_at_idx
   on public.intake_links (revoked_at);
+
+-- Covering indexes for the remaining new foreign keys (matches the repo's
+-- existing FK-indexing convention; confirmed by the Supabase performance
+-- advisor on a preview branch).
+create index if not exists email_logs_consult_id_idx
+  on public.email_logs (consult_id);
+create index if not exists kiosk_session_events_clinic_id_idx
+  on public.kiosk_session_events (clinic_id);
+create index if not exists kiosk_session_events_intake_link_id_idx
+  on public.kiosk_session_events (intake_link_id);

@@ -88,8 +88,12 @@ async function main() {
 
   console.log("✓ Owner console access granted (super_admin).");
   console.log(
-    "Next: sign in at /auth/oviz-control-room and complete TOTP MFA setup. " +
-      "If the owner was already signed in elsewhere, sign out/in so the new " +
+    "Next steps:\n" +
+      "  1. Set a password — either via the Supabase Auth dashboard\n" +
+      "     (Authentication → Users → set password), OR send yourself a reset\n" +
+      "     email via /auth/forgot-password.\n" +
+      "  2. Sign in at /auth/oviz-control-room and complete TOTP MFA setup.\n" +
+      "If the owner was already signed in elsewhere, sign out/in so the new\n" +
       "claims take effect.",
   );
 }

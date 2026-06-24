@@ -89,12 +89,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  await supabase.from("audit_logs").insert({
+  const { error: auditError } = await supabase.from("audit_logs").insert({
     clinic_id: clinicId,
     user_id: user.id,
     action: "photo.uploaded",
     metadata: { target_type: "ear_fit_photo", target_id: parsed.data.photoId },
   });
+
+  if (auditError) {
+    console.error("audit_logs.insert failed", {
+      clinicId,
+      code: auditError.code,
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }

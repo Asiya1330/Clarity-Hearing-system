@@ -27,6 +27,12 @@ export async function POST(
     return NextResponse.json({ error: "Invalid request." }, { status: 422 });
   }
 
+  // A password-reset link is an account-takeover-grade primitive: restrict it to
+  // super-admins even though diagnostic sends are available to the console tier.
+  if (parsed.data.kind === "reset" && auth.ctx.role !== "super_admin") {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+
   const result = await sendDiagnosticEmail({
     clinicId,
     kind: parsed.data.kind,

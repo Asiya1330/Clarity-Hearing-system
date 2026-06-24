@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -106,6 +107,14 @@ export function ControlRoomLogin({ mfaPath }: { mfaPath: string }) {
             >
               {isLoading ? "Verifying…" : "Continue"}
             </Button>
+            <div className="text-center text-sm">
+              <Link
+                href="/auth/forgot-password"
+                className="text-brand-muted underline-offset-4 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
         </form>
       </CardContent>

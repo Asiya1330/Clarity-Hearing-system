@@ -31,7 +31,8 @@ async function StaffBody() {
         <StaffManager
           staff={staff.map((s) => ({
             userId: s.userId,
-            email: s.email,
+            // Never reveal the owner's identity to a non-super-admin viewer.
+            email: !canManage && s.isOwner ? "Protected owner account" : s.email,
             role: s.role,
             isOwner: s.isOwner,
             enabled: s.enabled,

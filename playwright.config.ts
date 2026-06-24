@@ -16,6 +16,11 @@ if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     process.env.NEXT_SECRET_SUPABASE_API_KEY;
 }
 
+// Canonical local port is 3000: `npm run dev` (next dev) serves :3000 and
+// supabase/config.toml sets site_url = http://127.0.0.1:3000. Override with
+// PW_BASE_URL when targeting a different host/port.
+const BASE_URL = process.env.PW_BASE_URL || "http://localhost:3000";
+
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: false,
@@ -25,8 +30,10 @@ export default defineConfig({
   reporter: "html",
 
   use: {
-    baseURL: process.env.PW_BASE_URL || "http://localhost:3001",
+    baseURL: BASE_URL,
     trace: "on-first-retry",
+    // Capture video for failing tests so broken UI states are debuggable.
+    video: "retain-on-failure",
   },
 
   projects: [
@@ -41,7 +48,9 @@ export default defineConfig({
         storageState: "tests/.auth/pro.json",
       },
       dependencies: ["setup"],
-      testIgnore: "**/photos-starter.spec.ts",
+      // The existing authed specs run with a pre-seeded storageState; the e2e
+      // onboarding flow starts logged-out, so it must NOT run under this project.
+      testIgnore: ["**/photos-starter.spec.ts", "**/e2e/**"],
     },
     {
       name: "chromium-starter",
@@ -52,6 +61,25 @@ export default defineConfig({
       dependencies: ["setup"],
       testMatch: "**/photos-starter.spec.ts",
     },
+
+    // --- Logged-out, multi-browser onboarding flow -------------------------
+    // No storageState (a fresh tenant registers from scratch) and no dependency
+    // on the auth setup. Scoped strictly to the onboarding spec.
+    {
+      name: "onboarding-chromium",
+      testMatch: "**/e2e/onboarding.spec.ts",
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "onboarding-firefox",
+      testMatch: "**/e2e/onboarding.spec.ts",
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "onboarding-webkit",
+      testMatch: "**/e2e/onboarding.spec.ts",
+      use: { ...devices["Desktop Safari"] },
+    },
   ],
 
   globalSetup: "./tests/setup/global-setup.ts",
@@ -59,7 +87,7 @@ export default defineConfig({
 
   webServer: {
     command: "npm run dev",
-    url: process.env.PW_BASE_URL || "http://localhost:3001",
+    url: BASE_URL,
     reuseExistingServer: true,
     timeout: 120_000,
   },

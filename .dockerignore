@@ -1,0 +1,41 @@
+# Keep the build context small and secrets out of the image.
+
+# VCS, editors, agent/CI local state
+.git
+.gitignore
+.github
+.vscode
+.idea
+.claude
+.agents
+.mcp.json
+.mcp.local.json
+
+# Dependencies & build output (reinstalled / rebuilt inside the image)
+node_modules
+.next
+out
+build
+coverage
+*.tsbuildinfo
+
+# Environment & secrets — NEVER copy these into the image
+.env
+.env.local
+.env*.local
+.env*.bak
+.env.docker*
+
+# Tests, reports, debug logs
+tests
+test-results
+playwright-report
+playwright/.cache
+playwright-suite.log
+*.log
+
+# Docker & docs (not needed at build time)
+Dockerfile
+.dockerignore
+docker-compose.yml
+*.md

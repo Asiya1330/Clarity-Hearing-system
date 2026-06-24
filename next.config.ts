@@ -3,6 +3,9 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  // Emit a self-contained server bundle at .next/standalone for a minimal
+  // production Docker image. Inert for `next dev`/`next start` and Vercel.
+  output: "standalone",
 };
 
 export default withSentryConfig(nextConfig, {

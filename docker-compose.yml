@@ -1,0 +1,43 @@
+# Spin up the containerized OViz frontend locally:
+#
+#   docker compose up --build
+#
+# Two classes of env are handled separately and safely:
+#   • Build-time PUBLIC values (NEXT_PUBLIC_*) are INLINED into the client bundle
+#     and passed as build args below.
+#   • Runtime SERVER-ONLY secrets (SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY,
+#     STRIPE_SECRET_KEY, OWNER_CONSOLE_AUDIT_HASH_SALT, …) are injected at run
+#     time from an env file and are NEVER baked into the image.
+#
+# Talking to Supabase:
+#   • Cloud project  → set NEXT_PUBLIC_SUPABASE_URL to the https project URL.
+#   • Local CLI stack (supabase start) → the defaults below use
+#     host.docker.internal so the container can reach the host's :54321.
+services:
+  web:
+    build:
+      context: .
+      args:
+        # Public — inlined at build. Override via shell env or a compose `.env`.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://host.docker.internal:54321}
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:-}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+        NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${NEXT_PUBLIC_SENTRY_ENVIRONMENT:-production}
+    image: saas-web-app:local
+    ports:
+      - "3000:3000"
+    # Runtime server-only secrets. Create .env.docker.local (copy from .env.local
+    # and point the Supabase URL at host.docker.internal for the local stack).
+    # Marked optional so `up` still works for a public/cloud-only smoke test.
+    env_file:
+      - path: .env.docker.local
+        required: false
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    # Lets the container resolve the host (for a Supabase stack on the host).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

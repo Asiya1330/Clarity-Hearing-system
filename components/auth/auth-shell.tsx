@@ -10,18 +10,25 @@ import { RisingLine } from "@/components/app/rising-line";
  */
 export function AuthShell({
   eyebrow = "OViz by OtoVantage",
+  showBackLink = true,
   children,
 }: {
   eyebrow?: string;
+  /** Hidden surfaces (owner console) pass false so the page does not advertise
+   *  a path back to the marketing site. Defaults to true for all existing
+   *  auth screens. */
+  showBackLink?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div className="oviz-surface flex min-h-svh w-full flex-col bg-brand-mist/40">
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="mb-6">
-            <BackLink href="/" label="Back to home" />
-          </div>
+          {showBackLink && (
+            <div className="mb-6">
+              <BackLink href="/" label="Back to home" />
+            </div>
+          )}
           <div className="mb-8 flex flex-col items-center text-center">
             <Image
               src="/brand/oviz-by-otovantage-logo.png"

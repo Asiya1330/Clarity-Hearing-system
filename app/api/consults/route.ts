@@ -44,13 +44,20 @@ export async function POST(request: NextRequest) {
 
   const { data: clinic, error: clinicError } = await supabase
     .from("clinics")
-    .select("id, subscription_status")
+    .select("id, subscription_status, account_status")
     .eq("id", clinicId)
     .maybeSingle();
 
   if (clinicError || !clinic) {
     return NextResponse.json(
       { error: "Clinic record could not be verified." },
+      { status: 403 },
+    );
+  }
+
+  if (clinic.account_status === "suspended") {
+    return NextResponse.json(
+      { error: "This clinic's account is currently paused." },
       { status: 403 },
     );
   }

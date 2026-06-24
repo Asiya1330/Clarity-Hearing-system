@@ -2,6 +2,8 @@ import { randomBytes } from "crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { CreateIntakeSchema } from "@/lib/zod/intake";
+import { isResendConfigured, sendAndLogEmail } from "@/lib/email/resend";
+import { isKioskEnabled } from "@/lib/owner-console/entitlements";
 
 const ACTIVE_SUBSCRIPTION_STATUSES = ["trialing", "active"] as const;
 const LINK_TTL_HOURS = { kiosk: 4, email: 24 * 7 } as const;
@@ -38,12 +40,19 @@ export async function POST(request: NextRequest) {
 
   const { data: clinic, error: clinicError } = await supabase
     .from("clinics")
-    .select("id, name, subscription_status")
+    .select("id, name, subscription_status, account_status")
     .eq("id", clinicId)
     .maybeSingle();
   if (clinicError || !clinic) {
     return NextResponse.json(
       { error: "Clinic record could not be verified." },
+      { status: 403 },
+    );
+  }
+
+  if (clinic.account_status === "suspended") {
+    return NextResponse.json(
+      { error: "This clinic's account is currently paused." },
       { status: 403 },
     );
   }
@@ -87,6 +96,14 @@ export async function POST(request: NextRequest) {
   }
   const { mode, patientName, consultDate, isFollowUp, patientEmail } =
     parsed.data;
+
+  // Owner-console entitlement gate: kiosk mode can be disabled per clinic.
+  if (mode === "kiosk" && !(await isKioskEnabled(clinicId))) {
+    return NextResponse.json(
+      { error: "Kiosk mode is not enabled for this clinic." },
+      { status: 403 },
+    );
+  }
 
   const { data: consult, error: consultError } = await supabase
     .from("consults")
@@ -146,35 +163,33 @@ export async function POST(request: NextRequest) {
   let emailSent = false;
   let emailError: string | null = null;
   if (mode === "email" && patientEmail) {
-    const apiKey = process.env.RESEND_API_KEY;
-    const from = process.env.INTAKE_EMAIL_FROM;
-    if (apiKey && from) {
-      try {
-        const res = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from,
-            to: [patientEmail],
-            subject: `${clinic.name} — a few questions before your hearing appointment`,
-            html: buildEmailHtml(clinic.name as string, url),
-          }),
+    if (isResendConfigured()) {
+      // sendAndLogEmail records an email_logs row (masked + hashed recipient,
+      // never the raw address) via the service role. The patient address is
+      // never logged to Sentry/console.
+      const subject = `${clinic.name} — a few questions before your hearing appointment`;
+      const result = await sendAndLogEmail(
+        {
+          to: patientEmail,
+          subject,
+          html: buildEmailHtml(clinic.name as string, url),
+        },
+        {
+          clinicId,
+          consultId: consult.id,
+          template: "patient_intake",
+          subject,
+          recipientEmail: patientEmail,
+        },
+      );
+      if (result.ok) {
+        emailSent = true;
+      } else {
+        emailError = "Email could not be sent. Copy the link and send it manually.";
+        console.error("intake.email.send failed", {
+          consultId: consult.id,
+          code: result.errorCode,
         });
-        if (res.ok) {
-          emailSent = true;
-        } else {
-          emailError = `Email provider returned ${res.status}.`;
-          console.error("intake.email.send failed", {
-            consultId: consult.id,
-            status: res.status,
-          });
-        }
-      } catch {
-        emailError = "Email provider could not be reached.";
-        console.error("intake.email.send threw", { consultId: consult.id });
       }
     } else {
       emailError =

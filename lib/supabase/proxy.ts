@@ -1,6 +1,38 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
+import {
+  OWNER_CONSOLE_API_PREFIX,
+  OWNER_CONSOLE_LOGIN_PATH,
+  OWNER_CONSOLE_MFA_PATH,
+  OWNER_CONSOLE_ROOT_PATH,
+} from "../owner-console/constants";
+import { isAal2, isConsoleEnabled } from "../owner-console/claims";
+
+/** Redirect that preserves the just-refreshed Supabase session cookies, so the
+ *  guard never inadvertently logs an authenticated user out. */
+function redirectWithSession(
+  url: URL,
+  supabaseResponse: NextResponse,
+): NextResponse {
+  const res = NextResponse.redirect(url);
+  for (const cookie of supabaseResponse.cookies.getAll()) {
+    res.cookies.set(cookie);
+  }
+  return res;
+}
+
+function jsonWithSession(
+  body: Record<string, unknown>,
+  status: number,
+  supabaseResponse: NextResponse,
+): NextResponse {
+  const res = NextResponse.json(body, { status });
+  for (const cookie of supabaseResponse.cookies.getAll()) {
+    res.cookies.set(cookie);
+  }
+  return res;
+}
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -46,6 +78,66 @@ export async function updateSession(request: NextRequest) {
   // with the Supabase client, your users may be randomly logged out.
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
+
+  // -------------------------------------------------------------------------
+  // OViz Control Room (hidden owner/staff console) gate.
+  //
+  // A hidden URL is NOT security; this is the real perimeter. The hidden login
+  // (/auth/oviz-control-room) and MFA (/auth/oviz-control-room/mfa) pages live
+  // under /auth and are intentionally NOT matched here, so they remain
+  // reachable while unauthenticated. Server-side guards re-check on every page
+  // and API call (defence in depth).
+  // -------------------------------------------------------------------------
+  const path = request.nextUrl.pathname;
+  const isConsolePage =
+    path === OWNER_CONSOLE_ROOT_PATH ||
+    path.startsWith(`${OWNER_CONSOLE_ROOT_PATH}/`);
+  const isConsoleApi = path.startsWith(OWNER_CONSOLE_API_PREFIX);
+
+  if (isConsolePage || isConsoleApi) {
+    // 1. Unauthenticated.
+    if (!user) {
+      if (isConsoleApi) {
+        return jsonWithSession({ error: "Unauthorized." }, 401, supabaseResponse);
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = OWNER_CONSOLE_LOGIN_PATH;
+      url.search = "";
+      return redirectWithSession(url, supabaseResponse);
+    }
+
+    // 2. Authenticated but not console-authorized — generic, no reason leaked.
+    const identity = {
+      email: typeof user.email === "string" ? user.email : null,
+      app_metadata:
+        (user.app_metadata as Record<string, unknown> | undefined) ?? null,
+    };
+    if (!isConsoleEnabled(identity)) {
+      if (isConsoleApi) {
+        return jsonWithSession({ error: "Forbidden." }, 403, supabaseResponse);
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/error";
+      url.search = "";
+      return redirectWithSession(url, supabaseResponse);
+    }
+
+    // 3. Authorized but not AAL2 — MFA is mandatory for the console.
+    if (!isAal2(user as Record<string, unknown>)) {
+      if (isConsoleApi) {
+        return jsonWithSession(
+          { error: "MFA required." },
+          403,
+          supabaseResponse,
+        );
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = OWNER_CONSOLE_MFA_PATH;
+      url.search = "";
+      return redirectWithSession(url, supabaseResponse);
+    }
+    // Fully authorized — fall through to the normal session response.
+  }
 
   // Authenticated users have no use for the public marketing root — send them
   // into the app. This is done here, not in app/page.tsx: with Cache Components

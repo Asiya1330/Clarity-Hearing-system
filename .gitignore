@@ -33,6 +33,14 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*.local
 .env
+.env*.bak
+
+# Local test credential sheets (contain plaintext test passwords — keep .json fixture only)
+/tests/fixtures/mock-tenants.csv
+/tests/fixtures/mock-tenants.md
+
+# UAT seeder run output (target URL + created user ids)
+/scripts/.uat-seed-output.json
 
 # vercel
 .vercel

@@ -1,0 +1,435 @@
+{
+  "$comment": "UAT credentials for the oviz-production project (pre-launch, no real patient data). All accounts use @oviz-testing.ca. Created via scripts/seed-uat-tenants.mjs (Supabase Admin API). Email verification is bypassed (email_confirm). For intake email tests, testers must use ONLY inboxes they personally control. Remove before go-live with scripts/teardown-uat-tenants.mjs.",
+  "domain": "oviz-testing.ca",
+  "passwordPolicy": "16-char random, guaranteed upper/lower/digit/symbol (ambiguous chars excluded). Internet-facing UAT credentials — distribute securely.",
+  "roleNotes": {
+    "owner": "Subscription owner/admin of the tenant — full access incl. Admin → Users (invite) and Locations.",
+    "admin": "Front-desk / clinic manager — admin access incl. inviting staff and editing clinic settings.",
+    "staff": "Senior Audiologist / Hearing Instrument Specialist — clinician access to dashboard, kiosk, consults, and client intake email."
+  },
+  "clinics": [
+    {
+      "n": 1,
+      "id": "c0000000-0000-4000-8000-000000000001",
+      "name": "Metro Audiology Group",
+      "slug": "metro-audiology-group",
+      "subscriptionPlan": "pro",
+      "subscriptionStatus": "active",
+      "photoModuleEnabled": true,
+      "location": {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "name": "Metro Audiology — Downtown",
+        "address": "120 Bloor St W, Toronto, ON"
+      },
+      "owner": {
+        "userId": "a0000000-0000-4000-8000-000000000001",
+        "fullName": "Dr. Sarah Whitfield",
+        "email": "test.clinic1.admin@oviz-testing.ca",
+        "password": "V2AWv+@ueWE7xfWx",
+        "role": "owner"
+      },
+      "staff": [
+        {
+          "userId": "50000001-0000-4000-8000-000000000001",
+          "fullName": "Olivia Brennan, Au.D.",
+          "title": "Senior Audiologist",
+          "email": "test.clinic1.staff1@oviz-testing.ca",
+          "password": "9aC36hn=8+?&U!Md",
+          "role": "staff"
+        },
+        {
+          "userId": "50000002-0000-4000-8000-000000000001",
+          "fullName": "Marcus Lefebvre, HIS",
+          "title": "Hearing Instrument Specialist",
+          "email": "test.clinic1.staff2@oviz-testing.ca",
+          "password": "mD3jsmU&_ksTXvik",
+          "role": "staff"
+        },
+        {
+          "userId": "50000003-0000-4000-8000-000000000001",
+          "fullName": "Hannah Ross",
+          "title": "Clinic Manager",
+          "email": "test.clinic1.staff3@oviz-testing.ca",
+          "password": "!t$p@24mSySaKsqD",
+          "role": "admin"
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "id": "c0000000-0000-4000-8000-000000000002",
+      "name": "Lakeside Hearing Centre",
+      "slug": "lakeside-hearing-centre",
+      "subscriptionPlan": "starter",
+      "subscriptionStatus": "active",
+      "photoModuleEnabled": false,
+      "location": {
+        "id": "10000000-0000-4000-8000-000000000002",
+        "name": "Lakeside Hearing — Kelowna",
+        "address": "455 Lakeshore Rd, Kelowna, BC"
+      },
+      "owner": {
+        "userId": "a0000000-0000-4000-8000-000000000002",
+        "fullName": "Dr. Michael Tran",
+        "email": "test.clinic2.admin@oviz-testing.ca",
+        "password": "5qfE8SDMJqNzY*$J",
+        "role": "owner"
+      },
+      "staff": [
+        {
+          "userId": "50000001-0000-4000-8000-000000000002",
+          "fullName": "Daniel Mercer, Au.D.",
+          "title": "Senior Audiologist",
+          "email": "test.clinic2.staff1@oviz-testing.ca",
+          "password": "_G3=qCxPX3S6HwHf",
+          "role": "staff"
+        },
+        {
+          "userId": "50000002-0000-4000-8000-000000000002",
+          "fullName": "Sofia Castellano, HIS",
+          "title": "Hearing Instrument Specialist",
+          "email": "test.clinic2.staff2@oviz-testing.ca",
+          "password": "FQPHL-7L&h-NeCi6",
+          "role": "staff"
+        },
+        {
+          "userId": "50000003-0000-4000-8000-000000000002",
+          "fullName": "Grace Lindqvist",
+          "title": "Front-Desk Manager",
+          "email": "test.clinic2.staff3@oviz-testing.ca",
+          "password": "_2JJP@mA#rF6T8Uf",
+          "role": "admin"
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "id": "c0000000-0000-4000-8000-000000000003",
+      "name": "Northern Sound Hearing Clinic",
+      "slug": "northern-sound-hearing-clinic",
+      "subscriptionPlan": "pro",
+      "subscriptionStatus": "trialing",
+      "photoModuleEnabled": true,
+      "location": {
+        "id": "10000000-0000-4000-8000-000000000003",
+        "name": "Northern Sound — Sudbury",
+        "address": "88 Elm St, Sudbury, ON"
+      },
+      "owner": {
+        "userId": "a0000000-0000-4000-8000-000000000003",
+        "fullName": "Dr. Priya Nair",
+        "email": "test.clinic3.admin@oviz-testing.ca",
+        "password": "6Yj#z?UwpTW%5Hx7",
+        "role": "owner"
+      },
+      "staff": [
+        {
+          "userId": "50000001-0000-4000-8000-000000000003",
+          "fullName": "Ethan Beaulieu, Au.D.",
+          "title": "Senior Audiologist",
+          "email": "test.clinic3.staff1@oviz-testing.ca",
+          "password": "m5$!k*uzuMe3&qSr",
+          "role": "staff"
+        },
+        {
+          "userId": "50000002-0000-4000-8000-000000000003",
+          "fullName": "Amara Singh, HIS",
+          "title": "Hearing Instrument Specialist",
+          "email": "test.clinic3.staff2@oviz-testing.ca",
+          "password": "Cg5cD$7*9_s^GugH",
+          "role": "staff"
+        },
+        {
+          "userId": "50000003-0000-4000-8000-000000000003",
+          "fullName": "Connor Maguire",
+          "title": "Clinic Manager",
+          "email": "test.clinic3.staff3@oviz-testing.ca",
+          "password": "nAsJ6-XJ!$=$L9M7",
+          "role": "admin"
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "id": "c0000000-0000-4000-8000-000000000004",
+      "name": "Bayview Audiology & Hearing Aids",
+      "slug": "bayview-audiology-hearing-aids",
+      "subscriptionPlan": "enterprise",
+      "subscriptionStatus": "active",
+      "photoModuleEnabled": true,
+      "location": {
+        "id": "10000000-0000-4000-8000-000000000004",
+        "name": "Bayview Audiology — Vancouver",
+        "address": "2200 W Broadway, Vancouver, BC"
+      },
+      "owner": {
+        "userId": "a0000000-0000-4000-8000-000000000004",
+        "fullName": "Dr. James Holloway",
+        "email": "test.clinic4.admin@oviz-testing.ca",
+        "password": "Hc_WLEyEeD4d?^#!",
+        "role": "owner"
+      },
+      "staff": [
+        {
+          "userId": "50000001-0000-4000-8000-000000000004",
+          "fullName": "Naomi Fischer, Au.D.",
+          "title": "Senior Audiologist",
+          "email": "test.clinic4.staff1@oviz-testing.ca",
+          "password": "WzjBnqi-_Ytu$wX3",
+          "role": "staff"
+        },
+        {
+          "userId": "50000002-0000-4000-8000-000000000004",
+          "fullName": "Liam O'Donnell, HIS",
+          "title": "Hearing Instrument Specialist",
+          "email": "test.clinic4.staff2@oviz-testing.ca",
+          "password": "cYtLmC$2pT*^LjJL",
+          "role": "staff"
+        },
+        {
+          "userId": "50000003-0000-4000-8000-000000000004",
+          "fullName": "Priscilla Adeyemi",
+          "title": "Clinic Manager",
+          "email": "test.clinic4.staff3@oviz-testing.ca",
+          "password": "t7zjixD#R5xq$&Ut",
+          "role": "admin"
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "id": "c0000000-0000-4000-8000-000000000005",
+      "name": "Prairie Hearing Health",
+      "slug": "prairie-hearing-health",
+      "subscriptionPlan": "starter",
+      "subscriptionStatus": "trialing",
+      "photoModuleEnabled": false,
+      "location": {
+        "id": "10000000-0000-4000-8000-000000000005",
+        "name": "Prairie Hearing — Winnipeg",
+        "address": "330 Portage Ave, Winnipeg, MB"
+      },
+      "owner": {
+        "userId": "a0000000-0000-4000-8000-000000000005",
+        "fullName": "Dr. Emily Carter",
+        "email": "test.clinic5.admin@oviz-testing.ca",
+        "password": "SD3#WYBe2Hk?v9wH",
+        "role": "owner"
+      },
+      "staff": [
+        {
+          "userId": "50000001-0000-4000-8000-000000000005",
+          "fullName": "Jacob Reinhardt, Au.D.",
+          "title": "Senior Audiologist",
+          "email": "test.clinic5.staff1@oviz-testing.ca",
+          "password": "_PX5m*A_+5fzb=4*",
+          "role": "staff"
+        },
+        {
+          "userId": "50000002-0000-4000-8000-000000000005",
+          "fullName": "Mei Lin Chow, HIS",
+          "title": "Hearing Instrument Specialist",
+          "email": "test.clinic5.staff2@oviz-testing.ca",
+          "password": "2wj^fG*-rhF?9iW+",
+          "role": "staff"
+        },
+        {
+          "userId": "50000003-0000-4000-8000-000000000005",
+          "fullName": "Tanya Boudreau",
+          "title": "Front-Desk Manager",
+          "email": "test.clinic5.staff3@oviz-testing.ca",
+          "password": "V@ac3LCwDyd_b7RJ",
+          "role": "admin"
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "id": "c0000000-0000-4000-8000-000000000006",
+      "name": "Maritime Hearing Centre",
+      "slug": "maritime-hearing-centre",
+      "subscriptionPlan": "pro",
+      "subscriptionStatus": "active",
+      "photoModuleEnabled": true,
+      "location": {
+        "id": "10000000-0000-4000-8000-000000000006",
+        "name": "Maritime Hearing — Halifax",
+        "address": "1505 Barrington St, Halifax, NS"
+      },
+      "owner": {
+        "userId": "a0000000-0000-4000-8000-000000000006",
+        "fullName": "Dr. David Okafor",
+        "email": "test.clinic6.admin@oviz-testing.ca",
+        "password": "3p7GUZC2T$xf-H=R",
+        "role": "owner"
+      },
+      "staff": [
+        {
+          "userId": "50000001-0000-4000-8000-000000000006",
+          "fullName": "Aisling Murphy, Au.D.",
+          "title": "Senior Audiologist",
+          "email": "test.clinic6.staff1@oviz-testing.ca",
+          "password": "Tut3ftUAe^3*pi@-",
+          "role": "staff"
+        },
+        {
+          "userId": "50000002-0000-4000-8000-000000000006",
+          "fullName": "Victor Almeida, HIS",
+          "title": "Hearing Instrument Specialist",
+          "email": "test.clinic6.staff2@oviz-testing.ca",
+          "password": "T6GAWgvs?-YdFe?%",
+          "role": "staff"
+        },
+        {
+          "userId": "50000003-0000-4000-8000-000000000006",
+          "fullName": "Brianna Cormier",
+          "title": "Clinic Manager",
+          "email": "test.clinic6.staff3@oviz-testing.ca",
+          "password": "$5uka=@8$6^LZMAZ",
+          "role": "admin"
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "id": "c0000000-0000-4000-8000-000000000007",
+      "name": "Summit Audiology Associates",
+      "slug": "summit-audiology-associates",
+      "subscriptionPlan": "enterprise",
+      "subscriptionStatus": "active",
+      "photoModuleEnabled": true,
+      "location": {
+        "id": "10000000-0000-4000-8000-000000000007",
+        "name": "Summit Audiology — Calgary",
+        "address": "640 8 Ave SW, Calgary, AB"
+      },
+      "owner": {
+        "userId": "a0000000-0000-4000-8000-000000000007",
+        "fullName": "Dr. Laura Bennett",
+        "email": "test.clinic7.admin@oviz-testing.ca",
+        "password": "hE@cUh?9MyvQ9Z^W",
+        "role": "owner"
+      },
+      "staff": [
+        {
+          "userId": "50000001-0000-4000-8000-000000000007",
+          "fullName": "Henry Wallace, Au.D.",
+          "title": "Senior Audiologist",
+          "email": "test.clinic7.staff1@oviz-testing.ca",
+          "password": "?YRKPDdFQq%gMK6P",
+          "role": "staff"
+        },
+        {
+          "userId": "50000002-0000-4000-8000-000000000007",
+          "fullName": "Fatima Haddad, HIS",
+          "title": "Hearing Instrument Specialist",
+          "email": "test.clinic7.staff2@oviz-testing.ca",
+          "password": "WfMBtbHM4GU394X^",
+          "role": "staff"
+        },
+        {
+          "userId": "50000003-0000-4000-8000-000000000007",
+          "fullName": "Devon Clarke",
+          "title": "Clinic Manager",
+          "email": "test.clinic7.staff3@oviz-testing.ca",
+          "password": "cm&e4WK#tL%MawvL",
+          "role": "admin"
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "id": "c0000000-0000-4000-8000-000000000008",
+      "name": "Riverside Hearing & Balance",
+      "slug": "riverside-hearing-balance",
+      "subscriptionPlan": "starter",
+      "subscriptionStatus": "active",
+      "photoModuleEnabled": false,
+      "location": {
+        "id": "10000000-0000-4000-8000-000000000008",
+        "name": "Riverside Hearing — Ottawa",
+        "address": "275 Bank St, Ottawa, ON"
+      },
+      "owner": {
+        "userId": "a0000000-0000-4000-8000-000000000008",
+        "fullName": "Dr. Rachel Kim",
+        "email": "test.clinic8.admin@oviz-testing.ca",
+        "password": "2TdRutiH2NamF@VL",
+        "role": "owner"
+      },
+      "staff": [
+        {
+          "userId": "50000001-0000-4000-8000-000000000008",
+          "fullName": "Claire Dubois, Au.D.",
+          "title": "Senior Audiologist",
+          "email": "test.clinic8.staff1@oviz-testing.ca",
+          "password": "EMd@=H@siSNBa6ht",
+          "role": "staff"
+        },
+        {
+          "userId": "50000002-0000-4000-8000-000000000008",
+          "fullName": "Raj Patel, HIS",
+          "title": "Hearing Instrument Specialist",
+          "email": "test.clinic8.staff2@oviz-testing.ca",
+          "password": "H=p5gWcnTu6p-Zz2",
+          "role": "staff"
+        },
+        {
+          "userId": "50000003-0000-4000-8000-000000000008",
+          "fullName": "Megan Fitzpatrick",
+          "title": "Front-Desk Manager",
+          "email": "test.clinic8.staff3@oviz-testing.ca",
+          "password": "st_*#8sKx*mP8BWM",
+          "role": "admin"
+        }
+      ]
+    },
+    {
+      "n": 9,
+      "id": "c0000000-0000-4000-8000-000000000009",
+      "name": "Cascade Hearing Solutions",
+      "slug": "cascade-hearing-solutions",
+      "subscriptionPlan": "pro",
+      "subscriptionStatus": "trialing",
+      "photoModuleEnabled": true,
+      "location": {
+        "id": "10000000-0000-4000-8000-000000000009",
+        "name": "Cascade Hearing — Victoria",
+        "address": "1012 Douglas St, Victoria, BC"
+      },
+      "owner": {
+        "userId": "a0000000-0000-4000-8000-000000000009",
+        "fullName": "Dr. Daniel Foster",
+        "email": "test.clinic9.admin@oviz-testing.ca",
+        "password": "X_L6X2hzFN+fy+Fu",
+        "role": "owner"
+      },
+      "staff": [
+        {
+          "userId": "50000001-0000-4000-8000-000000000009",
+          "fullName": "Owen Nakamura, Au.D.",
+          "title": "Senior Audiologist",
+          "email": "test.clinic9.staff1@oviz-testing.ca",
+          "password": "-?9R-8rZLyWFk=Ux",
+          "role": "staff"
+        },
+        {
+          "userId": "50000002-0000-4000-8000-000000000009",
+          "fullName": "Isabelle Moreau, HIS",
+          "title": "Hearing Instrument Specialist",
+          "email": "test.clinic9.staff2@oviz-testing.ca",
+          "password": "z_^KU7pTq&yZ#udW",
+          "role": "staff"
+        },
+        {
+          "userId": "50000003-0000-4000-8000-000000000009",
+          "fullName": "Trevor Andersson",
+          "title": "Clinic Manager",
+          "email": "test.clinic9.staff3@oviz-testing.ca",
+          "password": "k_QhT9t8CihQXtt*",
+          "role": "admin"
+        }
+      ]
+    }
+  ]
+}

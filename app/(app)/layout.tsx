@@ -1,9 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { LogoutButton } from "@/components/logout-button";
 import { RisingLine } from "@/components/app/rising-line";
 import { createClient } from "@/lib/supabase/server";
+import {
+  ACCOUNT_SUSPENDED_PATH,
+  getClinicAccessForUser,
+} from "@/lib/clinic-access";
 
 export default function AppLayout({
   children,
@@ -37,9 +42,35 @@ export default function AppLayout({
         </div>
         <RisingLine className="h-[3px] w-full opacity-50" />
       </nav>
-      <main className="mx-auto w-full max-w-5xl px-6 py-10">{children}</main>
+      <main className="mx-auto w-full max-w-5xl px-6 py-10">
+        <Suspense fallback={null}>
+          <SuspensionGate>{children}</SuspensionGate>
+        </Suspense>
+      </main>
     </div>
   );
+}
+
+/**
+ * Blocks suspended clinics from the entire authenticated app. Children are
+ * rendered only after the check passes, so a suspended clinic's pages never
+ * render. Users without a profile/clinic (onboarding) and unauthenticated
+ * users pass through untouched — their own pages handle those cases.
+ */
+async function SuspensionGate({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const access = await getClinicAccessForUser(supabase, user.id);
+    if (access.state === "suspended") {
+      redirect(ACCOUNT_SUSPENDED_PATH);
+    }
+  }
+
+  return <>{children}</>;
 }
 
 async function NavLinks() {

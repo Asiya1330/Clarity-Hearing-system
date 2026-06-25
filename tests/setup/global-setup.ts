@@ -31,6 +31,10 @@ export default async function globalSetup() {
     auth: { persistSession: false },
   });
 
+  // SAFETY: never seed E2E fixtures into a project that holds real data
+  // (this is how a stray e2e-* account once landed on production).
+  await assertSafeTarget(admin);
+
   // Clean up any leftover test data from a previous run.
   await cleanupExisting(admin);
 
@@ -227,4 +231,32 @@ async function cleanupExisting(admin: any): Promise<void> {
     .from("clinics")
     .delete()
     .in("name", ["E2E Pro Clinic", "E2E Starter Clinic"]);
+}
+
+// Recognized throwaway/test email domains. Anything else counts as "real".
+const TEST_EMAIL_RE = /@oviz-(testing\.ca|e2e\.test)$/i;
+
+// Refuse to seed if the target already holds real (non-test) accounts, so E2E
+// can never write fixtures into a production-like project. Override for an
+// intentional remote test project with E2E_ALLOW_REMOTE_SEED=1.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function assertSafeTarget(admin: any): Promise<void> {
+  if (process.env.E2E_ALLOW_REMOTE_SEED === "1") return;
+  const { data } = await admin.auth.admin.listUsers();
+  const real = (data?.users ?? []).filter(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (u: any) => u.email && !TEST_EMAIL_RE.test(u.email),
+  );
+  if (real.length > 0) {
+    throw new Error(
+      `E2E global setup refused: ${SUPABASE_URL} has ${real.length} non-test ` +
+        `account(s) (e.g. ${real
+          .slice(0, 3)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((u: any) => u.email)
+          .join(", ")}). This looks like a real/production project. Point ` +
+        `NEXT_PUBLIC_SUPABASE_URL at a local/throwaway Supabase, or set ` +
+        `E2E_ALLOW_REMOTE_SEED=1 to override.`,
+    );
+  }
 }

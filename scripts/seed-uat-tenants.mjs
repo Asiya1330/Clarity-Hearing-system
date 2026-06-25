@@ -32,6 +32,7 @@ import { createClient } from "@supabase/supabase-js";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 const APPLY = args.includes("--apply");
+const FORCE = args.includes("--force");
 const envArg = args.find((a) => a.startsWith("--env="));
 const ENV_FILE = envArg ? envArg.slice("--env=".length) : ".env.local.prod.bak";
 
@@ -169,6 +170,21 @@ async function ensureInvite(clinicId, ownerId, s) {
 
 async function main() {
   const existing = await loadExistingUsers();
+
+  // SAFETY: never (re)seed mock tenants into a project that already holds real
+  // data. Recognized throwaway domains are @oviz-testing.ca / @oviz-e2e.test;
+  // anything else means this is likely a real/production project. Mirrors the
+  // guard in supabase/seed.sql. Override with --force ONLY for a throwaway UAT
+  // project you are certain about.
+  if (APPLY && !FORCE) {
+    const real = [...existing.keys()].filter((e) => !/@oviz-(testing\.ca|e2e\.test)$/i.test(e));
+    if (real.length) {
+      console.error(`\nREFUSING TO SEED: target already has ${real.length} non-test account(s) (e.g. ${real.slice(0, 3).join(", ")}).`);
+      console.error("This project looks like it holds real data. Re-run with --force only if you are certain this is a throwaway/UAT project.");
+      process.exit(1);
+    }
+  }
+
   for (const c of data.clinics) {
     const clinicId = await ensureClinic(c);
     await ensureLocation(clinicId, c.location);

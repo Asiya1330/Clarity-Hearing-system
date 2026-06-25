@@ -1,0 +1,4 @@
+# Point-in-time logical backups may contain auth password hashes / PII.
+# Never commit the data files — keep READMEs only.
+**/backup-*.json
+**/restore-*.sql

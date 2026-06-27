@@ -6,15 +6,23 @@ import { BackLink } from "@/components/BackLink";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import {
+  ASSIGNABLE_CLINIC_ROLES,
+  CLINIC_ROLE_LABELS,
+  formatClinicRole,
+  hasClinicAdminAccess,
+  INVITE_CLINIC_ROLES,
+  isClinicOwner,
+} from "@/lib/clinic-roles";
 
 const ChangeRoleSchema = z.object({
   user_id: z.string().uuid(),
-  role: z.enum(["owner", "admin", "staff"]),
+  role: z.enum(ASSIGNABLE_CLINIC_ROLES),
 });
 
 const InviteSchema = z.object({
   email: z.string().email(),
-  role: z.enum(["admin", "staff"]),
+  role: z.enum(INVITE_CLINIC_ROLES),
 });
 
 type Member = {
@@ -25,8 +33,9 @@ type Member = {
 
 const roleBadgeClass: Record<string, string> = {
   owner: "bg-brand-navy/10 text-brand-navy",
-  admin: "bg-brand-tint text-brand-teal-700",
-  staff: "bg-brand-slate/15 text-brand-muted",
+  "clinic-admin": "bg-brand-tint text-brand-teal-700",
+  "clinic-staff": "bg-brand-slate/15 text-brand-muted",
+  employee: "bg-brand-slate/10 text-brand-muted",
 };
 
 const errorMessages: Record<string, string> = {
@@ -78,12 +87,12 @@ async function AdminUsersBody({ searchParams }: PageProps) {
   if (
     !profile ||
     !profile.clinic_id ||
-    !["owner", "admin"].includes(profile.role as string)
+    !hasClinicAdminAccess(profile.role as string)
   ) {
     redirect("/dashboard");
   }
   const clinicId = profile.clinic_id as string;
-  const isOwner = (profile.role as string) === "owner";
+  const isOwner = isClinicOwner(profile.role as string);
 
   const { data: memberRows } = await supabase
     .from("profiles")
@@ -110,7 +119,7 @@ async function AdminUsersBody({ searchParams }: PageProps) {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (!profile || (profile.role as string) !== "owner") {
+    if (!profile || !isClinicOwner(profile.role as string)) {
       redirect("/admin/users?error=unauthorized");
     }
     const clinicId = profile.clinic_id as string;
@@ -182,7 +191,7 @@ async function AdminUsersBody({ searchParams }: PageProps) {
     if (
       !profile ||
       !profile.clinic_id ||
-      !["owner", "admin"].includes(profile.role as string)
+      !hasClinicAdminAccess(profile.role as string)
     ) {
       redirect("/dashboard");
     }
@@ -287,7 +296,7 @@ async function AdminUsersBody({ searchParams }: PageProps) {
                         "bg-brand-slate/15 text-brand-muted"
                       }`}
                     >
-                      {member.role}
+                      {formatClinicRole(member.role)}
                     </span>
                   </td>
                   {isOwner && (
@@ -308,9 +317,11 @@ async function AdminUsersBody({ searchParams }: PageProps) {
                             aria-label="Role"
                             className="h-10 rounded-lg border border-brand-line px-3 text-base text-brand-navy focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/40"
                           >
-                            <option value="owner">Owner</option>
-                            <option value="admin">Admin</option>
-                            <option value="staff">Staff</option>
+                            {ASSIGNABLE_CLINIC_ROLES.map((role) => (
+                              <option key={role} value={role}>
+                                {CLINIC_ROLE_LABELS[role]}
+                              </option>
+                            ))}
                           </select>
                           <Button
                             type="submit"
@@ -369,11 +380,14 @@ async function AdminUsersBody({ searchParams }: PageProps) {
               <select
                 id="invite-role"
                 name="role"
-                defaultValue="staff"
+                defaultValue="clinic-staff"
                 className={fieldClass}
               >
-                <option value="admin">Admin</option>
-                <option value="staff">Staff</option>
+                {INVITE_CLINIC_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {CLINIC_ROLE_LABELS[role]}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

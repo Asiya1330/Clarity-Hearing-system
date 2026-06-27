@@ -5,6 +5,7 @@ import { z } from "zod";
 import { BackLink } from "@/components/BackLink";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
+import { hasClinicAdminAccess } from "@/lib/clinic-roles";
 import { createClient } from "@/lib/supabase/server";
 
 const CreateLocationSchema = z.object({
@@ -54,7 +55,7 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
   if (
     !profile ||
     !profile.clinic_id ||
-    !["owner", "admin"].includes(profile.role as string)
+    !hasClinicAdminAccess(profile.role as string)
   ) {
     redirect("/dashboard");
   }
@@ -88,7 +89,7 @@ async function AdminLocationsBody({ searchParams }: PageProps) {
     if (
       !profile ||
       !profile.clinic_id ||
-      !["owner", "admin"].includes(profile.role as string)
+      !hasClinicAdminAccess(profile.role as string)
     ) {
       redirect("/dashboard");
     }

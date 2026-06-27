@@ -1,6 +1,7 @@
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
+import { ONBOARDING_CLINIC_OWNER_ROLE } from "@/lib/clinic-roles";
 import { createClient } from "@/lib/supabase/server";
 
 const OnboardingSchema = z.object({
@@ -94,18 +95,36 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { error: profileError } = await adminClient.from("profiles").insert({
-    id: user.id,
+  const profilePayload = {
     clinic_id: clinic.id,
     full_name: fullName?.trim() || null,
-    role: "owner",
-  });
+    role: ONBOARDING_CLINIC_OWNER_ROLE,
+  };
+
+  const profileError = existingProfile
+    ? (
+        await adminClient
+          .from("profiles")
+          .update(profilePayload)
+          .eq("id", user.id)
+      ).error
+    : (
+        await adminClient.from("profiles").insert({
+          id: user.id,
+          ...profilePayload,
+        })
+      ).error;
 
   if (profileError) {
-    console.error("onboarding.profiles.insert failed", {
-      code: profileError.code,
-      message: profileError.message,
-    });
+    console.error(
+      existingProfile
+        ? "onboarding.profiles.update failed"
+        : "onboarding.profiles.insert failed",
+      {
+        code: profileError.code,
+        message: profileError.message,
+      },
+    );
     // Roll back the clinic so the user can retry.
     await adminClient.from("clinics").delete().eq("id", clinic.id);
     return NextResponse.json(

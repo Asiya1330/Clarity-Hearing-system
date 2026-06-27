@@ -3,9 +3,10 @@
   "domain": "oviz-testing.ca",
   "passwordPolicy": "16-char random, guaranteed upper/lower/digit/symbol (ambiguous chars excluded). Internet-facing UAT credentials — distribute securely.",
   "roleNotes": {
-    "owner": "Subscription owner/admin of the tenant — full access incl. Admin → Users (invite) and Locations.",
-    "admin": "Front-desk / clinic manager — admin access incl. inviting staff and editing clinic settings.",
-    "staff": "Senior Audiologist / Hearing Instrument Specialist — clinician access to dashboard, kiosk, consults, and client intake email."
+    "owner": "Subscription owner of the tenant — full access incl. Admin → Users (invite) and Locations.",
+    "clinic-admin": "Front-desk / clinic manager — same Admin access as owner for clinic settings and invites.",
+    "clinic-staff": "Senior Audiologist / Hearing Instrument Specialist — dashboard, kiosk, consults, and client intake email.",
+    "employee": "Customer service representative (CSR) — OViz internal/support access; not a clinic owner."
   },
   "clinics": [
     {
@@ -35,7 +36,7 @@
           "title": "Senior Audiologist",
           "email": "test.clinic1.staff1@oviz-testing.ca",
           "password": "9aC36hn=8+?&U!Md",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000002-0000-4000-8000-000000000001",
@@ -43,7 +44,7 @@
           "title": "Hearing Instrument Specialist",
           "email": "test.clinic1.staff2@oviz-testing.ca",
           "password": "mD3jsmU&_ksTXvik",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000003-0000-4000-8000-000000000001",
@@ -51,7 +52,7 @@
           "title": "Clinic Manager",
           "email": "test.clinic1.staff3@oviz-testing.ca",
           "password": "!t$p@24mSySaKsqD",
-          "role": "admin"
+          "role": "clinic-admin"
         }
       ]
     },
@@ -82,7 +83,7 @@
           "title": "Senior Audiologist",
           "email": "test.clinic2.staff1@oviz-testing.ca",
           "password": "_G3=qCxPX3S6HwHf",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000002-0000-4000-8000-000000000002",
@@ -90,7 +91,7 @@
           "title": "Hearing Instrument Specialist",
           "email": "test.clinic2.staff2@oviz-testing.ca",
           "password": "FQPHL-7L&h-NeCi6",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000003-0000-4000-8000-000000000002",
@@ -98,7 +99,7 @@
           "title": "Front-Desk Manager",
           "email": "test.clinic2.staff3@oviz-testing.ca",
           "password": "_2JJP@mA#rF6T8Uf",
-          "role": "admin"
+          "role": "clinic-admin"
         }
       ]
     },
@@ -129,7 +130,7 @@
           "title": "Senior Audiologist",
           "email": "test.clinic3.staff1@oviz-testing.ca",
           "password": "m5$!k*uzuMe3&qSr",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000002-0000-4000-8000-000000000003",
@@ -137,7 +138,7 @@
           "title": "Hearing Instrument Specialist",
           "email": "test.clinic3.staff2@oviz-testing.ca",
           "password": "Cg5cD$7*9_s^GugH",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000003-0000-4000-8000-000000000003",
@@ -145,7 +146,7 @@
           "title": "Clinic Manager",
           "email": "test.clinic3.staff3@oviz-testing.ca",
           "password": "nAsJ6-XJ!$=$L9M7",
-          "role": "admin"
+          "role": "clinic-admin"
         }
       ]
     },
@@ -176,7 +177,7 @@
           "title": "Senior Audiologist",
           "email": "test.clinic4.staff1@oviz-testing.ca",
           "password": "WzjBnqi-_Ytu$wX3",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000002-0000-4000-8000-000000000004",
@@ -184,7 +185,7 @@
           "title": "Hearing Instrument Specialist",
           "email": "test.clinic4.staff2@oviz-testing.ca",
           "password": "cYtLmC$2pT*^LjJL",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000003-0000-4000-8000-000000000004",
@@ -192,7 +193,7 @@
           "title": "Clinic Manager",
           "email": "test.clinic4.staff3@oviz-testing.ca",
           "password": "t7zjixD#R5xq$&Ut",
-          "role": "admin"
+          "role": "clinic-admin"
         }
       ]
     },
@@ -223,7 +224,7 @@
           "title": "Senior Audiologist",
           "email": "test.clinic5.staff1@oviz-testing.ca",
           "password": "_PX5m*A_+5fzb=4*",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000002-0000-4000-8000-000000000005",
@@ -231,7 +232,7 @@
           "title": "Hearing Instrument Specialist",
           "email": "test.clinic5.staff2@oviz-testing.ca",
           "password": "2wj^fG*-rhF?9iW+",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000003-0000-4000-8000-000000000005",
@@ -239,7 +240,7 @@
           "title": "Front-Desk Manager",
           "email": "test.clinic5.staff3@oviz-testing.ca",
           "password": "V@ac3LCwDyd_b7RJ",
-          "role": "admin"
+          "role": "clinic-admin"
         }
       ]
     },
@@ -270,7 +271,7 @@
           "title": "Senior Audiologist",
           "email": "test.clinic6.staff1@oviz-testing.ca",
           "password": "Tut3ftUAe^3*pi@-",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000002-0000-4000-8000-000000000006",
@@ -278,7 +279,7 @@
           "title": "Hearing Instrument Specialist",
           "email": "test.clinic6.staff2@oviz-testing.ca",
           "password": "T6GAWgvs?-YdFe?%",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000003-0000-4000-8000-000000000006",
@@ -286,7 +287,7 @@
           "title": "Clinic Manager",
           "email": "test.clinic6.staff3@oviz-testing.ca",
           "password": "$5uka=@8$6^LZMAZ",
-          "role": "admin"
+          "role": "clinic-admin"
         }
       ]
     },
@@ -317,7 +318,7 @@
           "title": "Senior Audiologist",
           "email": "test.clinic7.staff1@oviz-testing.ca",
           "password": "?YRKPDdFQq%gMK6P",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000002-0000-4000-8000-000000000007",
@@ -325,7 +326,7 @@
           "title": "Hearing Instrument Specialist",
           "email": "test.clinic7.staff2@oviz-testing.ca",
           "password": "WfMBtbHM4GU394X^",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000003-0000-4000-8000-000000000007",
@@ -333,7 +334,7 @@
           "title": "Clinic Manager",
           "email": "test.clinic7.staff3@oviz-testing.ca",
           "password": "cm&e4WK#tL%MawvL",
-          "role": "admin"
+          "role": "clinic-admin"
         }
       ]
     },
@@ -364,7 +365,7 @@
           "title": "Senior Audiologist",
           "email": "test.clinic8.staff1@oviz-testing.ca",
           "password": "EMd@=H@siSNBa6ht",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000002-0000-4000-8000-000000000008",
@@ -372,7 +373,7 @@
           "title": "Hearing Instrument Specialist",
           "email": "test.clinic8.staff2@oviz-testing.ca",
           "password": "H=p5gWcnTu6p-Zz2",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000003-0000-4000-8000-000000000008",
@@ -380,7 +381,7 @@
           "title": "Front-Desk Manager",
           "email": "test.clinic8.staff3@oviz-testing.ca",
           "password": "st_*#8sKx*mP8BWM",
-          "role": "admin"
+          "role": "clinic-admin"
         }
       ]
     },
@@ -411,7 +412,7 @@
           "title": "Senior Audiologist",
           "email": "test.clinic9.staff1@oviz-testing.ca",
           "password": "-?9R-8rZLyWFk=Ux",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000002-0000-4000-8000-000000000009",
@@ -419,7 +420,7 @@
           "title": "Hearing Instrument Specialist",
           "email": "test.clinic9.staff2@oviz-testing.ca",
           "password": "z_^KU7pTq&yZ#udW",
-          "role": "staff"
+          "role": "clinic-staff"
         },
         {
           "userId": "50000003-0000-4000-8000-000000000009",
@@ -427,7 +428,7 @@
           "title": "Clinic Manager",
           "email": "test.clinic9.staff3@oviz-testing.ca",
           "password": "k_QhT9t8CihQXtt*",
-          "role": "admin"
+          "role": "clinic-admin"
         }
       ]
     }

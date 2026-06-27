@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { LogoutButton } from "@/components/logout-button";
 import { RisingLine } from "@/components/app/rising-line";
+import { hasClinicAdminAccess } from "@/lib/clinic-roles";
 import { createClient } from "@/lib/supabase/server";
 import {
   ACCOUNT_SUSPENDED_PATH,
@@ -86,9 +87,7 @@ async function NavLinks() {
       .select("role")
       .eq("id", user.id)
       .maybeSingle();
-    isAdminOrOwner = ["owner", "admin"].includes(
-      (profile?.role as string) ?? "",
-    );
+    isAdminOrOwner = hasClinicAdminAccess(profile?.role as string);
   }
 
   const linkClass =

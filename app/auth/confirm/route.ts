@@ -1,3 +1,5 @@
+import { ensureOwnerProfile } from "@/lib/provisioning/ensure-owner-profile";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
@@ -25,6 +27,33 @@ export async function GET(request: NextRequest) {
       token_hash,
     });
     if (!error) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        try {
+          const adminClient = createAdminClient();
+          const fullName =
+            typeof user.user_metadata?.full_name === "string"
+              ? user.user_metadata.full_name
+              : null;
+          const profileResult = await ensureOwnerProfile(
+            adminClient,
+            user.id,
+            fullName,
+          );
+          if (!profileResult.ok) {
+            console.error("auth.confirm ensureOwnerProfile failed", {
+              userId: user.id,
+              error: profileResult.error,
+            });
+          }
+        } catch (profileError) {
+          console.error("auth.confirm profile provisioning error", profileError);
+        }
+      }
+
       // redirect user to the validated relative path (or app root)
       redirect(next);
     } else {

@@ -55,9 +55,9 @@ create table if not exists public.profiles (
   id         uuid primary key references auth.users(id) on delete cascade,
   clinic_id  uuid references public.clinics(id) on delete set null,
   full_name  text,
-  role       text not null default 'clinician'
+  role       text not null default 'employee'
                constraint valid_role
-               check (role in ('owner', 'admin', 'clinician', 'staff')),
+               check (role in ('owner', 'employee', 'clinic-admin', 'clinic-staff')),
   created_at timestamptz not null default now()
 );
 

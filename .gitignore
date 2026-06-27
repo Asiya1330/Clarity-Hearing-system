@@ -34,6 +34,7 @@ yarn-error.log*
 .env*.local
 .env
 .env*.bak
+.env.production
 
 # Local test credential sheets (contain plaintext test passwords — keep .json fixture only)
 /tests/fixtures/mock-tenants.csv

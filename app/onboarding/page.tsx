@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { BackLink } from "@/components/BackLink";
 import { RisingLine } from "@/components/app/rising-line";
@@ -69,6 +69,12 @@ export default function OnboardingPage() {
   const [tier, setTier] = useState<Tier>("starter");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetch("/api/auth/ensure-profile", { method: "POST" }).catch(() => {
+      // Non-blocking: onboarding submit will retry profile linkage.
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

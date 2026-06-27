@@ -51,6 +51,12 @@ export function SignUpForm({
       if (error) throw error;
       // If email confirmation is disabled, Supabase returns a session immediately.
       if (data.session) {
+        const profileRes = await fetch("/api/auth/ensure-profile", {
+          method: "POST",
+        });
+        if (!profileRes.ok) {
+          throw new Error("Account created but profile setup failed. Please try again.");
+        }
         router.push("/onboarding");
       } else {
         router.push("/auth/sign-up-success");

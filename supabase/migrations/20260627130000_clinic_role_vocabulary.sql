@@ -84,3 +84,5 @@ create policy "owner or admin can update clinic profiles"
     )
   )
   with check (clinic_id = (select current_clinic_id()));
+
+  

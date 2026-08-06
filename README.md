@@ -1,122 +1,76 @@
-# OViz by OtoVantage
+# Clarity-Hearing-system
 
-Evidence-informed educational consult aid for hearing care providers. Built with Next.js 15 App Router, Supabase, and Tailwind CSS.
+OViz is a multi-tenant hearing-clinic platform for running structured consults, collecting patient intake responses, and helping clinic teams turn diagnostic inputs into clear, patient-facing outcome conversations.
 
-## Quick start
+## What The System Does
 
-```bash
-cp .env.example .env.local
-# fill in NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, and Sentry vars
-npm install
-npm run dev          # http://localhost:3000
-```
+OViz supports the full clinic workflow around a consult:
 
-## Scripts
+- Clinic users sign in to a tenant-scoped workspace.
+- New clinics are created through onboarding.
+- Each user is linked to a clinic through a profile and role.
+- Staff can start consults in different intake modes:
+  - email intake
+  - kiosk intake
+  - in-clinic guided consult
+- Patient responses are saved to the consult and combined with clinician-entered data.
+- The system generates a structured report and presentation flow for the clinic to review with the patient.
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Next.js dev server |
-| `npm run build` | Production build |
-| `npm run lint` | ESLint on `app components lib tests` |
-| `npm run test` | Vitest unit tests |
-| `npx playwright test` | E2E test suite (requires dev server) |
+## Core Areas
 
-## Environment variables
+### Authentication And Access
 
-Copy `.env.example` to `.env.local` and fill in all values. Never commit `.env.local`.
+OViz uses Supabase Auth for sign-in, sessions, and user identity. Users are connected to clinic workspaces through the `profiles` table, which stores clinic membership and role.
 
-| Variable | Required | Description |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | Supabase anon/publishable key |
-| `SUPABASE_SERVICE_ROLE_KEY` | E2E tests only | Service role key — never expose to browser |
-| `NEXT_PUBLIC_SENTRY_DSN` | Yes | Sentry DSN for client-side error capture |
-| `SENTRY_DSN` | Yes | Sentry DSN for server-side error capture |
-| `SENTRY_ORG` | CI only | Sentry org slug for source-map upload |
-| `SENTRY_PROJECT` | CI only | Sentry project slug |
-| `SENTRY_AUTH_TOKEN` | CI only | Sentry auth token for source-map upload |
-| `E2E_PRO_EMAIL` | E2E tests | Pro-clinic test user email |
-| `E2E_PRO_PASSWORD` | E2E tests | Pro-clinic test user password |
-| `E2E_STARTER_EMAIL` | E2E tests | Starter-clinic test user email |
-| `E2E_STARTER_PASSWORD` | E2E tests | Starter-clinic test user password |
+The application distinguishes between:
 
-## E2E tests
+- clinic members working inside a single clinic workspace
+- clinic-level admins who manage users, locations, and clinic settings
+- a separate OViz Control Room for internal system administration
 
-Tests use Playwright with two browser contexts: a pro-clinic user and a starter-clinic user. `globalSetup` creates isolated Supabase test fixtures; `globalTeardown` removes them.
+### Clinic Management
 
-```bash
-npx playwright test              # run all tests
-npx playwright test --ui         # interactive UI mode
-npx playwright show-report       # view last HTML report
-```
+Each clinic has its own tenant record, subscription state, settings, and locations. Users belong to clinics through `profiles.clinic_id`, and application access is scoped by clinic so one clinic cannot access another clinic's data.
 
-## Security rules
+### Consult Workflow
 
-- `clinic_id` is always derived server-side from `auth.uid()` via `current_clinic_id()` — never trusted from the client.
-- Photos require stored consent and a pro/enterprise subscription plan.
-- Patient photos are stored in private Supabase buckets and served via signed URLs only.
-- `SUPABASE_SERVICE_ROLE_KEY` is only used in `globalSetup`/`globalTeardown` and server-side API routes — never exposed to the browser.
+Consults are the main working unit in the app. A consult can begin from:
 
----
+- an emailed intake link
+- a kiosk session in clinic
+- a fully in-clinic workflow
 
-## MCP Integration
+The consult captures patient responses, clinician inputs, status, and generated outputs, all tied back to the clinic.
 
-OViz uses five MCP (Model Context Protocol) servers with Claude Code to enable AI-assisted development. All servers are connected via OAuth or personal access tokens stored in `.mcp.json` (gitignored). Never commit `.mcp.json`.
+### Reporting And Presentation
 
-Copy `.mcp.example.json` to `.mcp.json` and replace placeholder values.
+OViz is designed to support educational, evidence-informed patient conversations. It helps clinicians translate hearing-related inputs into a structured report and a patient-friendly review experience.
 
-### Configured servers
+### Internal Control Room
 
-#### 1. Playwright — browser automation
+The OViz Control Room is a separate internal administrative surface for system-level operations. It is not the same as clinic admin. It exists for platform oversight across tenants, including clinic visibility, support workflows, and operational controls.
 
-- **Transport:** stdio (`npx @playwright/mcp@latest`)
-- **Allowed:** run E2E tests, inspect test output, take screenshots of local app
-- **Not allowed:** modify test fixtures, delete test users
-- **Add:** `claude mcp add playwright -- npx -y @playwright/mcp@latest`
-- **Verify:** Ask Claude: *"Run the auth test and show me the result."*
+## System Architecture
 
-#### 2. Supabase — database and schema inspection
+OViz is a single Next.js application backed by Supabase.
 
-- **Transport:** HTTP (`https://mcp.supabase.com/mcp`)
-- **Allowed:** read schema (`information_schema`), inspect RLS policies, run read-only SQL, list migrations
-- **Not allowed:** drop tables, modify production data, bypass RLS, access other Supabase orgs
-- **Add:** `claude mcp add --transport http supabase https://mcp.supabase.com/mcp`
-- **Verify:** Ask Claude: *"List all tables in the public schema."*
+- **Frontend:** Next.js App Router and React
+- **Backend:** Next.js server routes and server components
+- **Database/Auth:** Supabase
+- **Styling/UI:** Tailwind CSS and component-based UI primitives
 
-#### 3. GitHub — issue and PR management
+At a high level:
 
-- **Transport:** HTTP (`https://api.githubcopilot.com/mcp/`)
-- **Allowed:** read issues and PRs, create draft PRs, comment on issues
-- **Not allowed:** force-push, merge without review, delete branches, access unrelated repos
-- **Add:** `claude mcp add --transport http github https://api.githubcopilot.com/mcp/`
-- **Verify:** Ask Claude: *"List open issues in this repository."*
+1. Supabase Auth identifies the user.
+2. The user's profile links them to a clinic and role.
+3. App routes and APIs load or mutate clinic-scoped data.
+4. Consult, intake, reporting, and admin flows operate inside that tenant boundary.
 
-#### 4. Sentry — error monitoring
+## Intended Users
 
-- **Transport:** HTTP (`https://mcp.sentry.dev/mcp`)
-- **Allowed:** read error events, list issues, view stack traces
-- **Not allowed:** delete events, modify alert rules, access other Sentry orgs
-- **PHI note:** Sentry is configured with `beforeSend` PHI filtering (`lib/sentry/phi-filter.ts`). Never log patient data.
-- **Add:** `claude mcp add --transport http sentry https://mcp.sentry.dev/mcp`
-- **Verify:** Ask Claude: *"Show me the most recent Sentry issues for this project."*
+OViz is built for:
 
-#### 5. Vercel — deployment inspection
-
-- **Transport:** HTTP (`https://mcp.vercel.com`)
-- **Allowed:** list deployments, read build logs, inspect runtime logs, check deployment status
-- **Not allowed:** promote deployments, change env vars in production, delete projects
-- **Add:** `claude mcp add --transport http vercel https://mcp.vercel.com`
-- **Verify:** Ask Claude: *"Show me the last 5 deployments for this project."*
-
-### MCP safety rules
-
-1. No MCP server credentials are stored in project files. `.mcp.json` is gitignored.
-2. Supabase MCP may only read schema and run read-only queries. All write operations go through the application's API routes with RLS.
-3. Vercel MCP may not change environment variables or promote to production without explicit human approval.
-4. GitHub MCP may not merge PRs or push to protected branches without explicit human approval.
-5. Sentry MCP must not surface raw request bodies, storage URLs, or fields matching `patient*`, `photo*`, `consent*`.
-6. Playwright MCP runs only against `http://localhost:3000` (dev server). It must not target staging or production URLs.
-
-### Verification checklist
-
-See `docs/mcp-verification-checklist.md` for the full pass/fail audit procedure.
+- hearing clinics
+- clinic owners and clinic admins
+- clinic staff running consults and intake flows
+- internal OViz operators using the Control Room

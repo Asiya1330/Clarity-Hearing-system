@@ -46,7 +46,7 @@ export default function IntakePage({ params, searchParams }: PageProps) {
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-2 px-6 py-5">
           <Image
             src="/brand/oviz-by-otovantage-logo.png"
-            alt="OViz by OtoVantage"
+            alt="Clarity-Hearing-system"
             width={954}
             height={340}
             priority

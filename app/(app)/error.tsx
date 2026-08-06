@@ -24,7 +24,7 @@ export default function AppError({ error, reset }: Props) {
           Something went wrong
         </h1>
         <p className="mb-6 text-lg leading-relaxed text-brand-muted">
-          OViz hit an unexpected error on this page. Try again. If it keeps
+          Clarity-Hearing-system hit an unexpected error on this page. Try again. If it keeps
           happening, contact your clinic administrator.
         </p>
 

@@ -8,7 +8,7 @@ import { AudiogramTool } from "@/components/tools/audiogram-conversation/audiogr
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Audiogram → Conversation · OViz",
+  title: "Audiogram → Conversation · Clarity-Hearing-system",
   description:
     "An interactive demonstration that turns an audiogram into the plain-language story of a patient's hearing.",
 };

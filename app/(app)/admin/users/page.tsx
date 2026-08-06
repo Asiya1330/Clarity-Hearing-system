@@ -233,7 +233,7 @@ async function AdminUsersBody({ searchParams }: PageProps) {
       <PageHeader
         eyebrow="Admin"
         title="Users"
-        subtitle="Manage who has access to OViz for this clinic."
+        subtitle="Manage who has access to Clarity-Hearing-system for this clinic."
       />
 
       {(saved ?? invited) && (

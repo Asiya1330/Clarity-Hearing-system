@@ -11,9 +11,9 @@ const defaultUrl = process.env.NEXT_PUBLIC_SITE_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "OViz by OtoVantage",
+  title: "Clarity-Hearing-system",
   description:
-    "OViz by OtoVantage — an evidence-informed educational consult aid for hearing care providers.",
+    "Clarity-Hearing-system — an evidence-informed educational consult aid for hearing care providers.",
 };
 
 const inter = Inter({

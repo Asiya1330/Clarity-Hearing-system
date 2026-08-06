@@ -81,7 +81,7 @@ export function ControlRoomMfa({
       }
       const { data: enrolled, error: enrollError } = await supabase.auth.mfa.enroll({
         factorType: "totp",
-        friendlyName: "OViz Owner Console",
+        friendlyName: "Clarity-Hearing-system Control Room",
       });
       if (enrollError || !enrolled) {
         setMode("error");

@@ -53,7 +53,7 @@ export function LoginForm({
         <CardHeader>
           <CardTitle>Sign in</CardTitle>
           <CardDescription>
-            Enter your email to access OViz by OtoVantage.
+            Enter your email to access Clarity-Hearing-system.
           </CardDescription>
         </CardHeader>
         <CardContent>

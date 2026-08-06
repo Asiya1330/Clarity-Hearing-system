@@ -21,14 +21,14 @@ export default function AdminLayout({
             <div className="flex items-center gap-3">
               <Image
                 src="/brand/oviz-by-otovantage-logo.png"
-                alt="OViz by OtoVantage"
+                alt="Clarity-Hearing-system"
                 width={120}
                 height={32}
                 className="h-8 w-auto object-contain"
                 priority
               />
               <span className="font-heading text-lg font-semibold text-brand-white">
-                OViz Admin
+                Clarity-Hearing-system Admin
               </span>
             </div>
             <nav className="flex flex-wrap gap-1">
@@ -47,7 +47,7 @@ export default function AdminLayout({
             href="/dashboard"
             className="inline-flex h-10 items-center rounded-lg px-3 text-base text-brand-white/70 transition-colors hover:bg-brand-white/10 hover:text-brand-white"
           >
-            ← Back to OViz
+            ← Back to Clarity-Hearing-system
           </Link>
         </div>
         <RisingLine className="h-[3px] w-full opacity-60" stroke="#67C7C7" />

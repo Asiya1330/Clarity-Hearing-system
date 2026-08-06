@@ -246,7 +246,7 @@ function buildEmailHtml(clinicName: string, url: string): string {
             </p>
           </td></tr>
           <tr><td style="padding:18px 36px;border-top:1px solid #E1E8EA;">
-            <p style="margin:0;font-size:12px;color:#708090;">Sent by ${escapeHtml(clinicName)} using OViz by OtoVantage.</p>
+            <p style="margin:0;font-size:12px;color:#708090;">Sent by ${escapeHtml(clinicName)} using Clarity-Hearing-system.</p>
           </td></tr>
         </table>
       </td></tr>

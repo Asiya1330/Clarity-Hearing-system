@@ -9,7 +9,7 @@ import { RisingLine } from "@/components/app/rising-line";
  * match the authenticated app instead of the legacy starter look.
  */
 export function AuthShell({
-  eyebrow = "OViz by OtoVantage",
+  eyebrow = "Clarity-Hearing-system",
   showBackLink = true,
   children,
 }: {
@@ -32,7 +32,7 @@ export function AuthShell({
           <div className="mb-8 flex flex-col items-center text-center">
             <Image
               src="/brand/oviz-by-otovantage-logo.png"
-              alt="OViz by OtoVantage"
+              alt="Clarity-Hearing-system"
               width={954}
               height={340}
               priority

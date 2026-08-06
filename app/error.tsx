@@ -23,7 +23,7 @@ export default function RootError({ error, reset }: Props) {
       <div className="max-w-md text-center">
         <div className="mb-3 flex items-center justify-center gap-3">
           <span className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-teal-700">
-            OViz by OtoVantage
+            Clarity-Hearing-system
           </span>
           <RisingLine className="h-3 w-16 opacity-70" />
         </div>
@@ -31,7 +31,7 @@ export default function RootError({ error, reset }: Props) {
           Something went wrong
         </h1>
         <p className="mb-6 text-lg leading-relaxed text-brand-muted">
-          OViz couldn&apos;t complete this request. Reload the page to try
+          Clarity-Hearing-system couldn&apos;t complete this request. Reload the page to try
           again. If it keeps happening, contact your clinic administrator.
         </p>
 

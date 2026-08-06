@@ -9,7 +9,7 @@ import {
 } from "@/lib/owner-console/constants";
 
 export const metadata: Metadata = {
-  title: "OViz Control Room",
+  title: "Clarity-Hearing-system Control Room",
   robots: { index: false, follow: false, nocache: true },
 };
 
@@ -41,7 +41,7 @@ export default function OwnerConsoleLayout({
         <aside className="flex shrink-0 flex-col gap-6 bg-brand-navy px-4 py-6 md:w-64">
           <div className="px-2">
             <p className="font-heading text-lg font-semibold text-brand-white">
-              OViz Control Room
+              Clarity-Hearing-system Control Room
             </p>
             <p className="mt-0.5 text-xs uppercase tracking-[0.16em] text-brand-white/50">
               Restricted operations

@@ -29,7 +29,7 @@ export default function AdminPage() {
     <div className="flex flex-col gap-8">
       <BackLink href="/dashboard" />
       <PageHeader
-        title="OViz Admin"
+        title="Clarity-Hearing-system Admin"
         subtitle="Manage clinic settings, locations, and users."
       />
       <div className="grid gap-5 sm:grid-cols-3">

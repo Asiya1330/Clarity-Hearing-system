@@ -118,7 +118,7 @@ async function DashboardBody() {
             data-testid="start-consult-button"
           >
             <Link href="/consults/start">
-              Start OViz Consult
+              Start Clarity-Hearing-system Consult
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
@@ -227,7 +227,7 @@ async function DashboardBody() {
                             >
                               <Link href={`/consults/${consult.id}/report`}>
                                 <FileText className="h-4 w-4" />
-                                Open OViz Report
+                                Open Clarity-Hearing-system Report
                               </Link>
                             </Button>
                           )}

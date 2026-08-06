@@ -112,7 +112,7 @@ export default function OnboardingPage() {
         <div className="mb-8 flex flex-col items-center gap-4">
           <Image
             src="/brand/oviz-by-otovantage-logo.png"
-            alt="OViz by OtoVantage"
+            alt="Clarity-Hearing-system"
             width={954}
             height={340}
             priority

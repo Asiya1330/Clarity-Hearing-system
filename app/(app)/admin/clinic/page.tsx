@@ -130,7 +130,7 @@ async function AdminClinicBody({ searchParams }: PageProps) {
       <PageHeader
         eyebrow="Admin"
         title="Clinic settings"
-        subtitle="Update clinic name and report footer. Both appear on all OViz reports."
+        subtitle="Update clinic name and report footer. Both appear on all Clarity-Hearing-system reports."
       />
 
       {saved && (
@@ -182,7 +182,7 @@ async function AdminClinicBody({ searchParams }: PageProps) {
             Report footer
           </label>
           <p className="text-base text-brand-muted">
-            Appears at the bottom of every OViz report — clinic address, phone,
+            Appears at the bottom of every Clarity-Hearing-system report — clinic address, phone,
             or custom text. Max 500 characters.
           </p>
           <textarea

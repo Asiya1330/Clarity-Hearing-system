@@ -48,7 +48,7 @@ function ReportSkeleton() {
     <main className="min-h-screen bg-brand-white text-brand-navy">
       <div className="mx-auto max-w-xl px-8 py-20">
         <h1 className="mb-3 font-heading text-2xl font-bold text-brand-navy">
-          OViz Hearing Impact Summary
+          Clarity-Hearing-system Hearing Impact Summary
         </h1>
         <p className="text-brand-muted">Preparing report…</p>
       </div>
@@ -173,10 +173,10 @@ async function ReportBody({ params }: PageProps) {
                 className="font-heading text-3xl font-bold text-brand-navy"
                 data-testid="report-title"
               >
-                OViz Hearing Impact Summary
+                Clarity-Hearing-system Hearing Impact Summary
               </h1>
               <p className="text-base text-brand-muted">
-                Prepared by {clinicName} using OViz by OtoVantage.
+                Prepared by {clinicName} using Clarity-Hearing-system.
               </p>
               <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-base text-brand-muted">
                 {displayName && (
@@ -203,7 +203,7 @@ async function ReportBody({ params }: PageProps) {
             </div>
             <Image
               src="/brand/oviz-by-otovantage-logo.png"
-              alt="OViz by OtoVantage"
+              alt="Clarity-Hearing-system"
               width={954}
               height={340}
               priority
@@ -366,7 +366,7 @@ async function ReportBody({ params }: PageProps) {
           {reportFooter ? (
             <p className="mb-1 whitespace-pre-line">{reportFooter}</p>
           ) : null}
-          <p>Generated with OViz by OtoVantage.</p>
+          <p>Generated with Clarity-Hearing-system.</p>
         </footer>
       </div>
     </main>
@@ -461,7 +461,7 @@ function Blocked() {
     <main className="min-h-screen bg-brand-white text-brand-navy">
       <div className="mx-auto max-w-xl px-8 py-20">
         <h1 className="mb-3 font-heading text-2xl font-bold text-brand-navy">
-          OViz Hearing Impact Summary
+          Clarity-Hearing-system Hearing Impact Summary
         </h1>
         <p className="text-brand-muted">Report cannot be generated yet.</p>
         <p className="mt-2 text-base text-brand-muted">

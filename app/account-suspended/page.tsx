@@ -26,8 +26,8 @@ export default function AccountSuspendedPage() {
         <CardHeader>
           <CardTitle>Your clinic account is paused</CardTitle>
           <CardDescription>
-            Access to OViz is temporarily paused for your clinic. Please contact
-            OViz support to restore access.
+            Access to Clarity-Hearing-system is temporarily paused for your clinic. Please contact
+            Clarity-Hearing-system support to restore access.
           </CardDescription>
         </CardHeader>
         <CardContent>

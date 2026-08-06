@@ -418,7 +418,7 @@ export function PresentationMode({
               {/* Top bar: clinic · step counter · exit */}
               <div className="flex items-center justify-between gap-4 border-b border-brand-line px-6 py-2 sm:px-8">
                 <span className="min-w-0 truncate text-sm font-semibold uppercase tracking-[0.14em] text-brand-teal-700">
-                  {clinicName ?? "OViz by OtoVantage"}
+                  {clinicName ?? "Clarity-Hearing-system"}
                 </span>
                 <p
                   data-testid="presentation-step-counter"

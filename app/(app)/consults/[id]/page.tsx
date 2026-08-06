@@ -145,7 +145,7 @@ async function ConsultBody({ params }: PageProps) {
           >
             <Link href={`/consults/${id}/report`}>
               <Printer className="h-5 w-5" />
-              Open OViz Report
+              Open Clarity-Hearing-system Report
             </Link>
           </Button>
         </div>

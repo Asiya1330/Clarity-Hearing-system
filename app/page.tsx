@@ -108,7 +108,7 @@ function Landing() {
       step: "02",
       title: "Project",
       blurb:
-        "OViz turns them into clear, evidence-informed projections in one clinician-led consult.",
+        "Clarity-Hearing-system turns them into clear, evidence-informed projections in one clinician-led consult.",
     },
     {
       step: "03",
@@ -125,7 +125,7 @@ function Landing() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Image
             src="/brand/oviz-by-otovantage-logo.png"
-            alt="OViz by OtoVantage"
+            alt="Clarity-Hearing-system"
             width={954}
             height={340}
             priority
@@ -144,13 +144,13 @@ function Landing() {
 
       {/* Hero */}
       <section className="mx-auto max-w-5xl px-6 pb-8 pt-20 text-center">
-        <p className="oviz-eyebrow">OViz by OtoVantage</p>
+        <p className="oviz-eyebrow">Clarity-Hearing-system</p>
         <h1 className="mx-auto mt-4 max-w-3xl font-heading text-4xl font-semibold leading-[1.1] tracking-tight text-brand-navy sm:text-6xl">
           Make today&apos;s hearing results
           <br className="hidden sm:block" /> impossible to ignore.
         </h1>
         <p className="mx-auto mt-6 max-w-prose text-xl leading-relaxed text-brand-muted">
-          OViz turns a clinic&apos;s hearing measurements into clear, evidence-
+          Clarity-Hearing-system turns a clinic&apos;s hearing measurements into clear, evidence-
           informed projections you can talk through with a patient — Brain
           Battery, Word Understanding, Social Radius, and Partner Impact — in
           one clinician-led consult.
@@ -349,7 +349,7 @@ function Landing() {
       <footer className="border-t border-brand-line bg-brand-white">
         <div className="mx-auto max-w-prose px-6 py-10 text-center text-base text-brand-muted">
           <p className="font-medium text-brand-navy">
-            OViz by OtoVantage — the strategic high ground for hearing
+            Clarity-Hearing-system — the strategic high ground for hearing
             healthcare operations.
           </p>
           <p className="mt-3">

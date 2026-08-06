@@ -74,7 +74,7 @@ export function SignUpForm({
         <CardHeader>
           <CardTitle>Create account</CardTitle>
           <CardDescription>
-            Set up your clinic&apos;s OViz account.
+            Set up your clinic&apos;s Clarity-Hearing-system account.
           </CardDescription>
         </CardHeader>
         <CardContent>

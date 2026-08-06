@@ -23,12 +23,12 @@ export default function AppLayout({
           <div className="flex items-center gap-8">
             <Link
               href="/dashboard"
-              aria-label="OViz home"
+              aria-label="Clarity-Hearing-system home"
               className="flex items-center rounded-lg"
             >
               <Image
                 src="/brand/oviz-by-otovantage-logo.png"
-                alt="OViz"
+                alt="Clarity-Hearing-system"
                 width={954}
                 height={340}
                 priority

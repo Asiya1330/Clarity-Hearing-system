@@ -45,7 +45,7 @@ export default function GlobalError({ error, reset }: Props) {
               color: "#44525E",
             }}
           >
-            OViz by OtoVantage
+            Clarity-Hearing-system
           </p>
           <h1
             style={{
@@ -66,7 +66,7 @@ export default function GlobalError({ error, reset }: Props) {
               lineHeight: 1.6,
             }}
           >
-            OViz could not load this page. Reload to try again. If the problem
+            Clarity-Hearing-system could not load this page. Reload to try again. If the problem
             continues, contact your clinic administrator.
           </p>
 

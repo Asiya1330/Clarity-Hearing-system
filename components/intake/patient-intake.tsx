@@ -281,7 +281,7 @@ export function PatientIntake({
       </div>
 
       <p className="text-center text-base text-brand-muted">
-        Powered by OViz by OtoVantage · Your answers are stored privately for
+        Powered by Clarity-Hearing-system · Your answers are stored privately for
         your clinic.
       </p>
     </div>

@@ -46,6 +46,7 @@ export function ControlRoomLogin({ mfaPath }: { mfaPath: string }) {
         setIsLoading(false);
         return;
       }
+      console.log("signInError", mfaPath);
       // Server decides eligibility + MFA from here.
       router.replace(mfaPath);
     } catch {

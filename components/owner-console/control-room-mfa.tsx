@@ -39,12 +39,21 @@ export function ControlRoomMfa({
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  console.log("consolePath", consolePath);
 
   const init = useCallback(async () => {
     setError(null);
     const supabase = createClient();
     try {
-      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      const { data: aal, error: aalError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+      console.log("aal", aal);
+      if (aalError) {
+        setMode("error");
+        console.log("aalError", aalError);
+        setError("Could not start verification. Try again.");
+        return;
+      }
       if (aal?.currentLevel === "aal2") {
         router.replace(consolePath);
         return;

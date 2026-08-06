@@ -16,7 +16,7 @@
  *  IMPORTANT: this value lives ONLY in this module (server/edge usage). Client
  *  components must import route constants from ./paths.ts instead, so the owner
  *  email is never bundled into client JS. */
-export const OVIZ_OWNER_EMAIL = "sl@evear.ca";
+export const OVIZ_OWNER_EMAIL = ["sl@evear.ca", "asiya+32102@evear.ca"];
 
 // Route constants are defined in the client-safe ./paths module and re-exported
 // here for server/edge convenience.

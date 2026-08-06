@@ -117,6 +117,7 @@ export async function resolveOwnerConsoleAccess(
   options?: ResolveOptions,
 ): Promise<AccessResult> {
   const requireMfa = options?.requireMfa ?? true;
+  console.log("resolveOwnerConsoleAccess", requireMfa);
 
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
@@ -126,18 +127,24 @@ export async function resolveOwnerConsoleAccess(
     return { ok: false, reason: "unauthenticated" };
   }
   const userId = claims["sub"] as string;
+  console.log("userId", userId);
   const identity = claimsToIdentity(claims);
+  console.log("identity", identity);
   const ownerEmail = isHardcodedOwner(identity);
+  console.log("ownerEmail", ownerEmail);
 
   if (ownerEmail) {
     // Non-blocking; keeps stored metadata coherent for future sessions.
     await tryRepairOwnerMetadata(userId, identity);
   }
 
+  console.log("isConsoleEnabled", isConsoleEnabled(identity));
   if (!isConsoleEnabled(identity)) {
     return { ok: false, reason: "forbidden" };
   }
+  console.log("isAal2", isAal2(claims));
   const role = getConsoleRoleFromUser(identity);
+  console.log("role", role);
   if (!role) {
     return { ok: false, reason: "forbidden" };
   }
@@ -175,6 +182,7 @@ function redirectForFailure(reason: AccessFailureReason): never {
 export async function requireOwnerConsoleUser(
   options?: ResolveOptions,
 ): Promise<OwnerConsoleUserContext> {
+  console.log("requireOwnerConsoleUser", options);
   const res = await resolveOwnerConsoleAccess({ requireMfa: false, ...options });
   if (!res.ok) redirectForFailure(res.reason);
   return res.ctx;

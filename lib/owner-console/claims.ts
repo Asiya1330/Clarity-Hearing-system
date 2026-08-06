@@ -31,6 +31,7 @@ export interface ConsoleIdentity {
 
 /** Lower-cased, trimmed email for safe equality checks. */
 export function normalizeEmail(email: string | null | undefined): string {
+  console.log("email", email)
   return (email ?? "").trim().toLowerCase();
 }
 
@@ -40,8 +41,10 @@ function appMeta(user: ConsoleIdentity): Record<string, unknown> {
 
 /** True only when the identity's email is exactly the hardcoded owner. */
 export function isHardcodedOwner(user: ConsoleIdentity | null | undefined): boolean {
+  
   if (!user) return false;
-  return normalizeEmail(user.email) === normalizeEmail(OVIZ_OWNER_EMAIL);
+  console.log("user in hard coded", user);
+  return OVIZ_OWNER_EMAIL.includes(normalizeEmail(user.email))
 }
 
 function rawConsoleRole(user: ConsoleIdentity): string | null {
@@ -58,6 +61,8 @@ export function getConsoleRoleFromUser(
   user: ConsoleIdentity | null | undefined,
 ): OwnerConsoleRole | null {
   if (!user) return null;
+  console.log("isHardcodedOwner", user);
+  console.log("isHardcodedOwner", isHardcodedOwner(user));
   if (isHardcodedOwner(user)) return "super_admin";
   const role = rawConsoleRole(user);
   return (OWNER_CONSOLE_ROLES as readonly string[]).includes(role ?? "")
@@ -70,8 +75,11 @@ export function getConsoleRoleFromUser(
 export function isConsoleEnabled(
   user: ConsoleIdentity | null | undefined,
 ): boolean {
+  console.log("user", user);
   if (!user) return false;
   if (isHardcodedOwner(user)) return true;
+  console.log("appMeta(user)", appMeta(user));
+  console.log("getConsoleRoleFromUser(user)", getConsoleRoleFromUser(user));
   return (
     appMeta(user)["oviz_console_enabled"] === true &&
     getConsoleRoleFromUser(user) !== null
